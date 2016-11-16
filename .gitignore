@@ -1,0 +1,9 @@
+# Compiled python modules
+*.pyc
+
+# Seuptools distribution folder
+/dist/
+
+# Python egg metadata, regenerated from source files by seuptools
+/*.egg-info
+/*.egg
