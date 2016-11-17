@@ -161,4 +161,4 @@ class dA(object):
             (param, param - learning_rate * gparam)
             for param, gparam in zip(self.params, gparams)
         ]
-        return (cost, updates)
+        return cost, updates
