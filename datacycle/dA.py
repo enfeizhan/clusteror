@@ -12,29 +12,27 @@ class dA(object):
 
     def __init__(
         self,
-        np_rng,
-        theano_rng=None,
+        np_rds,
+        n_visible,
+        n_hidden,
+        theano_rds=None,
         input_dat=None,
-        n_visible=None,
-        n_hidden=None,
         field_weights=None,
         W=None,
         bhid=None,
         bvis=None
     ):
         '''
-        theano_rng:  Theano random generator that gives symbolic random values
+        theano_rds:  Theano random generator that gives symbolic random values
         field_weights:  put on each field when calculating the cost
                         if not given, all fields given equal weight ones
         '''
-        self.n_visible = n_visible
-        self.n_hidden = n_hidden
-        if not theano_rng:
-            theano_rng = RandomStreams(np_rng.randint(2 ** 30))
-        self.theano_rng = theano_rng
+        if not theano_rds:
+            theano_rds = RandomStreams(np_rds.randint(2 ** 30))
+        self.theano_rds = theano_rds
         if not field_weights:
             field_weights = np.ones(
-                self.n_visible,
+                n_visible,
                 dtype=theano.config.floatX
             )
         else:
@@ -55,10 +53,10 @@ class dA(object):
             # converted using asarray to dtype
             # theano.config.floatX so that the code is runable on GPU
             initial_W = np.asarray(
-                np_rng.uniform(
+                np_rds.uniform(
                     low=-4 * np.sqrt(6. / (n_hidden + n_visible)),
                     high=4 * np.sqrt(6. / (n_hidden + n_visible)),
-                    size=(self.n_visible, self.n_hidden)
+                    size=(n_visible, n_hidden)
                 ),
                 dtype=theano.config.floatX
             )
@@ -83,34 +81,11 @@ class dA(object):
             self.x = T.dmatrix(name='input_dat')
         else:
             self.x = input_dat
-
         self.params = [self.W, self.bhid, self.bhid_prime]
 
     def get_corrupted_input(self, input_dat, corruption_level):
-        """
-        This function keeps ``1-corruption_level`` entries of the inputs the
-        same and zero-out randomly selected subset of size ``coruption_level``
-        Note : first argument of theano.rng.binomial is the shape(size) of
-               random numbers that it should produce
-               second argument is the number of trials
-               third argument is the probability of success of any trial
-
-                this will produce an array of 0s and 1s where 1 has a
-                probability of 1 - ``corruption_level`` and 0 with
-                ``corruption_level``
-
-                The binomial function return int64 data type by
-                default.  int64 multiplicated by the input
-                type(floatX) always return float64.  To keep all data
-                in floatX when floatX is float32, we set the dtype of
-                the binomial to floatX. As in our case the value of
-                the binomial is always 0 or 1, this don't change the
-                result. This is needed to allow the gpu to work
-                correctly as it only support float32 for now.
-
-        """
         assert corruption_level >= 0 and corruption_level < 1
-        return self.theano_rng.binomial(
+        return self.theano_rds.binomial(
             size=input_dat.shape,
             n=1,
             p=1 - corruption_level,
