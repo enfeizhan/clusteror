@@ -1,0 +1,3 @@
+2016-11-21: manually upgraded cuDNN to 5.1 for Cuda 7.5
+            don't understand why there are two installation on MAC OS. One in
+            /usr/local/cuda, the other in /Developer/NVIDIA/CUDA-7.5
