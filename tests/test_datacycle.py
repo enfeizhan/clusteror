@@ -1,97 +1,78 @@
-import os
+# import ipdb
+# import os
 import sys
 sys.path.append('..')
-import timeit
-from unittest import TestCase
+# import timeit
+import unittest
 import numpy as np
+import pandas as pd
 import theano
 import theano.tensor as T
 from theano import shared
 from theano import function
-from theano.tensor.shared_randomstreams import RandomStreams
 from datacycle.dA import dA
 
 
-class TestDatacycle(TestCase):
-    pass
-
-
 def test_dA(dat, learning_rate=0.1, training_epochs=15,
-            batch_size=200):
-    rds = np.random.RandomState(123)
-    dat = np.asarray(dat, dtype=theano.config.floatX)
-    train_set_x = shared(value=dat, borrow=True)
-
-    # compute number of minibatches for training, validation and testing
-    n_train_batches = dat.shape[0] // batch_size
-
-    # start-snippet-2
-    # allocate symbolic variables for the data
-    index = T.lscalar()    # index to a [mini]batch
+            corruption_level=0.3, batch_size=200, initial_W=None,
+            initial_bvis=None, initial_bhid=None):
     x = T.matrix('x')  # the data is presented as rasterized images
-    # end-snippet-2
-
-    # ###################################
-    # BUILDING THE MODEL CORRUPTION 30% #
-    #####################################
-    theano_rds = RandomStreams(rds.randint(2 ** 30))
     da = dA(
-        np_rds=rds,
-        theano_rds=theano_rds,
-        input_dat=x,
         n_visible=dat.shape[1],
-        n_hidden=1
+        n_hidden=1,
+        initial_W=initial_W,
+        initial_bvis=initial_bvis,
+        initial_bhid=initial_bhid,
+        input_dat=x,
     )
     cost, updates = da.get_cost_updates(
-        corruption_level=0.3,
+        corruption_level=corruption_level,
         learning_rate=learning_rate
     )
     train_da = function(
-        [index],
+        [x],
         cost,
         updates=updates,
-        givens={
-            x: train_set_x[index * batch_size: (index + 1) * batch_size]
-        }
     )
-    start_time = timeit.default_timer()
-    # ###########
-    # TRAINING #
-    # ###########
-    # go through training epochs
-    for epoch in range(training_epochs):
-        # go through trainng set
-        c = []
-        for batch_index in range(n_train_batches):
-            c.append(train_da(batch_index))
-        print('Training epoch {}, cost '.format(epoch) +
-              '{cost}.'.format(cost=np.mean(c)))
-    end_time = timeit.default_timer()
-    training_time = (end_time - start_time)
-    sys.stderr.write(
-        'The 30% corruption code for file ' +
-        os.path.split(__file__)[1] +
-        ' ran for {time:.2f}m'.format(time=training_time / 60.)
-    )
-    return da
+    return np.mean(train_da(dat))
+
+
+class TestDatacycle(unittest.TestCase):
+    def test_dA_cost(self):
+        dat = pd.read_csv('makeup_test_data.csv')
+        dat = np.asarray(dat, dtype=theano.config.floatX)
+        initial_W = np.asarray([[1], [2], [3]], dtype=theano.config.floatX)
+        initial_bvis = np.asarray([0, 0, 0], dtype=theano.config.floatX)
+        initial_bhid = np.asarray([0], dtype=theano.config.floatX)
+        da_cost = test_dA(
+            dat,
+            learning_rate=0.02,
+            corruption_level=0,
+            training_epochs=1,
+            batch_size=4,
+            initial_W=initial_W,
+            initial_bvis=initial_bvis,
+            initial_bhid=initial_bhid
+        )
+        y = np.tanh(np.dot(dat, initial_W) + initial_bhid)
+        z = np.tanh(np.dot(y, initial_W.T) + initial_bvis)
+        cost = - np.sum(
+            0.5 * (1 + dat) * np.log(0.5 * (1 + z)) +
+            0.5 * (1 - dat) * np.log(0.5 * (1 - z)),
+            axis=1
+        )
+        cost = np.mean(cost)
+        self.assertAlmostEqual(da_cost, cost)
+
 
 if __name__ == '__main__':
-    import pandas as pd
-    dat = pd.read_csv('train.csv', nrows=10000)
-    print('Complete reading data.')
-    dat.iloc[:, 1:] = (dat.iloc[:, 1:] - 127) / 255
-    print('Complete transform data.')
-    da = test_dA(
-        dat.iloc[:, 1:],
-        learning_rate=0.02,
-        training_epochs=1000,
-        batch_size=10
-    )
-    x = T.dmatrix('x')
-    output = da.get_hidden_values(x)
-    fewd = function([x], output)
-    recon = da.get_reconstructed_input(x)
-    multid = function([x], recon)
+    unittest.main()
+
+    # x = T.dmatrix('x')
+    # output = da.get_hidden_values(x)
+    # fewd = function([x], output)
+    # recon = da.get_reconstructed_input(x)
+    # multid = function([x], recon)
 
 # def test_SdA_without_finetune(
 #         dat,
@@ -133,11 +114,11 @@ if __name__ == '__main__':
 # 
 #     # numpy random generator
 #     # start-snippet-3
-#     numpy_rds = numpy.random.RandomState(89677)
+#     numpy_rs = numpy.random.RandomState(89677)
 #     print('... building the model')
 #     # construct the stacked denoising autoencoder class
 #     sda = SdA(
-#         numpy_rds=numpy_rds,
+#         numpy_rs=numpy_rs,
 #         n_ins=dat.shape[1],
 #         hidden_layers_sizes=hidden_layers_sizes,
 #     )
@@ -225,11 +206,11 @@ if __name__ == '__main__':
 # 
 #     # numpy random generator
 #     # start-snippet-3
-#     numpy_rds = numpy.random.RandomState(89677)
+#     numpy_rs = numpy.random.RandomState(89677)
 #     print('... building the model')
 #     # construct the stacked denoising autoencoder class
 #     sda = SdA(
-#         numpy_rds=numpy_rds,
+#         numpy_rs=numpy_rs,
 #         n_ins=train_set_x.get_value(borrow=True).shape[1],
 #         hidden_layers_sizes=hidden_layers_sizes,
 #         n_outs=train_set_y.get_value(borrow=True).shape[1],
@@ -450,11 +431,11 @@ if __name__ == '__main__':
 #     # the labels are presented as 1D vector of [int] labels
 #     y = T.ivector('y')
 # 
-#     rds = np.random.RandomState(1234)
+#     rs = np.random.RandomState(1234)
 # 
 #     # construct the MLP class
 #     classifier = MLP(
-#         rds=rds,
+#         rs=rs,
 #         input_dat=x,
 #         n_in=28 * 28,
 #         n_hidden=n_hidden,

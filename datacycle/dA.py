@@ -12,34 +12,35 @@ class dA(object):
     Denoising Auto-Encoder class (dA).
     """
     def __init__(self, n_visible, n_hidden,
-                 theano_rs=None, input_dat=None, field_weights=None,
-                 W=None, bhid=None, bvis=None):
+                 theano_rs=None, field_weights=None,
+                 initial_W=None, initial_bvis=None,
+                 initial_bhid=None, input_dat=None):
         '''
         theano_rs:  Theano random generator that gives symbolic random values
         field_weights:  put on each field when calculating the cost
                         if not given, all fields given equal weight ones
         '''
+        # set theano random state if not given
         if not theano_rs:
             np_rs = np.random.RandomState(numpy_random_seed)
             theano_rs = RandomStreams(np_rs.randint(theano_random_seed))
         self.theano_rs = theano_rs
+        # set equal field weights if not given
         if not field_weights:
-            field_weights = np.ones(
-                n_visible,
-                dtype=theano.config.floatX
-            )
+            field_weights = np.ones(n_visible, dtype=theano.config.floatX)
         else:
             field_weights = np.asarray(
                 field_weights,
                 dtype=theano.config.floatX
             )
+        # store in a shared variable
         self.field_weights = shared(
             value=field_weights,
             name='field_weights',
             borrow=True
         )
         # note : W' was written as `W_prime` and b' as `b_prime`
-        if not W:
+        if initial_W is None:
             # W is initialized with `initial_W` which is uniformely sampled
             # from -4*sqrt(6./(n_visible+n_hidden)) and
             # 4*sqrt(6./(n_hidden+n_visible))the output of uniform if
@@ -53,20 +54,17 @@ class dA(object):
                 ),
                 dtype=theano.config.floatX
             )
-            W = shared(value=initial_W, name='W', borrow=True)
-        self.W = W
+        self.W = shared(value=initial_W, name='W', borrow=True)
         # tied weights, therefore W_prime is W transpose
         self.W_prime = self.W.T
-        if not bvis:
+        if initial_bvis is None:
             initial_bvis = np.zeros(n_visible, dtype=theano.config.floatX)
-            bvis = shared(value=initial_bvis, name='bvis', borrow=True)
-        if not bhid:
-            initial_bhid = np.zeros(n_hidden, dtype=theano.config.floatX)
-            bhid = shared(value=initial_bhid, name='bhid', borrow=True)
-        # b corresponds to the bias of the hidden
-        self.bhid = bhid
         # b_prime corresponds to the bias of the visible
-        self.bhid_prime = bvis
+        self.bhid_prime = shared(value=initial_bvis, name='bvis', borrow=True)
+        if initial_bhid is None:
+            initial_bhid = np.zeros(n_hidden, dtype=theano.config.floatX)
+        # b corresponds to the bias of the hidden
+        self.bhid = shared(value=initial_bhid, name='bhid', borrow=True)
         # if no input_dat is given, generate a variable representing the input
         if input_dat is None:
             # we use a matrix because we expect a minibatch of several
@@ -77,7 +75,8 @@ class dA(object):
         self.params = [self.W, self.bhid, self.bhid_prime]
 
     def get_corrupted_input(self, input_dat, corruption_level):
-        assert corruption_level >= 0 and corruption_level < 1
+        corrup_info = 'Must be between 0 and 1.'
+        assert corruption_level >= 0 and corruption_level < 1, corrup_info
         return self.theano_rs.binomial(
             size=input_dat.shape,
             n=1,
