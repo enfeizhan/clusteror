@@ -8,9 +8,9 @@ import numpy as np
 import pandas as pd
 import theano
 import theano.tensor as T
-from theano import shared
 from theano import function
 from datacycle.dA import dA
+from datacycle.settings import decimal_places
 
 
 def test_dA(dat, learning_rate=0.1, training_epochs=15,
@@ -62,7 +62,7 @@ class TestDatacycle(unittest.TestCase):
             axis=1
         )
         cost = np.mean(cost)
-        self.assertAlmostEqual(da_cost, cost)
+        self.assertAlmostEqual(da_cost, cost, places=decimal_places)
 
 
 if __name__ == '__main__':
