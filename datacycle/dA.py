@@ -3,33 +3,26 @@ import theano
 from theano import tensor as T
 from theano import shared
 from theano.tensor.shared_randomstreams import RandomStreams
+from .settings import numpy_random_seed
+from .settings import theano_random_seed
 
 
 class dA(object):
     """
     Denoising Auto-Encoder class (dA).
     """
-
-    def __init__(
-        self,
-        np_rds,
-        n_visible,
-        n_hidden,
-        theano_rds=None,
-        input_dat=None,
-        field_weights=None,
-        W=None,
-        bhid=None,
-        bvis=None
-    ):
+    def __init__(self, n_visible, n_hidden,
+                 theano_rs=None, input_dat=None, field_weights=None,
+                 W=None, bhid=None, bvis=None):
         '''
-        theano_rds:  Theano random generator that gives symbolic random values
+        theano_rs:  Theano random generator that gives symbolic random values
         field_weights:  put on each field when calculating the cost
                         if not given, all fields given equal weight ones
         '''
-        if not theano_rds:
-            theano_rds = RandomStreams(np_rds.randint(2 ** 30))
-        self.theano_rds = theano_rds
+        if not theano_rs:
+            np_rs = np.random.RandomState(numpy_random_seed)
+            theano_rs = RandomStreams(np_rs.randint(theano_random_seed))
+        self.theano_rs = theano_rs
         if not field_weights:
             field_weights = np.ones(
                 n_visible,
@@ -53,7 +46,7 @@ class dA(object):
             # converted using asarray to dtype
             # theano.config.floatX so that the code is runable on GPU
             initial_W = np.asarray(
-                np_rds.uniform(
+                np_rs.uniform(
                     low=-4 * np.sqrt(6. / (n_hidden + n_visible)),
                     high=4 * np.sqrt(6. / (n_hidden + n_visible)),
                     size=(n_visible, n_hidden)
@@ -85,7 +78,7 @@ class dA(object):
 
     def get_corrupted_input(self, input_dat, corruption_level):
         assert corruption_level >= 0 and corruption_level < 1
-        return self.theano_rds.binomial(
+        return self.theano_rs.binomial(
             size=input_dat.shape,
             n=1,
             p=1 - corruption_level,
