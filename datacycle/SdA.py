@@ -1,10 +1,12 @@
+import numpy as np
 import theano.tensor as T
 from theano.tensor.shared_randomstreams import RandomStreams
 from theano import function
 from theano import Param
 
-from mlp import HiddenLayer
 from .dA import dA
+from .settings import numpy_random_seed
+from .settings import theano_random_seed
 
 
 class SdA(object):
@@ -18,78 +20,42 @@ class SdA(object):
     the dAs are only used to initialize the weights.
     '''
 
-    def __init__(
-        self,
-        np_rng,
-        hidden_layers_sizes,
-        theano_rng=None,
-        n_ins=None,
-        n_outs=None,
-        corruption_levels=None,
-    ):
-        self.tanh_layers = []
+    def __init__(self, n_ins, hidden_layers_sizes,
+                 theano_rs=None, field_weights=None, input_dat=None,
+                 corruption_levels=None):
+        # set theano random state if not given
+        if not theano_rs:
+            np_rs = np.random.RandomState(numpy_random_seed)
+            theano_rs = RandomStreams(np_rs.randint(theano_random_seed))
+        self.theano_rs = theano_rs
         self.dA_layers = []
         self.params = []
         self.n_layers = len(hidden_layers_sizes)
         assert self.n_layers > 0
-        if not theano_rng:
-            theano_rng = RandomStreams(np_rng.randint(2 ** 30))
-        # allocate symbolic variables for the data
-        self.x = T.matrix('x')
-        # end-snippet-1
-        # The SdA is an MLP, for which all weights of intermediate layers
-        # are shared with a different denoising autoencoders
-        # We will first construct the SdA as a deep multilayer perceptron,
-        # and when constructing each sigmoidal layer we also construct a
-        # denoising autoencoder that shares weights with that layer
-        # During pretraining we will train these autoencoders (which will
-        # lead to chainging the weights of the MLP as well)
-        # During finetunining we will finish training the SdA by doing
-        # stochastich gradient descent on the MLP
-
-        # start-snippet-2
+        if input_dat is None:
+            self.x = T.dmatrix(name='input_dat')
+        outputs = []
         for i in range(self.n_layers):
-            # construct the sigmoidal layer
-            # the size of the input is either the number of hidden units of
-            # the layer below or the input size if we are on the first layer
-            # the input to this layer is either the activation of the hidden
-            # layer below or the input of the SdA if you are on the first
-            # layer
             if i == 0:
-                input_size = n_ins
                 layer_input = self.x
-            else:
-                input_size = hidden_layers_sizes[i - 1]
-                layer_input = self.tanh_layers[-1].output
-            tanh_layer = HiddenLayer(
-                np_rng=np_rng,
-                input_dat=layer_input,
-                n_in=input_size,
-                n_out=hidden_layers_sizes[i],
-                activation=T.tanh
+                dA_layer = dA(
+                    n_visible=n_ins,
+                    n_hidden=hidden_layers_sizes[i],
+                    theano_rs=theano_rs,
+                    field_weights=field_weights,
+                    input_dat=layer_input,
                 )
-            # add the layer to our list of layers
-            self.tanh_layers.append(tanh_layer)
-            # its arguably a philosophical question...
-            # but we are going to only declare that the parameters of the
-            # tanh_layers are parameters of the StackedDAA
-            # the visible biases in the dA are parameters of those
-            # dA, but not the SdA
-            self.params.extend(tanh_layer.params)
-
-            # Construct a denoising autoencoder that shared weights with this
-            # layer
-            dA_layer = dA(
-                np_rng=np_rng,
-                theano_rng=theano_rng,
-                input_dat=layer_input,
-                n_visible=input_size,
-                n_hidden=hidden_layers_sizes[i],
-                W=tanh_layer.W,
-                bhid=tanh_layer.b
-            )
+            else:
+                layer_input = outputs[-1]
+                dA_layer = dA(
+                    n_visible=hidden_layers_sizes[i - 1],
+                    n_hidden=hidden_layers_sizes[i],
+                    theano_rs=theano_rs,
+                    input_dat=layer_input
+                )
+            outputs.append(dA_layer.get_hiddend_values(layer_input))
             self.dA_layers.append(dA_layer)
-        self.y_pred = self.top_layer.y_pred
+            self.params.extend(dA_layer.params)
 
     def get_final_hidden_layer(self, input_dat):
         '''
