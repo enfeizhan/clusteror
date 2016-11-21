@@ -3,10 +3,8 @@ from theano.tensor.shared_randomstreams import RandomStreams
 from theano import function
 from theano import Param
 
-from logistic_sgd import LogisticRegression  # , load_data
 from mlp import HiddenLayer
 from .dA import dA
-from linear_regression_sgd import LinearRegression
 
 
 class SdA(object):
@@ -28,8 +26,6 @@ class SdA(object):
         n_ins=None,
         n_outs=None,
         corruption_levels=None,
-        method='logistic_regression',
-        scoring='mean_absolute_error',
     ):
         self.tanh_layers = []
         self.dA_layers = []
@@ -93,51 +89,6 @@ class SdA(object):
                 bhid=tanh_layer.b
             )
             self.dA_layers.append(dA_layer)
-        if n_outs is not None:
-            if method == 'logistic_regression':
-                # We now need to add a logistic layer on top of the MLP
-                self.top_layer = LogisticRegression(
-                    input_dat=self.tanh_layers[-1].output,
-                    n_in=hidden_layers_sizes[-1],
-                    n_out=n_outs
-                )
-
-                self.params.extend(self.top_layer.params)
-                # the labels are presented as 1D vector of [int] labels
-                self.y = T.ivector('y')
-                # construct a function that implements one step of
-                # finetunining
-
-                # compute the cost for second phase of training,
-                # defined as the negative log likelihood
-                self.finetune_cost = (
-                    self.top_layer.negative_log_likelihood(self.y))
-                # compute the gradients with respect to the model
-                # parameters
-                # symbolic variable that points to the number of
-                # errors made on the
-                # minibatch given by self.x and self.y
-                self.errors = self.top_layer.errors(self.y)
-            elif method == 'linear_regression':
-                # the method for generalised regression goes here
-                self.top_layer = LinearRegression(
-                    input_dat=self.tanh_layers[-1].output,
-                    n_in=hidden_layers_sizes[-1],
-                    n_out=n_outs
-                )
-
-                self.params.extend(self.top_layer.params)
-                # the response are presented as matix
-                self.y = T.matrix('y')
-                # construct a function that implements one step of
-                # finetunining
-
-                # compute the cost for second phase of training,
-                self.finetune_cost = (
-                    self.top_layer.errors(self.y, scoring=scoring))
-                self.errors = self.finetune_cost
-            else:
-                raise SystemExit('Give correct method lr or gr!')
         self.y_pred = self.top_layer.y_pred
 
     def get_final_hidden_layer(self, input_dat):
