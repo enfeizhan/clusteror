@@ -12,7 +12,7 @@ class dA(object):
     Denoising Auto-Encoder class (dA).
     """
     def __init__(self, n_visible, n_hidden,
-                 theano_rs=None, field_weights=None,
+                 np_rs=None, theano_rs=None, field_weights=None,
                  initial_W=None, initial_bvis=None,
                  initial_bhid=None, input_dat=None):
         '''
@@ -20,9 +20,10 @@ class dA(object):
         field_weights:  put on each field when calculating the cost
                         if not given, all fields given equal weight ones
         '''
-        # set theano random state if not given
-        if not theano_rs:
+        if np_rs is None:
             np_rs = np.random.RandomState(numpy_random_seed)
+        # set theano random state if not given
+        if theano_rs is None:
             theano_rs = RandomStreams(np_rs.randint(theano_random_seed))
         self.theano_rs = theano_rs
         # set equal field weights if not given
@@ -69,14 +70,14 @@ class dA(object):
         if input_dat is None:
             # we use a matrix because we expect a minibatch of several
             # examples, each example being a row
-            self.x = T.dmatrix(name='input_dat')
+            self.x = T.matrix(name='input_dat')
         else:
             self.x = input_dat
         self.params = [self.W, self.bhid, self.bhid_prime]
 
     def get_corrupted_input(self, input_dat, corruption_level):
-        corrup_info = 'Must be between 0 and 1.'
-        assert corruption_level >= 0 and corruption_level < 1, corrup_info
+        # corrup_info = 'Must be between 0 and 1.'
+        # assert corruption_level >= 0 and corruption_level < 1, corrup_info
         return self.theano_rs.binomial(
             size=input_dat.shape,
             n=1,
@@ -128,4 +129,6 @@ class dA(object):
             (param, param - learning_rate * gparam)
             for param, gparam in zip(self.params, gparams)
         ]
+        # print(self.W.get_value())
+        # print(self.bhid.get_value())
         return cost, updates
