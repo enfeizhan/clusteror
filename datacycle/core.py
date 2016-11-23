@@ -1,7 +1,11 @@
+import os
+import sys
+from timeit import timeit
 import numpy as np
 import pandas as pd
 import theano
 import theano.tensor as T
+from theano import function
 from theano.tensor.shared_randomstreams import RandomStreams
 from .dA import dA
 from .settings import numpy_random_seed
@@ -37,6 +41,15 @@ class Clusteror(object):
     def cleaned_data(self, cleaned_data):
         self._cleaned_data = cleaned_data
 
+    def reduce_dim(
+        self,
+        approach='da'
+    ):
+        if approach == 'da':
+            self._da_reduce_dim()
+        elif approach == 'sda':
+            self._sda_reduce_dim()
+
     def _pretraining_early_stopping(
             self,
             train_model,
@@ -51,9 +64,7 @@ class Clusteror(object):
         done_looping = False
         check_frequency = min(n_epochs, patience / 2)
         best_cost = np.inf
-
         start_time = timeit.default_timer()
-
         while (epoch < n_epochs) and (not done_looping):
             epoch += 1
             # go through training set
@@ -69,7 +80,9 @@ class Clusteror(object):
                 if cost < best_cost:
                     much_better_cost = best_cost * improvement_threshold
                     if cost < much_better_cost:
-                        patience = max(patience,  (epoch + 1) * patience_increase)
+                        patience = max(
+                            patience,  (epoch + 1) * patience_increase
+                        )
                         print(
                             'Epoch {epoch}, patience increased to {patience}'.
                             format(epoch=epoch, patience=patience))
@@ -83,15 +96,6 @@ class Clusteror(object):
             os.path.split(__file__)[1] +
             ' ran for {time:.2f}m'.format(time=training_time / 60.))
 
-    def reduce_dim(
-        self,
-        approach='da'
-    ):
-        if approach == 'da':
-            self._da_reduce_dim()
-        elif approach == 'sda':
-            self._sda_reduce_dim()
-
     def _da_reduce_dim(
             self,
             field_weights=None,
@@ -104,7 +108,7 @@ class Clusteror(object):
             patience=60,
             patience_increase=2,
             improvement_threshold=0.9995,
-            random_state=123):
+            ):
         '''
         Reduces the dimension of each record down to a dimension.
         verbose: boolean, default True
@@ -122,6 +126,8 @@ class Clusteror(object):
         train_set_x = theano.shared(value=dat, borrow=True)
 
         # compute number of minibatches for training
+        # needs one more batch if residual is non-zero
+        # e.g. 5 rows with batch size 2 needs 5 // 2 + 1
         n_train_batches = (
             dat.shape[0] // batch_size + int(dat.shape[0] % batch_size > 0)
         )
@@ -135,7 +141,7 @@ class Clusteror(object):
         #################################
         da = dA(
             n_visible=dat.shape[1],
-            n_hidden=1,
+            n_hidden=to_dim,
             np_rs=np_rs,
             theano_rs=theano_rs,
             field_weights=field_weights,
@@ -153,15 +159,18 @@ class Clusteror(object):
                 x: train_set_x[index * batch_size: (index + 1) * batch_size]
             }
         )
-        _pretraining_early_stopping(
+        self._pretraining_early_stopping(
             train_model=train_da,
             n_train_batches=n_train_batches,
             n_epochs=training_epochs,
             patience=patience,
             patience_increase=patience_increase,
             improvement_threshold=improvement_threshold,
-            verbose=verbose)
+            verbose=verbose
+        )
         self.denoising_autoencoder = da
-        x = T.dmatrix('x')
-        self.to_lower_dim = theano.function([x], da.get_hidden_values(x))
-        self.reconstruct = theano.function([x], da.get_reconstructed_input(x))
+        self.to_lower_dim = function([x], da.get_hidden_values(x))
+        self.reconstruct = function(
+            [x],
+            da.get_reconstructed_input(da.get_hidden_values(x))
+        )
