@@ -22,7 +22,7 @@ class SdA(object):
     '''
 
     def __init__(self, n_ins, hidden_layers_sizes,
-                 np_rs=None, theano_rs=None, field_weights=None,
+                 np_rs=None, theano_rs=None, field_importance=None,
                  input_dat=None):
         # set theano random state if not given
         if np_rs is None:
@@ -46,7 +46,7 @@ class SdA(object):
                     n_hidden=hidden_layers_sizes[i],
                     np_rs=np_rs,
                     theano_rs=theano_rs,
-                    field_weights=field_weights,
+                    field_importance=field_importance,
                     input_dat=layer_input,
                 )
             else:
