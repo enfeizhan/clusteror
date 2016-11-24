@@ -3,6 +3,7 @@ import sys
 import timeit
 import numpy as np
 import pandas as pd
+import pickle as pk
 import theano
 import theano.tensor as T
 from theano import function
@@ -45,7 +46,7 @@ class Clusteror(object):
     def cleaned_dat(self, cleaned_dat):
         self._cleaned_dat = cleaned_dat
 
-    def reduce_dim(
+    def train_dim_reducer(
         self,
         approach='da',
         field_importance=None,
@@ -79,6 +80,7 @@ class Clusteror(object):
             self.dat.shape[0] // batch_size +
             int(self.dat.shape[0] % batch_size > 0)
         )
+        self.approach = approach
         if approach == 'da':
             self._da_reduce_dim(
                 field_importance=field_importance,
@@ -275,3 +277,15 @@ class Clusteror(object):
             [x],
             sda.get_first_reconstructed_input(sda.get_final_hidden_layer(x))
         )
+
+    def save_da_reduce_dim(self, filename='dim_reducer.pk'):
+        f = open(self.approach+'_'+filename, 'wb')
+        pk.dump(self.to_lower_dim, f)
+
+    def train_filter(self, grain=0.05, sharpness=0.15):
+        pass
+
+
+class Analyser(Clusteror):
+    def __init__(self, raw_dat):
+        super().__init__(raw_dat)
