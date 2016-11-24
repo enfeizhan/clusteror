@@ -6,6 +6,7 @@ import pandas as pd
 import theano
 import theano.tensor as T
 from theano import function
+from theano import shared
 from theano.tensor.shared_randomstreams import RandomStreams
 from .dA import dA
 from .settings import numpy_random_seed
@@ -19,6 +20,8 @@ class OutRangeError(Exception):
 class Clusteror(object):
     def __init__(self, raw_dat):
         self._raw_dat = raw_dat
+        self.np_rs = np.random.RandomState(numpy_random_seed)
+        self.theano_rs = RandomStreams(self.np_rs.randint(theano_random_seed))
 
     @classmethod
     def from_csv(cls, filepath, **kwargs):
@@ -59,6 +62,21 @@ class Clusteror(object):
         Use various methods to reduce the dimension for further analysis.
         Early stops if updates change less than a threshold.
         '''
+        assert self.cleaned_dat is not None, 'Need cleaned dat'
+        if (self.cleaned_dat.max() > 1).any():
+            raise OutRangeError('Maximum should be less equal than 1.')
+        if (self.cleaned_dat.min() < -1).any():
+            raise OutRangeError('Minimum should be greater equal than -1')
+        # compute number of minibatches for training, validation and testing
+        self.dat = np.asarray(self.cleaned_dat, dtype=theano.config.floatX)
+        self.train_set = shared(value=self.dat, borrow=True)
+        # compute number of minibatches for training
+        # needs one more batch if residual is non-zero
+        # e.g. 5 rows with batch size 2 needs 5 // 2 + 1
+        self.n_train_batches = (
+            self.dat.shape[0] // batch_size +
+            int(self.dat.shape[0] % batch_size > 0)
+        )
         if approach == 'da':
             self._da_reduce_dim(
                 field_importance=field_importance,
@@ -145,46 +163,25 @@ class Clusteror(object):
             corruption_level,
             learning_rate,
             min_epochs,
-            verbose,
             patience,
             patience_increase,
             improvement_threshold,
+            verbose,
             ):
         '''
         Reduces the dimension of each record down to a dimension.
         verbose: boolean, default True
           If true, printing out the progress of pretraining.
         '''
-        assert self.cleaned_dat is not None, 'Need cleaned dat'
-        if (self.cleaned_dat.max() > 1).any():
-            raise OutRangeError('Maximum should be less equal than 1.')
-        if (self.cleaned_dat.min() < -1).any():
-            raise OutRangeError('Minimum should be greater equal than -1')
-        dat = np.asarray(self.cleaned_dat, dtype=theano.config.floatX)
-
-        np_rs = np.random.RandomState(numpy_random_seed)
-        theano_rs = RandomStreams(np_rs.randint(theano_random_seed))
-        train_set_x = theano.shared(value=dat, borrow=True)
-
-        # compute number of minibatches for training
-        # needs one more batch if residual is non-zero
-        # e.g. 5 rows with batch size 2 needs 5 // 2 + 1
-        n_train_batches = (
-            dat.shape[0] // batch_size + int(dat.shape[0] % batch_size > 0)
-        )
-
         # allocate symbolic variables for the dat
         # index to a [mini]batch
         index = T.lscalar('index')
         x = T.matrix('x')
-        #################################
-        # BUILDING THE MODEL CORRUPTION #
-        #################################
         da = dA(
-            n_visible=dat.shape[1],
+            n_visible=self.dat.shape[1],
             n_hidden=to_dim,
-            np_rs=np_rs,
-            theano_rs=theano_rs,
+            np_rs=self.np_rs,
+            theano_rs=self.theano_rs,
             field_importance=field_importance,
             input_dat=x,
         )
@@ -197,12 +194,12 @@ class Clusteror(object):
             cost,
             updates=updates,
             givens={
-                x: train_set_x[index * batch_size: (index + 1) * batch_size]
+                x: self.train_set[index * batch_size: (index + 1) * batch_size]
             }
         )
         self._pretraining_early_stopping(
             train_model=train_da,
-            n_train_batches=n_train_batches,
+            n_train_batches=self.n_train_batches,
             min_epochs=min_epochs,
             patience=patience,
             patience_increase=patience_increase,
@@ -216,3 +213,20 @@ class Clusteror(object):
             [x],
             da.get_reconstructed_input(da.get_hidden_values(x))
         )
+
+    def _sda_reduce_dim(
+            self,
+            field_importance,
+            to_dim,
+            batch_size,
+            corruption_level,
+            learning_rate,
+            min_epochs,
+            patience,
+            patience_increase,
+            improvement_threshold,
+            verbose,
+            ):
+        '''
+        Reduce the dimension of each record down to a dimension.
+        '''
