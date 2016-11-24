@@ -9,6 +9,7 @@ from theano import function
 from theano import shared
 from theano.tensor.shared_randomstreams import RandomStreams
 from .dA import dA
+from .SdA import SdA
 from .settings import numpy_random_seed
 from .settings import theano_random_seed
 
@@ -50,13 +51,14 @@ class Clusteror(object):
         field_importance=None,
         to_dim=1,
         batch_size=50,
-        corruption_level=0.3,
+        hidden_layers_sizes=None,
+        corruption_levels=0.3,
         learning_rate=0.002,
         min_epochs=200,
-        verbose=False,
         patience=60,
         patience_increase=2,
-        improvement_threshold=0.9995,
+        improvement_threshold=0.98,
+        verbose=False,
     ):
         '''
         Use various methods to reduce the dimension for further analysis.
@@ -82,27 +84,41 @@ class Clusteror(object):
                 field_importance=field_importance,
                 to_dim=to_dim,
                 batch_size=batch_size,
-                corruption_level=corruption_level,
+                corruption_level=corruption_levels,
                 learning_rate=learning_rate,
                 min_epochs=min_epochs,
-                verbose=verbose,
                 patience=patience,
                 patience_increase=patience_increase,
                 improvement_threshold=improvement_threshold,
+                verbose=verbose,
             )
-        # elif approach == 'sda':
-        #     self._sda_reduce_dim()
+        elif approach == 'sda':
+            assert hidden_layers_sizes is not None
+            assert isinstance(corruption_levels, list)
+            assert len(hidden_layers_sizes) == len(corruption_levels)
+            self._sda_reduce_dim(
+                field_importance=field_importance,
+                batch_size=batch_size,
+                hidden_layers_sizes=hidden_layers_sizes,
+                corruption_levels=corruption_levels,
+                learning_rate=learning_rate,
+                min_epochs=min_epochs,
+                patience=patience,
+                patience_increase=patience_increase,
+                improvement_threshold=improvement_threshold,
+                verbose=verbose,
+            )
 
     def _pretraining_early_stopping(
             self,
-            train_model,
+            train_fun,
             n_train_batches,
             min_epochs,
             patience,
             patience_increase,
             improvement_threshold,
-            corruption_level,
             verbose,
+            **kwargs
             ):
         '''
         min_epochs is the minimum iterations that need to run.
@@ -120,7 +136,7 @@ class Clusteror(object):
             # go through training set
             c = []
             for minibatch_index in range(n_train_batches):
-                c.append(train_model(minibatch_index))
+                c.append(train_fun(minibatch_index, **kwargs))
             cost = np.mean(c)
             if verbose:
                 print(
@@ -150,8 +166,6 @@ class Clusteror(object):
         if verbose:
             training_time = (end_time - start_time)
             sys.stderr.write(
-                'The {:2.1f}%'.format(corruption_level*100) +
-                ' corruption code for file ' +
                 os.path.split(__file__)[1] +
                 ' ran for {time:.2f}m\n'.format(time=training_time / 60.))
 
@@ -198,7 +212,7 @@ class Clusteror(object):
             }
         )
         self._pretraining_early_stopping(
-            train_model=train_da,
+            train_fun=train_da,
             n_train_batches=self.n_train_batches,
             min_epochs=min_epochs,
             patience=patience,
@@ -217,9 +231,9 @@ class Clusteror(object):
     def _sda_reduce_dim(
             self,
             field_importance,
-            to_dim,
             batch_size,
-            corruption_level,
+            hidden_layers_sizes,
+            corruption_levels,
             learning_rate,
             min_epochs,
             patience,
@@ -230,3 +244,34 @@ class Clusteror(object):
         '''
         Reduce the dimension of each record down to a dimension.
         '''
+        x = T.matrix('x')
+        sda = SdA(
+            n_ins=self.dat.shape[1],
+            hidden_layers_sizes=hidden_layers_sizes,
+            np_rs=self.np_rs,
+            theano_rs=self.theano_rs,
+            field_importance=field_importance,
+            input_dat=x
+        )
+        pretraining_fns = sda.pretraining_functions(
+            train_set=self.train_set,
+            batch_size=batch_size
+        )
+        for ind in range(sda.n_layers):
+            self._pretraining_early_stopping(
+                train_fun=pretraining_fns[ind],
+                n_train_batches=self.n_train_batches,
+                min_epochs=min_epochs,
+                patience=patience,
+                patience_increase=patience_increase,
+                improvement_threshold=improvement_threshold,
+                verbose=verbose,
+                corruption_level=corruption_levels[ind],
+                learning_rate=learning_rate
+            )
+        self.stacked_denoising_autoencoder = sda
+        self.to_lower_dim = function([x], sda.get_final_hidden_layer(x))
+        self.reconstruct = function(
+            [x],
+            sda.get_first_reconstructed_input(sda.get_final_hidden_layer(x))
+        )
