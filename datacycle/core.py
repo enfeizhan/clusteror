@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import timeit
 import numpy as np
 import pandas as pd
@@ -13,6 +14,7 @@ from .dA import dA
 from .SdA import SdA
 from .settings import numpy_random_seed
 from .settings import theano_random_seed
+from .utils import check_local_extremity
 
 
 class OutRangeError(Exception):
@@ -65,13 +67,13 @@ class Clusteror(object):
         Use various methods to reduce the dimension for further analysis.
         Early stops if updates change less than a threshold.
         '''
-        assert self.cleaned_dat is not None, 'Need cleaned dat'
-        if (self.cleaned_dat.max() > 1).any():
+        assert self._cleaned_dat is not None, 'Need cleaned dat'
+        if (self._cleaned_dat.max() > 1).any():
             raise OutRangeError('Maximum should be less equal than 1.')
-        if (self.cleaned_dat.min() < -1).any():
+        if (self._cleaned_dat.min() < -1).any():
             raise OutRangeError('Minimum should be greater equal than -1')
         # compute number of minibatches for training, validation and testing
-        self.dat = np.asarray(self.cleaned_dat, dtype=theano.config.floatX)
+        self.dat = np.asarray(self._cleaned_dat, dtype=theano.config.floatX)
         self.train_set = shared(value=self.dat, borrow=True)
         # compute number of minibatches for training
         # needs one more batch if residual is non-zero
@@ -80,9 +82,8 @@ class Clusteror(object):
             self.dat.shape[0] // batch_size +
             int(self.dat.shape[0] % batch_size > 0)
         )
-        self.approach = approach
         if approach == 'da':
-            self._da_reduce_dim(
+            self._train_da_dim_reducer(
                 field_importance=field_importance,
                 to_dim=to_dim,
                 batch_size=batch_size,
@@ -98,7 +99,7 @@ class Clusteror(object):
             assert hidden_layers_sizes is not None
             assert isinstance(corruption_levels, list)
             assert len(hidden_layers_sizes) == len(corruption_levels)
-            self._sda_reduce_dim(
+            self._train_sda_dim_reducer(
                 field_importance=field_importance,
                 batch_size=batch_size,
                 hidden_layers_sizes=hidden_layers_sizes,
@@ -171,7 +172,7 @@ class Clusteror(object):
                 os.path.split(__file__)[1] +
                 ' ran for {time:.2f}m\n'.format(time=training_time / 60.))
 
-    def _da_reduce_dim(
+    def _train_da_dim_reducer(
             self,
             field_importance,
             to_dim,
@@ -223,14 +224,14 @@ class Clusteror(object):
             corruption_level=corruption_level,
             verbose=verbose,
         )
-        self.denoising_autoencoder = da
-        self.to_lower_dim = function([x], da.get_hidden_values(x))
-        self.reconstruct = function(
+        self.da = da
+        self.da_lower_dim = function([x], da.get_hidden_values(x))
+        self.da_reconstruct = function(
             [x],
             da.get_reconstructed_input(da.get_hidden_values(x))
         )
 
-    def _sda_reduce_dim(
+    def _train_sda_dim_reducer(
             self,
             field_importance,
             batch_size,
@@ -271,21 +272,77 @@ class Clusteror(object):
                 corruption_level=corruption_levels[ind],
                 learning_rate=learning_rate
             )
-        self.stacked_denoising_autoencoder = sda
-        self.to_lower_dim = function([x], sda.get_final_hidden_layer(x))
-        self.reconstruct = function(
+        self.sda = sda
+        self.sda_lower_dim = function([x], sda.get_final_hidden_layer(x))
+        self.sda_reconstruct = function(
             [x],
             sda.get_first_reconstructed_input(sda.get_final_hidden_layer(x))
         )
 
-    def save_da_reduce_dim(self, filename='dim_reducer.pk'):
-        f = open(self.approach+'_'+filename, 'wb')
-        pk.dump(self.to_lower_dim, f)
+    def save_dim_reducer(self, approach='da', filename='dim_reducer.pk'):
+        with open(approach+'_'+filename, 'wb') as f:
+            if approach == 'da':
+                pk.dump(self.da_to_lower_dim, f)
+            elif approach == 'sda':
+                pk.dump(self.sda_to_lower_dim, f)
 
-    def train_filter(self, grain=0.05, sharpness=0.15):
-        pass
+    def load_dim_reducer(self, approach='da', filename='dim_reducer.pk'):
+        with open(filename, 'rb') as f:
+            if approach == 'da':
+                self.da_to_lower_dim = pk.load(f)
+            elif approach == 'sda':
+                self.sda_to_lower_dim = pk.load(f)
 
+    def train_tagger(self, bins=100, contrast=0.3):
+        bins = np.linspace(0, 1, bins+1)
+        left_points = bins[:-1]
+        cuts = pd.cut(self.one_dim_dat, bins=bins)
+        bin_counts = cuts.reset_index().loc[:, 'counts']
+        local_min_inds = []
+        for ind, value in bin_counts.iteritems():
+            is_local_min = check_local_extremity(
+                bin_counts,
+                ind,
+                contrast=contrast,
+                kind='min'
+            )
+            if is_local_min:
+                local_min_inds.append(left_points[ind])
+        self.trained_bins = [0] + local_min_inds + [1]
 
-class Analyser(Clusteror):
-    def __init__(self, raw_dat):
-        super().__init__(raw_dat)
+        def tagger(one_dim_dat):
+            cuts = pd.cut(
+                one_dim_dat,
+                bins=self.trained_bins,
+                labels=list(range(len(self.trained_bins) - 1))
+            )
+            return cuts.get_values()
+        self.tagger = tagger
+
+    def save_tagger(self, filename):
+        with open(filename, 'wb') as f:
+            json.dump(self.trained_bins, f)
+
+    def load_tagger(self, filename):
+        with open(filename, 'rb') as f:
+            self.trained_bins = json.load(f)
+
+        def tagger(one_dim_dat):
+            cuts = pd.cut(
+                one_dim_dat,
+                bins=self.trained_bins,
+                labels=list(range(len(self.trained_bins) - 1))
+            )
+            return cuts.get_values()
+        self.tagger = tagger
+
+    def _get_one_dim_dat(self, approach='da'):
+        assert self._cleaned_dat is not None
+        if approach == 'da':
+            self.one_dim_dat = self.da_to_lower_dim(self._cleaned_dat)
+        elif approach == 'sda':
+            self.one_dim_dat = self.sda_to_lower_dim(self._cleaned_dat)
+
+    def add_segment(self):
+        self._get_one_dim_dat()
+        self.raw_dat.loc[:, 'segment'] = self.tagger(self.one_dim_dat)

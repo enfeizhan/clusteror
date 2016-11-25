@@ -295,3 +295,66 @@ def tile_raster_images(X, img_shape, tile_shape, tile_spacing=(0, 0),
                         tile_col * (W + Ws): tile_col * (W + Ws) + W
                     ] = this_img * c
         return out_array
+
+
+def check_local_extremity(series, ind, contrast=0.15, kind='min'):
+    if kind == 'min':
+        value = series.iloc[ind]
+        upper_benchmark = value * (1 + contrast)
+
+        left_sub = series.iloc[:ind]
+        if left_sub.empty:
+            smallest_to_left = True
+        else:
+            left_larger = left_sub > upper_benchmark
+            left_trues = left_larger.loc[left_larger.values]
+            if left_trues.empty:
+                smallest_to_left = False
+            else:
+                left_ind = left_trues.index[-1]
+                left_smallest = series.iloc[left_ind:ind].min()
+                smallest_to_left = left_smallest > value
+
+        right_sub = series.iloc[ind+1:]
+        if right_sub.empty:
+            smallest_to_right = True
+        else:
+            right_larger = right_sub > upper_benchmark
+            right_trues = right_larger.loc[right_larger.values]
+            if right_trues.empty:
+                smallest_to_right = False
+            else:
+                right_ind = right_trues.index[0]
+                right_smallest = series.iloc[ind+1:right_ind+1].min()
+                smallest_to_right = right_smallest > value
+        return smallest_to_left and smallest_to_right
+    if kind == 'max':
+        value = series.iloc[ind]
+        lower_benchmark = value * (1 - contrast)
+
+        left_sub = series.iloc[:ind]
+        if left_sub.empty:
+            largest_to_left = True
+        else:
+            left_smaller = left_sub < lower_benchmark
+            left_trues = left_smaller.loc[left_smaller.values]
+            if left_trues.empty:
+                largest_to_left = False
+            else:
+                left_ind = left_trues.index[-1]
+                left_largest = series.iloc[left_ind:ind].max()
+                largest_to_left = left_largest < value
+
+        right_sub = series.iloc[ind+1:]
+        if right_sub.empty:
+            largest_to_right = True
+        else:
+            right_smaller = right_sub < lower_benchmark
+            right_trues = right_smaller.loc[right_smaller.values]
+            if right_trues.empty:
+                largest_to_right = False
+            else:
+                right_ind = right_trues.index[0]
+                right_largest = series.iloc[ind+1:right_ind+1].max()
+                largest_to_right = right_largest < value
+        return largest_to_left and largest_to_right
