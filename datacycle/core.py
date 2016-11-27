@@ -7,6 +7,7 @@ import pandas as pd
 import pickle as pk
 import theano
 import theano.tensor as T
+from sklearn.cluster import KMeans
 from theano import function
 from theano import shared
 from theano.tensor.shared_randomstreams import RandomStreams
@@ -22,31 +23,31 @@ class OutRangeError(Exception):
 
 
 class Clusteror(object):
-    def __init__(self, raw_dat):
-        self._raw_dat = raw_dat
+    def __init__(self, raw_data):
+        self._raw_data = raw_data
         self.np_rs = np.random.RandomState(numpy_random_seed)
         self.theano_rs = RandomStreams(self.np_rs.randint(theano_random_seed))
 
     @classmethod
     def from_csv(cls, filepath, **kwargs):
-        raw_dat = pd.read_csv(filepath, **kwargs)
-        return cls(raw_dat)
+        raw_data = pd.read_csv(filepath, **kwargs)
+        return cls(raw_data)
 
     @property
-    def raw_dat(self):
-        return self._raw_dat
+    def raw_data(self):
+        return self._raw_data
 
-    @raw_dat.setter
-    def raw_dat(self, raw_dat):
-        self._raw_dat = raw_dat
+    @raw_data.setter
+    def raw_data(self, raw_data):
+        self._raw_data = raw_data
 
     @property
-    def cleaned_dat(self):
-        return self._cleaned_dat
+    def cleaned_data(self):
+        return self._cleaned_data
 
-    @cleaned_dat.setter
-    def cleaned_dat(self, cleaned_dat):
-        self._cleaned_dat = cleaned_dat
+    @cleaned_data.setter
+    def cleaned_data(self, cleaned_data):
+        self._cleaned_data = cleaned_data
 
     def train_dim_reducer(
         self,
@@ -67,20 +68,20 @@ class Clusteror(object):
         Use various methods to reduce the dimension for further analysis.
         Early stops if updates change less than a threshold.
         '''
-        assert self._cleaned_dat is not None, 'Need cleaned dat'
-        if (self._cleaned_dat.max() > 1).any():
+        assert self._cleaned_data is not None, 'Need cleaned data'
+        if (self._cleaned_data.max() > 1).any():
             raise OutRangeError('Maximum should be less equal than 1.')
-        if (self._cleaned_dat.min() < -1).any():
+        if (self._cleaned_data.min() < -1).any():
             raise OutRangeError('Minimum should be greater equal than -1')
         # compute number of minibatches for training, validation and testing
-        self.dat = np.asarray(self._cleaned_dat, dtype=theano.config.floatX)
-        self.train_set = shared(value=self.dat, borrow=True)
+        self.data = np.asarray(self._cleaned_data, dtype=theano.config.floatX)
+        self.train_set = shared(value=self.data, borrow=True)
         # compute number of minibatches for training
         # needs one more batch if residual is non-zero
         # e.g. 5 rows with batch size 2 needs 5 // 2 + 1
         self.n_train_batches = (
-            self.dat.shape[0] // batch_size +
-            int(self.dat.shape[0] % batch_size > 0)
+            self.data.shape[0] // batch_size +
+            int(self.data.shape[0] % batch_size > 0)
         )
         if approach == 'da':
             self._train_da_dim_reducer(
@@ -195,12 +196,12 @@ class Clusteror(object):
         index = T.lscalar('index')
         x = T.matrix('x')
         da = dA(
-            n_visible=self.dat.shape[1],
+            n_visible=self.data.shape[1],
             n_hidden=to_dim,
             np_rs=self.np_rs,
             theano_rs=self.theano_rs,
             field_importance=field_importance,
-            input_dat=x,
+            input_data=x,
         )
         cost, updates = da.get_cost_updates(
             corruption_level=corruption_level,
@@ -249,12 +250,12 @@ class Clusteror(object):
         '''
         x = T.matrix('x')
         sda = SdA(
-            n_ins=self.dat.shape[1],
+            n_ins=self.data.shape[1],
             hidden_layers_sizes=hidden_layers_sizes,
             np_rs=self.np_rs,
             theano_rs=self.theano_rs,
             field_importance=field_importance,
-            input_dat=x
+            input_data=x
         )
         pretraining_fns = sda.pretraining_functions(
             train_set=self.train_set,
@@ -296,7 +297,7 @@ class Clusteror(object):
     def train_tagger(self, bins=100, contrast=0.3):
         bins = np.linspace(0, 1, bins+1)
         left_points = bins[:-1]
-        cuts = pd.cut(self.one_dim_dat, bins=bins)
+        cuts = pd.cut(self.one_dim_data, bins=bins)
         bin_counts = cuts.reset_index().loc[:, 'counts']
         local_min_inds = []
         for ind, value in bin_counts.iteritems():
@@ -310,9 +311,9 @@ class Clusteror(object):
                 local_min_inds.append(left_points[ind])
         self.trained_bins = [0] + local_min_inds + [1]
 
-        def tagger(one_dim_dat):
+        def tagger(one_dim_data):
             cuts = pd.cut(
-                one_dim_dat,
+                one_dim_data,
                 bins=self.trained_bins,
                 labels=list(range(len(self.trained_bins) - 1))
             )
@@ -327,22 +328,34 @@ class Clusteror(object):
         with open(filename, 'rb') as f:
             self.trained_bins = json.load(f)
 
-        def tagger(one_dim_dat):
+        def tagger(one_dim_data):
             cuts = pd.cut(
-                one_dim_dat,
+                one_dim_data,
                 bins=self.trained_bins,
                 labels=list(range(len(self.trained_bins) - 1))
             )
             return cuts.get_values()
         self.tagger = tagger
 
-    def _get_one_dim_dat(self, approach='da'):
-        assert self._cleaned_dat is not None
+    def _get_one_dim_data(self, approach='da'):
+        assert self._cleaned_data is not None
         if approach == 'da':
-            self.one_dim_dat = self.da_to_lower_dim(self._cleaned_dat)
+            self.one_dim_data = self.da_to_lower_dim(self._cleaned_data)
         elif approach == 'sda':
-            self.one_dim_dat = self.sda_to_lower_dim(self._cleaned_dat)
+            self.one_dim_data = self.sda_to_lower_dim(self._cleaned_data)
 
-    def add_segment(self):
-        self._get_one_dim_dat()
-        self.raw_dat.loc[:, 'segment'] = self.tagger(self.one_dim_dat)
+    def train_kmeans(self, n_clusters=None, **kwargs):
+        self.km = KMeans(n_clusters=n_clusters, **kwargs)
+        self.km.fit(self.one_dim_data)
+
+    def save_kmeans(self, filename):
+        with open(filename, 'wb') as f:
+            pk.dump(self.km, f)
+
+    def load_kmeans(self, filename):
+        with open(filename, 'rb') as f:
+            self.km = pk.load(f)
+
+    def add_cluster(self):
+        self._get_one_dim_data()
+        self.raw_data.loc[:, 'cluster'] = self.tagger(self.one_dim_data)
