@@ -1,1 +1,3 @@
 include README.rst
+include versioneer.py
+include clusteror/_version.py

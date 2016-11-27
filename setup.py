@@ -1,7 +1,9 @@
 from setuptools import setup
+import versioneer
 
 setup(name='datacycle',
-      version='0.1',
+      version=versioneer.get_versions(),
+      cmdclass=versioneer.get_cmdclass(),
       description='Unsupervised clustering toolkit.',
       url='https://github.com/enfeizhan/datascience-toolkit',
       author='Fei Zhan',

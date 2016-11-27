@@ -7,7 +7,8 @@ except ImportError:
 
 config = configparser.ConfigParser()
 path_list = list(os.path.split(__file__))
-path_list[-1] = 'setup.cfg'
+path_list = path_list[:-2]
+path_list.append('setup.cfg')
 path_tuple = tuple(path_list)
 cfg_path = os.path.join(*path_tuple)
 config.read(cfg_path)
