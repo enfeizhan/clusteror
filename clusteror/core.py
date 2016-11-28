@@ -49,6 +49,14 @@ class Clusteror(object):
     def cleaned_data(self, cleaned_data):
         self._cleaned_data = cleaned_data
 
+    @property
+    def one_dim_data(self):
+        return self._one_dim_data
+
+    @one_dim_data.setter
+    def one_dim_data(self, one_dim_data):
+        self._one_dim_data = one_dim_data
+
     def train_dim_reducer(
         self,
         approach='da',
@@ -297,7 +305,7 @@ class Clusteror(object):
     def train_tagger(self, bins=100, contrast=0.3):
         bins = np.linspace(0, 1, bins+1)
         left_points = bins[:-1]
-        cuts = pd.cut(self.one_dim_data, bins=bins)
+        cuts = pd.cut(self._one_dim_data, bins=bins)
         bin_counts = cuts.reset_index().loc[:, 'counts']
         local_min_inds = []
         for ind, value in bin_counts.iteritems():
@@ -337,16 +345,16 @@ class Clusteror(object):
             return cuts.get_values()
         self.tagger = tagger
 
-    def _get_one_dim_data(self, approach='da'):
+    def get_one_dim_data(self, approach='da'):
         assert self._cleaned_data is not None
         if approach == 'da':
-            self.one_dim_data = self.da_to_lower_dim(self._cleaned_data)
+            self._one_dim_data = self.da_to_lower_dim(self._cleaned_data)
         elif approach == 'sda':
-            self.one_dim_data = self.sda_to_lower_dim(self._cleaned_data)
+            self._one_dim_data = self.sda_to_lower_dim(self._cleaned_data)
 
     def train_kmeans(self, n_clusters=None, **kwargs):
         self.km = KMeans(n_clusters=n_clusters, **kwargs)
-        self.km.fit(self.one_dim_data)
+        self.km.fit(self._one_dim_data)
 
     def save_kmeans(self, filename):
         with open(filename, 'wb') as f:
@@ -356,6 +364,8 @@ class Clusteror(object):
         with open(filename, 'rb') as f:
             self.km = pk.load(f)
 
-    def add_cluster(self):
-        self._get_one_dim_data()
-        self.raw_data.loc[:, 'cluster'] = self.tagger(self.one_dim_data)
+    def add_cluster_with_tagger(self):
+        self.raw_data.loc[:, 'cluster'] = self.tagger(self._one_dim_data)
+
+    def add_cluster_with_kmeans(self):
+        self.raw_data.loc[:, 'cluster'] = self.km.predict(self._one_dim_data)
