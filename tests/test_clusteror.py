@@ -1,6 +1,5 @@
 import sys
 sys.path.append('..')
-print(sys.path)
 import unittest
 import numpy as np
 import pandas as pd
@@ -8,9 +7,9 @@ import theano
 import theano.tensor as T
 from theano import shared
 from theano import function
-from dA import dA
-from SdA import SdA
-from settings import decimal_places
+from clusteror.dA import dA
+from clusteror.SdA import SdA
+from clusteror.settings import decimal_places
 
 
 def tanh_cross_entropy(field_importance, dat_in, dat_rec):
