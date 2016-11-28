@@ -1,5 +1,6 @@
 import sys
 sys.path.append('..')
+print(sys.path)
 import unittest
 import numpy as np
 import pandas as pd
@@ -7,9 +8,9 @@ import theano
 import theano.tensor as T
 from theano import shared
 from theano import function
-from datacycle.dA import dA
-from datacycle.SdA import SdA
-from datacycle.settings import decimal_places
+from dA import dA
+from SdA import SdA
+from settings import decimal_places
 
 
 def tanh_cross_entropy(field_importance, dat_in, dat_rec):
@@ -27,7 +28,7 @@ class TestDA(unittest.TestCase):
     def setUp(self):
         # prepare testing data
         self.dat = pd.read_csv(
-            'makeup_test_data.csv',
+            'data/makeup_test_data.csv',
             dtype=theano.config.floatX
         )
         self.field_importance = [1, 5, 10]
@@ -116,7 +117,7 @@ class TestSdA(unittest.TestCase):
     def setUp(self):
         # prepare testing data
         self.dat = pd.read_csv(
-            'makeup_test_data.csv',
+            'data/makeup_test_data.csv',
             dtype=theano.config.floatX
         )
         self.field_importance = [1, 5, 10]

@@ -2,3 +2,6 @@
             don't understand why there are two installation on MAC OS. One in
             /usr/local/cuda, the other in /Developer/NVIDIA/CUDA-7.5
 2016-11-25: need k-means
+2016-11-28: to remove installed packages
+            python setup.py install --record files.txt
+            cat files.txt | xargs rm -rf
