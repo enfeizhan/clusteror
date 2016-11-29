@@ -16,3 +16,5 @@ __pycache__/
 *.swp
 *.pk
 *.json
+.DS_Store
+*.png

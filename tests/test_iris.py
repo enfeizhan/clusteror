@@ -2,6 +2,8 @@ import sys
 sys.path.append('..')
 import numpy as np
 from clusteror.core import Clusteror
+from clusteror.plot import scatter_plot_two_dim_group_data
+from clusteror.plot import hist_plot_one_dim_group_data
 
 clusteror_valley = Clusteror.from_csv('data/iris.csv')
 clusteror_valley.cleaned_data = np.tanh(
@@ -26,3 +28,27 @@ clusteror_kmeans.one_dim_data = clusteror_valley.one_dim_data
 clusteror_kmeans.train_kmeans(10)
 clusteror_kmeans.save_kmeans(filename='km.pk')
 clusteror_kmeans.add_cluster()
+
+scatter_plot_two_dim_group_data(
+    clusteror_valley.raw_data.iloc[:, :2],
+    clusteror_valley.raw_data.cluster,
+    colors=['red', 'blue', 'black'],
+    show=False,
+    filename='two.png'
+)
+hist_plot_one_dim_group_data(
+    clusteror_valley.one_dim_data,
+    clusteror_valley.raw_data.Name,
+    bins=50,
+    colors=['red', 'blue', 'black'],
+    show=False,
+    filename='name.png'
+)
+hist_plot_one_dim_group_data(
+    clusteror_valley.one_dim_data,
+    clusteror_valley.raw_data.cluster,
+    bins=50,
+    colors=['red', 'blue', 'black'],
+    show=False,
+    filename='cluster.png'
+)

@@ -1,17 +1,6 @@
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 import pandas as pd
 import numpy as np
-
-
-def plot_grey(*args):
-    plt.imshow(*args, cmap=cm.Greys_r)
-    plt.show()
-
-
-def plot_scatter(*args, **kwargs):
-    plt.scatter(*args, **kwargs)
-    plt.show()
 
 
 def scatter_plot_two_dim_group_data(
@@ -19,11 +8,15 @@ def scatter_plot_two_dim_group_data(
         labels,
         markers=None,
         colors=None,
+        figsize=(10, 6),
         xlim=None,
         ylim=None,
-        alpha=0.5,
+        alpha=0.8,
         bbox_to_anchor=(1.01, 1),
         loc=2,
+        grid=True,
+        show=True,
+        filename=None,
         **kwargs
         ):
     '''
@@ -42,7 +35,8 @@ def scatter_plot_two_dim_group_data(
     bbox_to_anchor: tuple
 
     '''
-    assert two_dim_data.shape[1] == 2, 'two_dim_data must have two columns'
+    assert isinstance(two_dim_data, pd.core.frame.DataFrame)
+    assert two_dim_data.shape[1] == 2, 'Two_dim_data must have two columns!'
     if isinstance(labels, pd.core.series.Series):
         labels = labels.values
     grouped = two_dim_data.groupby(labels)
@@ -54,11 +48,13 @@ def scatter_plot_two_dim_group_data(
     # get color for each group from the spectrum
     if colors is None:
         colors = plt.cm.Spectral(np.linspace(0, 1, n_groups))
+    plt.figure(figsize=figsize)
+    ax = plt.subplot(111)
     if markers is None:
         # do a for loop to plot one by one
         # if markers not given, default circles
         for (name, group), color in zip(grouped, colors):
-            plt.scatter(
+            ax.scatter(
                 x=group.values[:, 0],
                 y=group.values[:, 1],
                 color=color,
@@ -67,16 +63,17 @@ def scatter_plot_two_dim_group_data(
                 **kwargs)
     else:
         for (name, group), color, marker in zip(grouped, colors, markers):
-            plt.scatter(
+            ax.scatter(
                 x=group.values[:, 0],
                 y=group.values[:, 1],
                 color=color,
                 marker=marker,
                 label=str(name),
                 alpha=alpha,
+                ax=ax,
                 **kwargs)
     # place the legend at the right hand side of the chart
-    plt.legend(bbox_to_anchor=(1.01, 1), loc=2)
+    plt.legend(bbox_to_anchor=bbox_to_anchor, loc=loc)
     # get the axes names
     x_label, y_label = tuple(two_dim_data.columns)
     plt.xlabel(x_label, size=17)
@@ -88,43 +85,26 @@ def scatter_plot_two_dim_group_data(
         ylim = (two_dim_data.iloc[:, 1].min(), two_dim_data.iloc[:, 1].max())
     plt.xlim(xlim)
     plt.ylim(ylim)
-    plt.show()
-
-
-def plot_dbscan(
-        labels,
-        X,
-        core_samples_mask,
-        ):
-    unique_labels = set(labels)
-    colors = plt.cm.Spectral(np.linspace(0, 1, len(unique_labels)))
-    for k, col in zip(unique_labels, colors):
-        if k == -1:
-            col = 'k'
-        class_member_mask = (labels == k)
-        xy = X[class_member_mask & core_samples_mask]
-        plt.plot(
-            xy[:, 0],
-            xy[:, 1],
-            'o',
-            markerfacecolor=col,
-            markersize=14,
-            label=str(k))
-        xy = X[class_member_mask & ~core_samples_mask]
-        plt.plot(
-            xy[:, 0],
-            xy[:, 1],
-            'o',
-            markerfacecolor=col,
-            markersize=6)
-    plt.legend()
-    plt.show()
+    if grid:
+        plt.grid()
+    if show:
+        plt.show()
+    else:
+        assert filename
+        plt.savefig(filename)
 
 
 def hist_plot_one_dim_group_data(
         one_dim_data,
         labels,
         bins=11,
+        colors=None,
+        figsize=(10, 6),
+        bbox_to_anchor=(1.01, 1),
+        loc=2,
+        grid=True,
+        show=True,
+        filename=None,
         **kwargs):
     '''
     Plot the distribution of the one dimensional reduced data in a histogram.
@@ -147,20 +127,31 @@ def hist_plot_one_dim_group_data(
     grouped = one_dim_data.groupby(labels)
     n_groups = grouped.ngroups
     # get color for each group from the spectrum
-    colors = plt.cm.Spectral(np.linspace(0, 1, n_groups))
+    if colors is None:
+        colors = plt.cm.Spectral(np.linspace(0, 1, n_groups))
+    plt.figure(figsize=figsize)
+    ax = plt.subplot(111)
     # if bins is a integer create bins between 0 and 1
     if isinstance(bins, int):
-        bins = np.linspace(0, 1, bins)
+        bins = np.linspace(-1, 1, bins)
     # do a for loop to plot one by one
     for (name, group), color in zip(grouped, colors):
-        plt.hist(group.values,
-                 bins=bins,
-                 color=color,
-                 label=str(name),
-                 alpha=0.5,
-                 **kwargs)
+        ax.hist(
+            group.values,
+            bins=bins,
+            color=color,
+            label=str(name),
+            alpha=0.5,
+            **kwargs
+        )
     # place the legend at the right hand side of the chart
     plt.legend(bbox_to_anchor=(1.01, 1), loc=2)
     plt.xlabel('Dimension Reduced Data', size=17)
     plt.ylabel('Occurence', size=17)
-    plt.show()
+    if grid:
+        plt.grid()
+    if show:
+        plt.show()
+    else:
+        assert filename
+        plt.savefig(filename)
