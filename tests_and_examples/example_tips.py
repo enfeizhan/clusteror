@@ -1,4 +1,4 @@
-import ipdb
+# import ipdb
 import sys
 sys.path.append('..')
 import numpy as np
@@ -22,7 +22,6 @@ clusteror_valley.cleaned_data = np.tanh(dat_float - dat_float_median)
 # ordinal columns can be processed similar to float number columns
 # after being numericalised. It's already in numbers in this example
 dat_ord = clusteror_valley.raw_data.loc[:, ['size']]
-ipdb.set_trace()
 dat_ord_median = dat_ord.median()
 # store median
 dat_ord_median.to_csv('ord_median.csv')
@@ -43,10 +42,12 @@ clusteror_valley.cleaned_data = pd.concat(
     [clusteror_valley.cleaned_data, dat_cat],
     axis=1
 )
+clusteror_valley.field_importance = {'total_bill': 100, 'tip': 1000}
 # train neural networks
 clusteror_valley.train_sda_dim_reducer(
     hidden_layers_sizes=[20],
     corruption_levels=[0.1],
+    field_importance=clusteror_valley.field_importance,
     min_epochs=70,
     improvement_threshold=0.9,
     verbose=True

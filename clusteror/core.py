@@ -3,6 +3,7 @@ import os
 import sys
 import json
 import timeit
+import warnings
 import numpy as np
 import pandas as pd
 import pickle as pk
@@ -93,6 +94,27 @@ class Clusteror(object):
     def kmeans(self, kmeans):
         self._kmeans = kmeans
         self._tagger = 'kmeans'
+
+    @property
+    def field_importance(self):
+        return self._field_importance
+
+    @field_importance.setter
+    def field_importance(self, field_importance):
+        n_fields = self._cleaned_data.shape[1]
+        if isinstance(field_importance, list):
+            assert len(field_importance) == n_fields
+            self._field_importance = field_importance
+        elif isinstance(field_importance, dict):
+            self._field_importance = [1] * n_fields
+            columns = self._cleaned_data.columns.tolist()
+            for field, importance in field_importance.items():
+                try:
+                    index = columns.index(field)
+                    self._field_importance[index] = importance
+                except ValueError:
+                    msg = '{} isn\'t in fields'.format(field)
+                    warnings.warn(msg)
 
     def _check_cleaned_data(self):
         '''
