@@ -297,64 +297,108 @@ def tile_raster_images(X, img_shape, tile_shape, tile_spacing=(0, 0),
         return out_array
 
 
-def check_local_extremity(series, ind, contrast=0.15, kind='min'):
-    if kind == 'min':
-        value = series.iloc[ind]
-        upper_benchmark = value * (1 + contrast)
-
-        left_sub = series.iloc[:ind]
-        if left_sub.empty:
-            smallest_to_left = True
-        else:
-            left_larger = left_sub > upper_benchmark
-            left_trues = left_larger.loc[left_larger.values]
-            if left_trues.empty:
-                smallest_to_left = False
+def find_local_extremes(series, contrast):
+    state = {
+        'pmin': None,
+        'pmin_ind': None,
+        'pmax': None,
+        'pmax_ind': None,
+        'lmin': None,
+        'lmax': None
+    }
+    # initialise, all starting points are potential local min and local max
+    state['pmin_ind'] = series.index.tolist()[0]
+    state['pmin'] = series.iat[0]
+    state['pmax_ind'] = series.index.tolist()[0]
+    state['pmax'] = series.iat[0]
+    # store true local mins and maxes
+    local_min_inds = []
+    local_mins = []
+    local_max_inds = []
+    local_maxs = []
+    # walk through all rows
+    for ind, value in series.iteritems():
+        if state['pmin'] is not None and state['pmax'] is not None:
+            # when just starts out or find a potential extreme after
+            # confirming a local extreme
+            if value <= state['pmin']:
+                # value is smaller then update potential min
+                state['pmin'] = value
+                state['pmin_ind'] = ind
+                if value * (1 + contrast) <= state['pmax']:
+                    # if the gap between current point and potential max is
+                    # larger than contrast
+                    # then confirm the last potential max is a true local max
+                    state['lmax'] = state['pmax']
+                    local_max_inds.append(state['pmax_ind'])
+                    local_maxs.append(state['pmax'])
+                    # so for a moment no potential max
+                    state['pmax'] = None
+                    state['pmax_ind'] = None
+            elif value >= state['pmax']:
+                # value is larger then update potential max
+                state['pmax'] = value
+                state['pmax_ind'] = ind
+                if value > state['pmin'] * (1 + contrast):
+                    # if the gap between current point and potential min is
+                    # larger than contrast
+                    # then confirm the last potential min is a true local min
+                    state['lmin'] = state['pmin']
+                    local_min_inds.append(state['pmin_ind'])
+                    local_mins.append(state['pmin'])
+                    # so for a moment no potential min
+                    state['pmin'] = None
+                    state['pmin_ind'] = None
             else:
-                left_ind = left_trues.index[-1]
-                left_smallest = series.iloc[left_ind:ind].min()
-                smallest_to_left = left_smallest > value
-
-        right_sub = series.iloc[ind+1:]
-        if right_sub.empty:
-            smallest_to_right = True
-        else:
-            right_larger = right_sub > upper_benchmark
-            right_trues = right_larger.loc[right_larger.values]
-            if right_trues.empty:
-                smallest_to_right = False
+                # point is between potenital min and potential max
+                # just pass without updating
+                pass
+        elif state['pmax'] is not None and state['lmin'] is not None:
+            # when just found a local min, trying to find next local max
+            if value >= state['pmax']:
+                # update if value is larger
+                state['pmax'] = value
+                state['pmax_ind'] = ind
+            elif value <= state['lmin']:
+                # this is where it just after a sharp blip
+                # confirm the last point is a local max
+                state['lmax'] = state['pmax']
+                local_max_inds.append(state['pmax_ind'])
+                local_maxs.append(state['pmax'])
+                # so for a moment no potential max
+                state['pmax'] = None
+                state['pmax_ind'] = None
+                # the current point becomes a potential min
+                state['pmin'] = value
+                state['pmin_ind'] = ind
             else:
-                right_ind = right_trues.index[0]
-                right_smallest = series.iloc[ind+1:right_ind+1].min()
-                smallest_to_right = right_smallest > value
-        return smallest_to_left and smallest_to_right
-    if kind == 'max':
-        value = series.iloc[ind]
-        lower_benchmark = value * (1 - contrast)
-
-        left_sub = series.iloc[:ind]
-        if left_sub.empty:
-            largest_to_left = True
-        else:
-            left_smaller = left_sub < lower_benchmark
-            left_trues = left_smaller.loc[left_smaller.values]
-            if left_trues.empty:
-                largest_to_left = False
+                # smaller than the last point, so this is a potential min
+                state['lmin'] = None
+                state['pmin'] = value
+                state['pmin_ind'] = ind
+        elif state['pmin'] is not None and state['lmax'] is not None:
+            # when just found a local max, trying to find the next local min
+            if value <= state['pmin']:
+                # update if value is smaller
+                state['pmin'] = value
+                state['pmin_ind'] = ind
+            elif value >= state['lmax']:
+                # this is where just after a deep dip
+                # confirm the last point is a local min
+                state['lmin'] = state['pmin']
+                local_min_inds.append(state['pmin_ind'])
+                local_mins.append(state['pmin'])
+                # so for a moment no potential min
+                state['pmin'] = None
+                state['pmin_ind'] = None
+                # the current point becomes a potential max
+                state['pmax'] = value
+                state['pmax_ind'] = ind
             else:
-                left_ind = left_trues.index[-1]
-                left_largest = series.iloc[left_ind:ind].max()
-                largest_to_left = left_largest < value
-
-        right_sub = series.iloc[ind+1:]
-        if right_sub.empty:
-            largest_to_right = True
+                # larger than the last point, so this is a potential max
+                state['lmax'] = None
+                state['pmax'] = value
+                state['pmax_ind'] = ind
         else:
-            right_smaller = right_sub < lower_benchmark
-            right_trues = right_smaller.loc[right_smaller.values]
-            if right_trues.empty:
-                largest_to_right = False
-            else:
-                right_ind = right_trues.index[0]
-                right_largest = series.iloc[ind+1:right_ind+1].max()
-                largest_to_right = right_largest < value
-        return largest_to_left and largest_to_right
+            print('strange')
+    return local_min_inds, local_mins, local_max_inds, local_maxs

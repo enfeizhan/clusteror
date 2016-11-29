@@ -1,4 +1,4 @@
-import ipdb
+# import ipdb
 import os
 import sys
 import json
@@ -16,7 +16,7 @@ from .dA import dA
 from .SdA import SdA
 from .settings import numpy_random_seed
 from .settings import theano_random_seed
-from .utils import check_local_extremity
+from .utils import find_local_extremes
 
 
 class OutRangeError(Exception):
@@ -320,27 +320,21 @@ class Clusteror(object):
             self._one_dim_data = self._da_dim_reducer(self._cleaned_data)
         elif self.network == 'sda':
             self._one_dim_data = self._sda_dim_reducer(self._cleaned_data)
-        self._one_dim_data = self._one_dim_data.reshape(
-            (self._one_dim_data.shape[0],)
-        )
+        self._one_dim_data = self._one_dim_data[:, 0]
 
     def train_valley(self, bins=100, contrast=0.3):
-        bins = np.linspace(0, 1, bins+1)
-        left_points = bins[:-1]
+        bins = np.linspace(-1, 1, bins+1)
+        # use the left point of bins to name the bin
+        left_points = np.asarray(bins[:-1])
         cuts = pd.cut(self._one_dim_data, bins=bins)
-        ipdb.set_trace()
+        # ipdb.set_trace()
         bin_counts = cuts.describe().reset_index().loc[:, 'counts']
-        local_min_inds = []
-        for ind, value in bin_counts.iteritems():
-            is_local_min = check_local_extremity(
-                bin_counts,
-                ind,
-                contrast=contrast,
-                kind='min'
-            )
-            if is_local_min:
-                local_min_inds.append(left_points[ind])
-        self.trained_bins = [0] + local_min_inds + [1]
+        local_min_inds, local_mins, local_max_inds, local_maxs = (
+            find_local_extremes(bin_counts, contrast)
+        )
+        self.trained_bins = left_points[local_min_inds].tolist() + [1]
+        if self.trained_bins[0] != -1:
+            self.trained_bins = [-1] + self.trained_bins
 
         def valley(one_dim_data):
             cuts = pd.cut(
@@ -350,14 +344,14 @@ class Clusteror(object):
             )
             return cuts.get_values()
         self._valley = valley
-        self.tagger = 'valley'
+        self._tagger = 'valley'
 
     def save_valley(self, filename):
-        with open(filename, 'wb') as f:
+        with open(filename, 'w') as f:
             json.dump(self.trained_bins, f)
 
     def load_valley(self, filename):
-        with open(filename, 'rb') as f:
+        with open(filename, 'r') as f:
             self.trained_bins = json.load(f)
 
         def valley(one_dim_data):
@@ -368,12 +362,12 @@ class Clusteror(object):
             )
             return cuts.get_values()
         self._valley = valley
-        self.tagger = 'valley'
+        self._tagger = 'valley'
 
     def train_kmeans(self, n_clusters=None, **kwargs):
         self._kmeans = KMeans(n_clusters=n_clusters, **kwargs)
-        self._kmeans.fit(self._one_dim_data)
-        self.tagger = 'kmeans'
+        self._kmeans.fit(self._one_dim_data.reshape(-1, 1))
+        self._tagger = 'kmeans'
 
     def save_kmeans(self, filename):
         with open(filename, 'wb') as f:
@@ -389,5 +383,5 @@ class Clusteror(object):
             self.raw_data.loc[:, 'cluster'] = self._valley(self._one_dim_data)
         elif self._tagger == 'kmeans':
             self.raw_data.loc[:, 'cluster'] = (
-                self._kmeans.predict(self._one_dim_data)
+                self._kmeans.predict(self._one_dim_data.reshape(-1, 1))
             )

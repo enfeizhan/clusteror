@@ -17,12 +17,12 @@ clusteror_valley.train_sda_dim_reducer(
 )
 clusteror_valley.save_dim_reducer(filename='sda.pk')
 clusteror_valley.reduce_to_one_dim()
-clusteror_valley.train_valley()
+clusteror_valley.train_valley(bins=20, contrast=0.5)
 clusteror_valley.save_valley(filename='valley.json')
 clusteror_valley.add_cluster()
 
 clusteror_kmeans = Clusteror.from_csv('data/iris.csv')
-clusteror_kmeans.one_dim_data = clusteror_kmeans.one_dim_data
-clusteror_kmeans.train_kmains(10)
+clusteror_kmeans.one_dim_data = clusteror_valley.one_dim_data
+clusteror_kmeans.train_kmeans(10)
 clusteror_kmeans.save_kmeans(filename='km.pk')
 clusteror_kmeans.add_cluster()
