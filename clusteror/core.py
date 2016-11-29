@@ -1,3 +1,4 @@
+import ipdb
 import os
 import sys
 import json
@@ -50,6 +51,24 @@ class Clusteror(object):
         self._cleaned_data = cleaned_data
 
     @property
+    def da_dim_reducer(self):
+        return self._da_dim_reducer
+
+    @da_dim_reducer.setter
+    def da_dim_reducer(self, da_dim_reducer):
+        self._da_dim_reducer = da_dim_reducer
+        self.network = 'da'
+
+    @property
+    def sda_dim_reducer(self):
+        return self._sda_dim_reducer
+
+    @sda_dim_reducer.setter
+    def sda_dim_reducer(self, sda_dim_reducer):
+        self._sda_dim_reducer = sda_dim_reducer
+        self.network = 'sda'
+
+    @property
     def one_dim_data(self):
         return self._one_dim_data
 
@@ -57,21 +76,25 @@ class Clusteror(object):
     def one_dim_data(self, one_dim_data):
         self._one_dim_data = one_dim_data
 
-    def train_dim_reducer(
-        self,
-        approach='da',
-        field_importance=None,
-        to_dim=1,
-        batch_size=50,
-        hidden_layers_sizes=None,
-        corruption_levels=0.3,
-        learning_rate=0.002,
-        min_epochs=200,
-        patience=60,
-        patience_increase=2,
-        improvement_threshold=0.98,
-        verbose=False,
-    ):
+    @property
+    def valley(self):
+        return self._valley
+
+    @valley.setter
+    def valley(self, valley):
+        self._valley = valley
+        self._tagger = 'valley'
+
+    @property
+    def kmeans(self):
+        return self._kmeans
+
+    @kmeans.setter
+    def kmeans(self, kmeans):
+        self._kmeans = kmeans
+        self._tagger = 'kmeans'
+
+    def _check_cleaned_data(self):
         '''
         Use various methods to reduce the dimension for further analysis.
         Early stops if updates change less than a threshold.
@@ -81,6 +104,8 @@ class Clusteror(object):
             raise OutRangeError('Maximum should be less equal than 1.')
         if (self._cleaned_data.min() < -1).any():
             raise OutRangeError('Minimum should be greater equal than -1')
+
+    def _prepare_network_training(self, batch_size):
         # compute number of minibatches for training, validation and testing
         self.data = np.asarray(self._cleaned_data, dtype=theano.config.floatX)
         self.train_set = shared(value=self.data, borrow=True)
@@ -91,35 +116,6 @@ class Clusteror(object):
             self.data.shape[0] // batch_size +
             int(self.data.shape[0] % batch_size > 0)
         )
-        if approach == 'da':
-            self._train_da_dim_reducer(
-                field_importance=field_importance,
-                to_dim=to_dim,
-                batch_size=batch_size,
-                corruption_level=corruption_levels,
-                learning_rate=learning_rate,
-                min_epochs=min_epochs,
-                patience=patience,
-                patience_increase=patience_increase,
-                improvement_threshold=improvement_threshold,
-                verbose=verbose,
-            )
-        elif approach == 'sda':
-            assert hidden_layers_sizes is not None
-            assert isinstance(corruption_levels, list)
-            assert len(hidden_layers_sizes) == len(corruption_levels)
-            self._train_sda_dim_reducer(
-                field_importance=field_importance,
-                batch_size=batch_size,
-                hidden_layers_sizes=hidden_layers_sizes,
-                corruption_levels=corruption_levels,
-                learning_rate=learning_rate,
-                min_epochs=min_epochs,
-                patience=patience,
-                patience_increase=patience_increase,
-                improvement_threshold=improvement_threshold,
-                verbose=verbose,
-            )
 
     def _pretraining_early_stopping(
             self,
@@ -181,31 +177,33 @@ class Clusteror(object):
                 os.path.split(__file__)[1] +
                 ' ran for {time:.2f}m\n'.format(time=training_time / 60.))
 
-    def _train_da_dim_reducer(
-            self,
-            field_importance,
-            to_dim,
-            batch_size,
-            corruption_level,
-            learning_rate,
-            min_epochs,
-            patience,
-            patience_increase,
-            improvement_threshold,
-            verbose,
-            ):
+    def train_da_dim_reducer(
+        self,
+        field_importance=None,
+        batch_size=50,
+        corruption_level=0.3,
+        learning_rate=0.002,
+        min_epochs=200,
+        patience=60,
+        patience_increase=2,
+        improvement_threshold=0.98,
+        verbose=False,
+    ):
         '''
         Reduces the dimension of each record down to a dimension.
         verbose: boolean, default True
           If true, printing out the progress of pretraining.
         '''
+        self.network = 'da'
+        self._check_cleaned_data()
+        self._prepare_network_training(batch_size=batch_size)
         # allocate symbolic variables for the dat
         # index to a [mini]batch
         index = T.lscalar('index')
         x = T.matrix('x')
         da = dA(
             n_visible=self.data.shape[1],
-            n_hidden=to_dim,
+            n_hidden=1,
             np_rs=self.np_rs,
             theano_rs=self.theano_rs,
             field_importance=field_importance,
@@ -234,28 +232,36 @@ class Clusteror(object):
             verbose=verbose,
         )
         self.da = da
-        self.da_lower_dim = function([x], da.get_hidden_values(x))
+        self._da_dim_reducer = function([x], da.get_hidden_values(x))
         self.da_reconstruct = function(
             [x],
             da.get_reconstructed_input(da.get_hidden_values(x))
         )
 
-    def _train_sda_dim_reducer(
-            self,
-            field_importance,
-            batch_size,
-            hidden_layers_sizes,
-            corruption_levels,
-            learning_rate,
-            min_epochs,
-            patience,
-            patience_increase,
-            improvement_threshold,
-            verbose,
-            ):
+    def train_sda_dim_reducer(
+        self,
+        field_importance=None,
+        batch_size=50,
+        hidden_layers_sizes=[20],
+        corruption_levels=[0.3],
+        learning_rate=0.002,
+        min_epochs=200,
+        patience=60,
+        patience_increase=2,
+        improvement_threshold=0.98,
+        verbose=False
+    ):
         '''
         Reduce the dimension of each record down to a dimension.
         '''
+        assert hidden_layers_sizes is not None
+        assert isinstance(corruption_levels, list)
+        assert len(hidden_layers_sizes) == len(corruption_levels)
+        self.network = 'sda'
+        self._check_cleaned_data()
+        self._prepare_network_training(batch_size=batch_size)
+        hidden_layers_sizes.append(1)
+        corruption_levels.append(0)
         x = T.matrix('x')
         sda = SdA(
             n_ins=self.data.shape[1],
@@ -282,31 +288,48 @@ class Clusteror(object):
                 learning_rate=learning_rate
             )
         self.sda = sda
-        self.sda_lower_dim = function([x], sda.get_final_hidden_layer(x))
+        self._sda_dim_reducer = function([x], sda.get_final_hidden_layer(x))
         self.sda_reconstruct = function(
             [x],
             sda.get_first_reconstructed_input(sda.get_final_hidden_layer(x))
         )
 
-    def save_dim_reducer(self, approach='da', filename='dim_reducer.pk'):
-        with open(approach+'_'+filename, 'wb') as f:
-            if approach == 'da':
-                pk.dump(self.da_to_lower_dim, f)
-            elif approach == 'sda':
-                pk.dump(self.sda_to_lower_dim, f)
+    def save_dim_reducer(
+        self,
+        filename='dim_reducer.pk',
+        include_network=False
+    ):
+        if include_network:
+            filename = self.network + '_' + filename
+        with open(filename, 'wb') as f:
+            if self.network == 'da':
+                pk.dump(self._da_dim_reducer, f)
+            elif self.network == 'sda':
+                pk.dump(self._sda_dim_reducer, f)
 
-    def load_dim_reducer(self, approach='da', filename='dim_reducer.pk'):
+    def load_dim_reducer(self, filename='dim_reducer.pk'):
         with open(filename, 'rb') as f:
-            if approach == 'da':
-                self.da_to_lower_dim = pk.load(f)
-            elif approach == 'sda':
-                self.sda_to_lower_dim = pk.load(f)
+            if self.network == 'da':
+                self._da_to_lower_dim = pk.load(f)
+            elif self.network == 'sda':
+                self._sda_to_lower_dim = pk.load(f)
 
-    def train_tagger(self, bins=100, contrast=0.3):
+    def reduce_to_one_dim(self):
+        assert self._cleaned_data is not None
+        if self.network == 'da':
+            self._one_dim_data = self._da_dim_reducer(self._cleaned_data)
+        elif self.network == 'sda':
+            self._one_dim_data = self._sda_dim_reducer(self._cleaned_data)
+        self._one_dim_data = self._one_dim_data.reshape(
+            (self._one_dim_data.shape[0],)
+        )
+
+    def train_valley(self, bins=100, contrast=0.3):
         bins = np.linspace(0, 1, bins+1)
         left_points = bins[:-1]
         cuts = pd.cut(self._one_dim_data, bins=bins)
-        bin_counts = cuts.reset_index().loc[:, 'counts']
+        ipdb.set_trace()
+        bin_counts = cuts.describe().reset_index().loc[:, 'counts']
         local_min_inds = []
         for ind, value in bin_counts.iteritems():
             is_local_min = check_local_extremity(
@@ -319,53 +342,52 @@ class Clusteror(object):
                 local_min_inds.append(left_points[ind])
         self.trained_bins = [0] + local_min_inds + [1]
 
-        def tagger(one_dim_data):
+        def valley(one_dim_data):
             cuts = pd.cut(
                 one_dim_data,
                 bins=self.trained_bins,
                 labels=list(range(len(self.trained_bins) - 1))
             )
             return cuts.get_values()
-        self.tagger = tagger
+        self._valley = valley
+        self.tagger = 'valley'
 
-    def save_tagger(self, filename):
+    def save_valley(self, filename):
         with open(filename, 'wb') as f:
             json.dump(self.trained_bins, f)
 
-    def load_tagger(self, filename):
+    def load_valley(self, filename):
         with open(filename, 'rb') as f:
             self.trained_bins = json.load(f)
 
-        def tagger(one_dim_data):
+        def valley(one_dim_data):
             cuts = pd.cut(
                 one_dim_data,
                 bins=self.trained_bins,
                 labels=list(range(len(self.trained_bins) - 1))
             )
             return cuts.get_values()
-        self.tagger = tagger
-
-    def get_one_dim_data(self, approach='da'):
-        assert self._cleaned_data is not None
-        if approach == 'da':
-            self._one_dim_data = self.da_to_lower_dim(self._cleaned_data)
-        elif approach == 'sda':
-            self._one_dim_data = self.sda_to_lower_dim(self._cleaned_data)
+        self._valley = valley
+        self.tagger = 'valley'
 
     def train_kmeans(self, n_clusters=None, **kwargs):
-        self.km = KMeans(n_clusters=n_clusters, **kwargs)
-        self.km.fit(self._one_dim_data)
+        self._kmeans = KMeans(n_clusters=n_clusters, **kwargs)
+        self._kmeans.fit(self._one_dim_data)
+        self.tagger = 'kmeans'
 
     def save_kmeans(self, filename):
         with open(filename, 'wb') as f:
-            pk.dump(self.km, f)
+            pk.dump(self._kmeans, f)
 
     def load_kmeans(self, filename):
         with open(filename, 'rb') as f:
-            self.km = pk.load(f)
+            self._kmeans = pk.load(f)
+        self._tagger = 'valley'
 
-    def add_cluster_with_tagger(self):
-        self.raw_data.loc[:, 'cluster'] = self.tagger(self._one_dim_data)
-
-    def add_cluster_with_kmeans(self):
-        self.raw_data.loc[:, 'cluster'] = self.km.predict(self._one_dim_data)
+    def add_cluster(self):
+        if self._tagger == 'valley':
+            self.raw_data.loc[:, 'cluster'] = self._valley(self._one_dim_data)
+        elif self._tagger == 'kmeans':
+            self.raw_data.loc[:, 'cluster'] = (
+                self._kmeans.predict(self._one_dim_data)
+            )
