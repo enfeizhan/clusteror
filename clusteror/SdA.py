@@ -23,7 +23,7 @@ class SdA(object):
 
     def __init__(self, n_ins, hidden_layers_sizes,
                  np_rs=None, theano_rs=None, field_importance=None,
-                 input_dat=None):
+                 input_data=None):
         # set theano random state if not given
         if np_rs is None:
             np_rs = np.random.RandomState(numpy_random_seed)
@@ -34,9 +34,9 @@ class SdA(object):
         self.params = []
         self.n_layers = len(hidden_layers_sizes)
         assert self.n_layers > 0
-        if input_dat is None:
-            input_dat = T.matrix(name='input_dat')
-        self.x = input_dat
+        if input_data is None:
+            input_data = T.matrix(name='input_data')
+        self.x = input_data
         outputs = []
         for i in range(self.n_layers):
             if i == 0:
@@ -47,7 +47,7 @@ class SdA(object):
                     np_rs=np_rs,
                     theano_rs=theano_rs,
                     field_importance=field_importance,
-                    input_dat=layer_input,
+                    input_data=layer_input,
                 )
             else:
                 layer_input = outputs[-1]
@@ -56,20 +56,20 @@ class SdA(object):
                     n_hidden=hidden_layers_sizes[i],
                     np_rs=np_rs,
                     theano_rs=theano_rs,
-                    input_dat=layer_input
+                    input_data=layer_input
                 )
             # ipdb.set_trace()
             outputs.append(dA_layer.get_hidden_values(layer_input))
             self.dA_layers.append(dA_layer)
             self.params.extend(dA_layer.params)
 
-    def get_final_hidden_layer(self, input_dat):
+    def get_final_hidden_layer(self, input_data):
         '''
         Given input, gets the final output.
         '''
         assert len(self.dA_layers) > 0
         h_values = []
-        h_values.append(input_dat)
+        h_values.append(input_data)
         for da in self.dA_layers:
             h_values.append(da.get_hidden_values(h_values[-1]))
         return h_values[-1]
