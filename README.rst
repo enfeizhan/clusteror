@@ -5,7 +5,7 @@ clusteror
 * Unveils internal "invisible" patterns automatically
 * https://github.com/enfeizhan/clusteror
 * Fei Zhan
-* License: Public Domain
+* License: MIT License
 
 Description
 ===========

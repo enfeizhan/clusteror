@@ -42,7 +42,7 @@ def setup_package():
           url='https://github.com/enfeizhan/clusteror',
           author='Fei Zhan',
           author_email='enfeizhan@gmail.com',
-          license=None,
+          license='MIT License',
           packages=['clusteror'],
           platforms='any',
           setup_requires=['six', 'pyscaffold>=2.5a0,<2.6a0'] + sphinx,

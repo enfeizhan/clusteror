@@ -2,4 +2,4 @@
 Developers
 ==========
 
-* Fei Zhan <fei.zhan@jbadigital.com>
+* Fei Zhan <enfeizhan@gmail.com>
