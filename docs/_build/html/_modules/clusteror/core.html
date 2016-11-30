@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>clusteror.core &#8212; clusteror 0.0.post0.dev53+n2b030b9.dirty documentation</title>
+    <title>clusteror.core &#8212; clusteror 0.0.post0.dev55+n246fe33.dirty documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.0.post0.dev53+n2b030b9.dirty',
+        VERSION:     '0.0.post0.dev55+n246fe33.dirty',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="top" title="clusteror 0.0.post0.dev53+n2b030b9.dirty documentation" href="../../index.html" />
+    <link rel="top" title="clusteror 0.0.post0.dev55+n246fe33.dirty documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -43,7 +43,47 @@
           <div class="body" role="main">
             
   <h1>Source code for clusteror.core</h1><div class="highlight"><pre>
-<span></span><span class="c1"># import ipdb</span>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">This module contains ``Clusteror`` class capsulating raw data to discover</span>
+<span class="sd">clusters from, the cleaned data for a clusteror to run on, as well as</span>
+<span class="sd">methods to training neural networks and delimiting occurances into clusters.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="c1"># `h`_</span>
+<span class="c1"># Example</span>
+<span class="c1"># -------</span>
+<span class="c1"># Examples can be given using either the ``Example`` or ``Examples``</span>
+<span class="c1"># sections. Sections support any reStructuredText formatting, including</span>
+<span class="c1"># literal blocks::</span>
+<span class="c1"># </span>
+<span class="c1">#         $ python example_numpy.py</span>
+<span class="c1"># </span>
+<span class="c1"># </span>
+<span class="c1"># Section breaks are created with two blank lines. Section breaks are also</span>
+<span class="c1"># implicitly created anytime a new section starts. Section bodies *may* be</span>
+<span class="c1"># indented:</span>
+<span class="c1"># </span>
+<span class="c1"># Notes</span>
+<span class="c1"># -----</span>
+<span class="c1">#     This is an example of an indented section. It&#39;s like any other section,</span>
+<span class="c1">#         but the body is indented to help it stand out from surrounding text.</span>
+<span class="c1"># </span>
+<span class="c1"># If a section is indented, then a section break is created by</span>
+<span class="c1"># resuming unindented text.</span>
+<span class="c1"># </span>
+<span class="c1"># Attributes</span>
+<span class="c1"># ----------</span>
+<span class="c1"># module_level_variable1 : int</span>
+<span class="c1">#     Module level variables may be documented in either the ``Attributes``</span>
+<span class="c1">#     section of the module docstring, or in an inline docstring immediately</span>
+<span class="c1">#     following the variable.</span>
+<span class="c1"># </span>
+<span class="c1">#     Either form is acceptable, but the two should not be mixed. Choose</span>
+<span class="c1">#     one convention to document module level variables and be consistent</span>
+<span class="c1">#     with it.</span>
+<span class="c1"># </span>
+<span class="c1"># .. _NumPy Documentation HOWTO:</span>
+<span class="c1">#     https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt</span>
+<span class="c1"># import ipdb</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">json</span>
@@ -66,22 +106,64 @@
 
 
 <div class="viewcode-block" id="OutRangeError"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.OutRangeError">[docs]</a><span class="k">class</span> <span class="nc">OutRangeError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Exceptions thrown as cleaned data go beyond range ``[-1, 1]``.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="Clusteror"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror">[docs]</a><span class="k">class</span> <span class="nc">Clusteror</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    ``Clusteror`` class can train neural networks *denoising autoencoder* or</span>
+<span class="sd">    *Stached Denoising Autoencoder*, train taggers, or load saved models</span>
+<span class="sd">    from files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw_data : Pandas DataFrame</span>
+<span class="sd">        Dataframe read from data source. It can be original dataset without</span>
+<span class="sd">        any preprocessing or with a certain level of manipulation for</span>
+<span class="sd">        future analysis.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    _raw_data : Pandas DataFrame</span>
+<span class="sd">        Stores the original dataset. It&#39;s the dataset that later</span>
+<span class="sd">        post-clustering performance analysis will be based on.</span>
+<span class="sd">    _cleaned_data : Pandas DataFrame</span>
+<span class="sd">        Preprocessed data. Not necessarily has same number of columns with</span>
+<span class="sd">        ``_raw_data`` as a categorical column can derive multiple columns.</span>
+<span class="sd">        As the ``tanh`` function is used as activation function for symmetric</span>
+<span class="sd">        consideration. All columns should have values in range ``[-1, 1]``,</span>
+<span class="sd">        otherwise an ``OutRangeError`` will be raised.</span>
+<span class="sd">    _network : str</span>
+<span class="sd">        **da** for *Denoising Autoencoder*; **sda** for *Stacked Denoising</span>
+<span class="sd">        Autoencoder*. Facilating functions called with one or the other</span>
+<span class="sd">        algorithm.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_raw_data</span> <span class="o">=</span> <span class="n">raw_data</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">np_rs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">numpy_random_seed</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">theano_rs</span> <span class="o">=</span> <span class="n">RandomStreams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">np_rs</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">theano_random_seed</span><span class="p">))</span>
 
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="Clusteror.from_csv"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.from_csv">[docs]</a>    <span class="k">def</span> <span class="nf">from_csv</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Class method for directly reading .csv file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filepath : str</span>
+<span class="sd">            Path to the CSV file</span>
+<span class="sd">        **kwargs : keyword arguments</span>
+<span class="sd">            Other keyword arguments passed to ``pandas.read_csv``</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">raw_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">raw_data</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">raw_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Pandas DataFrame: For assgining new values to ``_raw_data``.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_data</span>
 
     <span class="nd">@raw_data</span><span class="o">.</span><span class="n">setter</span>
@@ -90,6 +172,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cleaned_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Pandas DataFrame: For assgining cleaned dataframe to ``_cleaned_dat``.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cleaned_data</span>
 
     <span class="nd">@cleaned_data</span><span class="o">.</span><span class="n">setter</span>
@@ -98,12 +183,17 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">da_dim_reducer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Theano function: Function that reduces dataset dimension. Attribute</span>
+<span class="sd">            ``_network`` is given **da** to designate the method of the</span>
+<span class="sd">            autoencoder as ``Denoising Autocoder``.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_da_dim_reducer</span>
 
     <span class="nd">@da_dim_reducer</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">da_dim_reducer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">da_dim_reducer</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_da_dim_reducer</span> <span class="o">=</span> <span class="n">da_dim_reducer</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="s1">&#39;da&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">=</span> <span class="s1">&#39;da&#39;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">sda_dim_reducer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -112,7 +202,7 @@
     <span class="nd">@sda_dim_reducer</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">sda_dim_reducer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sda_dim_reducer</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sda_dim_reducer</span> <span class="o">=</span> <span class="n">sda_dim_reducer</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="s1">&#39;sda&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">=</span> <span class="s1">&#39;sda&#39;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">one_dim_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -173,6 +263,8 @@
             <span class="k">raise</span> <span class="n">OutRangeError</span><span class="p">(</span><span class="s1">&#39;Minimum should be greater equal than -1&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_prepare_network_training</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">np_rs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">numpy_random_seed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theano_rs</span> <span class="o">=</span> <span class="n">RandomStreams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">np_rs</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">theano_random_seed</span><span class="p">))</span>
         <span class="c1"># compute number of minibatches for training, validation and testing</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cleaned_data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">train_set</span> <span class="o">=</span> <span class="n">shared</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">borrow</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -261,7 +353,7 @@
 <span class="sd">        verbose: boolean, default True</span>
 <span class="sd">          If true, printing out the progress of pretraining.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="s1">&#39;da&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">=</span> <span class="s1">&#39;da&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_cleaned_data</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_network_training</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
         <span class="c1"># allocate symbolic variables for the dat</span>
@@ -324,7 +416,7 @@
         <span class="k">assert</span> <span class="n">hidden_layers_sizes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">corruption_levels</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">hidden_layers_sizes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">corruption_levels</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="s1">&#39;sda&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">=</span> <span class="s1">&#39;sda&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_cleaned_data</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_network_training</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
         <span class="n">hidden_layers_sizes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -367,25 +459,25 @@
         <span class="n">include_network</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">include_network</span><span class="p">:</span>
-            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">filename</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">filename</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">==</span> <span class="s1">&#39;da&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">==</span> <span class="s1">&#39;da&#39;</span><span class="p">:</span>
                 <span class="n">pk</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_da_dim_reducer</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">==</span> <span class="s1">&#39;sda&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">==</span> <span class="s1">&#39;sda&#39;</span><span class="p">:</span>
                 <span class="n">pk</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sda_dim_reducer</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Clusteror.load_dim_reducer"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.load_dim_reducer">[docs]</a>    <span class="k">def</span> <span class="nf">load_dim_reducer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;dim_reducer.pk&#39;</span><span class="p">):</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">==</span> <span class="s1">&#39;da&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">==</span> <span class="s1">&#39;da&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_da_to_lower_dim</span> <span class="o">=</span> <span class="n">pk</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">==</span> <span class="s1">&#39;sda&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">==</span> <span class="s1">&#39;sda&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_sda_to_lower_dim</span> <span class="o">=</span> <span class="n">pk</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Clusteror.reduce_to_one_dim"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.reduce_to_one_dim">[docs]</a>    <span class="k">def</span> <span class="nf">reduce_to_one_dim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cleaned_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">==</span> <span class="s1">&#39;da&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">==</span> <span class="s1">&#39;da&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_one_dim_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_da_dim_reducer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cleaned_data</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">==</span> <span class="s1">&#39;sda&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">==</span> <span class="s1">&#39;sda&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_one_dim_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sda_dim_reducer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cleaned_data</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_one_dim_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_one_dim_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span></div>
 

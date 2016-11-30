@@ -1,3 +1,43 @@
+'''
+This module contains ``Clusteror`` class capsulating raw data to discover
+clusters from, the cleaned data for a clusteror to run on, as well as
+methods to training neural networks and delimiting occurances into clusters.
+'''
+# `h`_
+# Example
+# -------
+# Examples can be given using either the ``Example`` or ``Examples``
+# sections. Sections support any reStructuredText formatting, including
+# literal blocks::
+# 
+#         $ python example_numpy.py
+# 
+# 
+# Section breaks are created with two blank lines. Section breaks are also
+# implicitly created anytime a new section starts. Section bodies *may* be
+# indented:
+# 
+# Notes
+# -----
+#     This is an example of an indented section. It's like any other section,
+#         but the body is indented to help it stand out from surrounding text.
+# 
+# If a section is indented, then a section break is created by
+# resuming unindented text.
+# 
+# Attributes
+# ----------
+# module_level_variable1 : int
+#     Module level variables may be documented in either the ``Attributes``
+#     section of the module docstring, or in an inline docstring immediately
+#     following the variable.
+# 
+#     Either form is acceptable, but the two should not be mixed. Choose
+#     one convention to document module level variables and be consistent
+#     with it.
+# 
+# .. _NumPy Documentation HOWTO:
+#     https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 # import ipdb
 import os
 import sys
@@ -21,22 +61,64 @@ from .utils import find_local_extremes
 
 
 class OutRangeError(Exception):
+    '''
+    Exceptions thrown as cleaned data go beyond range ``[-1, 1]``.
+    '''
     pass
 
 
 class Clusteror(object):
+    '''
+    ``Clusteror`` class can train neural networks *denoising autoencoder* or
+    *Stached Denoising Autoencoder*, train taggers, or load saved models
+    from files.
+
+    Parameters
+    ----------
+    raw_data : Pandas DataFrame
+        Dataframe read from data source. It can be original dataset without
+        any preprocessing or with a certain level of manipulation for
+        future analysis.
+
+    Attributes
+    ----------
+    _raw_data : Pandas DataFrame
+        Stores the original dataset. It's the dataset that later
+        post-clustering performance analysis will be based on.
+    _cleaned_data : Pandas DataFrame
+        Preprocessed data. Not necessarily has same number of columns with
+        ``_raw_data`` as a categorical column can derive multiple columns.
+        As the ``tanh`` function is used as activation function for symmetric
+        consideration. All columns should have values in range ``[-1, 1]``,
+        otherwise an ``OutRangeError`` will be raised.
+    _network : str
+        **da** for *Denoising Autoencoder*; **sda** for *Stacked Denoising
+        Autoencoder*. Facilating functions called with one or the other
+        algorithm.
+    '''
     def __init__(self, raw_data):
         self._raw_data = raw_data
-        self.np_rs = np.random.RandomState(numpy_random_seed)
-        self.theano_rs = RandomStreams(self.np_rs.randint(theano_random_seed))
 
     @classmethod
     def from_csv(cls, filepath, **kwargs):
+        '''
+        Class method for directly reading .csv file.
+
+        Parameters
+        ----------
+        filepath : str
+            Path to the CSV file
+        **kwargs : keyword arguments
+            Other keyword arguments passed to ``pandas.read_csv``
+        '''
         raw_data = pd.read_csv(filepath, **kwargs)
         return cls(raw_data)
 
     @property
     def raw_data(self):
+        '''
+        Pandas DataFrame: For assgining new values to ``_raw_data``.
+        '''
         return self._raw_data
 
     @raw_data.setter
@@ -45,6 +127,9 @@ class Clusteror(object):
 
     @property
     def cleaned_data(self):
+        '''
+        Pandas DataFrame: For assgining cleaned dataframe to ``_cleaned_dat``.
+        '''
         return self._cleaned_data
 
     @cleaned_data.setter
@@ -53,12 +138,17 @@ class Clusteror(object):
 
     @property
     def da_dim_reducer(self):
+        '''
+        Theano function: Function that reduces dataset dimension. Attribute
+            ``_network`` is given **da** to designate the method of the
+            autoencoder as ``Denoising Autocoder``.
+        '''
         return self._da_dim_reducer
 
     @da_dim_reducer.setter
     def da_dim_reducer(self, da_dim_reducer):
         self._da_dim_reducer = da_dim_reducer
-        self.network = 'da'
+        self._network = 'da'
 
     @property
     def sda_dim_reducer(self):
@@ -67,7 +157,7 @@ class Clusteror(object):
     @sda_dim_reducer.setter
     def sda_dim_reducer(self, sda_dim_reducer):
         self._sda_dim_reducer = sda_dim_reducer
-        self.network = 'sda'
+        self._network = 'sda'
 
     @property
     def one_dim_data(self):
@@ -128,6 +218,8 @@ class Clusteror(object):
             raise OutRangeError('Minimum should be greater equal than -1')
 
     def _prepare_network_training(self, batch_size):
+        self.np_rs = np.random.RandomState(numpy_random_seed)
+        self.theano_rs = RandomStreams(self.np_rs.randint(theano_random_seed))
         # compute number of minibatches for training, validation and testing
         self.data = np.asarray(self._cleaned_data, dtype=theano.config.floatX)
         self.train_set = shared(value=self.data, borrow=True)
@@ -216,7 +308,7 @@ class Clusteror(object):
         verbose: boolean, default True
           If true, printing out the progress of pretraining.
         '''
-        self.network = 'da'
+        self._network = 'da'
         self._check_cleaned_data()
         self._prepare_network_training(batch_size=batch_size)
         # allocate symbolic variables for the dat
@@ -279,7 +371,7 @@ class Clusteror(object):
         assert hidden_layers_sizes is not None
         assert isinstance(corruption_levels, list)
         assert len(hidden_layers_sizes) == len(corruption_levels)
-        self.network = 'sda'
+        self._network = 'sda'
         self._check_cleaned_data()
         self._prepare_network_training(batch_size=batch_size)
         hidden_layers_sizes.append(1)
@@ -322,25 +414,25 @@ class Clusteror(object):
         include_network=False
     ):
         if include_network:
-            filename = self.network + '_' + filename
+            filename = self._network + '_' + filename
         with open(filename, 'wb') as f:
-            if self.network == 'da':
+            if self._network == 'da':
                 pk.dump(self._da_dim_reducer, f)
-            elif self.network == 'sda':
+            elif self._network == 'sda':
                 pk.dump(self._sda_dim_reducer, f)
 
     def load_dim_reducer(self, filename='dim_reducer.pk'):
         with open(filename, 'rb') as f:
-            if self.network == 'da':
+            if self._network == 'da':
                 self._da_to_lower_dim = pk.load(f)
-            elif self.network == 'sda':
+            elif self._network == 'sda':
                 self._sda_to_lower_dim = pk.load(f)
 
     def reduce_to_one_dim(self):
         assert self._cleaned_data is not None
-        if self.network == 'da':
+        if self._network == 'da':
             self._one_dim_data = self._da_dim_reducer(self._cleaned_data)
-        elif self.network == 'sda':
+        elif self._network == 'sda':
             self._one_dim_data = self._sda_dim_reducer(self._cleaned_data)
         self._one_dim_data = self._one_dim_data[:, 0]
 

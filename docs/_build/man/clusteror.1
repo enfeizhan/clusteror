@@ -1,8 +1,8 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "CLUSTEROR" "1" "Nov 30, 2016" "0.0.post0.dev53+n2b030b9.dirty" "clusteror"
+.TH "CLUSTEROR" "1" "Nov 30, 2016" "0.0.post0.dev55+n246fe33.dirty" "clusteror"
 .SH NAME
-clusteror \- clusteror 0.0.post0.dev53+n2b030b9.dirty
+clusteror \- clusteror 0.0.post0.dev55+n246fe33.dirty
 .
 .nr rst2man-indent-level 0
 .
@@ -63,7 +63,27 @@ style.
 .sp
 .nf
 .ft C
-Copyright 2016 Fei Zhan
+MIT License
+
+Copyright (c) 2016 Fei Zhan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 .ft P
 .fi
@@ -72,7 +92,7 @@ Copyright 2016 Fei Zhan
 .SS Developers
 .INDENT 0.0
 .IP \(bu 2
-Fei Zhan <\fI\%fei.zhan@jbadigital.com\fP>
+Fei Zhan <\fI\%enfeizhan@gmail.com\fP>
 .UNINDENT
 .SS Changelog
 .SS Version 0.1
@@ -176,10 +196,47 @@ Alias for field number 2
 .UNINDENT
 .UNINDENT
 .SS clusteror.core module
+.sp
+This module contains \fBClusteror\fP class capsulating raw data to discover
+clusters from, the cleaned data for a clusteror to run on, as well as
+methods to training neural networks and delimiting occurances into clusters.
 .INDENT 0.0
 .TP
 .B class clusteror.core.Clusteror(raw_data)
 Bases: \fI\%object\fP
+.sp
+\fBClusteror\fP class can train neural networks \fIdenoising autoencoder\fP or
+\fIStached Denoising Autoencoder\fP, train taggers, or load saved models
+from files.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBraw_data\fP (\fIPandas DataFrame\fP) \-\- Dataframe read from data source. It can be original dataset without
+any preprocessing or with a certain level of manipulation for
+future analysis.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B _raw_data
+\fIPandas DataFrame\fP \-\- Stores the original dataset. It\(aqs the dataset that later
+post\-clustering performance analysis will be based on.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B _cleaned_data
+\fIPandas DataFrame\fP \-\- Preprocessed data. Not necessarily has same number of columns with
+\fB_raw_data\fP as a categorical column can derive multiple columns.
+As the \fBtanh\fP function is used as activation function for symmetric
+consideration. All columns should have values in range \fB[\-1, 1]\fP,
+otherwise an \fBOutRangeError\fP will be raised.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B _network
+\fIstr\fP \-\- \fBda\fP for \fIDenoising Autoencoder\fP; \fBsda\fP for \fIStacked Denoising
+Autoencoder\fP\&. Facilating functions called with one or the other
+algorithm.
+.UNINDENT
 .INDENT 7.0
 .TP
 .B add_cluster()
@@ -187,10 +244,14 @@ Bases: \fI\%object\fP
 .INDENT 7.0
 .TP
 .B cleaned_data
+\fIPandas DataFrame\fP \-\- For assgining cleaned dataframe to \fB_cleaned_dat\fP\&.
 .UNINDENT
 .INDENT 7.0
 .TP
 .B da_dim_reducer
+\fITheano function\fP \-\- Function that reduces dataset dimension. Attribute
+\fB_network\fP is given \fBda\fP to designate the method of the
+autoencoder as \fBDenoising Autocoder\fP\&.
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -199,6 +260,17 @@ Bases: \fI\%object\fP
 .INDENT 7.0
 .TP
 .B classmethod from_csv(filepath, **kwargs)
+Class method for directly reading .csv file.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBfilepath\fP (\fI\%str\fP) \-\- Path to the CSV file
+.IP \(bu 2
+\fB**kwargs\fP (\fIkeyword arguments\fP) \-\- Other keyword arguments passed to \fBpandas.read_csv\fP
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -223,6 +295,7 @@ Bases: \fI\%object\fP
 .INDENT 7.0
 .TP
 .B raw_data
+\fIPandas DataFrame\fP \-\- For assgining new values to \fB_raw_data\fP\&.
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -277,6 +350,8 @@ Reduce the dimension of each record down to a dimension.
 .TP
 .B exception clusteror.core.OutRangeError
 Bases: \fI\%Exception\fP
+.sp
+Exceptions thrown as cleaned data go beyond range \fB[\-1, 1]\fP\&.
 .UNINDENT
 .SS clusteror.dA module
 .INDENT 0.0
@@ -1156,12 +1231,6 @@ Write the given version number to the given _version.py file.
 .SS tests package
 .SS Submodules
 .SS tests.conftest module
-.sp
-Dummy conftest.py for clusteror.
-.sp
-If you don\(aqt know what this is for, just leave it empty.
-Read more about conftest.py under:
-\fI\%https://pytest.org/latest/plugins.html\fP
 .SS tests.example_iris module
 .SS tests.example_tips module
 .SS tests.test_clusteror module
@@ -1216,10 +1285,6 @@ Bases: \fBunittest.case.TestCase\fP
 .B tests.test_clusteror.tanh_cross_entropy(field_importance, dat_in, dat_rec)
 .UNINDENT
 .SS tests.test_skeleton module
-.INDENT 0.0
-.TP
-.B tests.test_skeleton.test_fib()
-.UNINDENT
 .SS Module contents
 .SS versioneer module
 .sp
