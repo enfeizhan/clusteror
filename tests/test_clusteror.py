@@ -27,7 +27,7 @@ class TestDA(unittest.TestCase):
     def setUp(self):
         # prepare testing data
         self.dat = pd.read_csv(
-            'data/makeup_test_data.csv',
+            'tests/data/makeup_test_data.csv',
             dtype=theano.config.floatX
         )
         self.field_importance = [1, 5, 10]
@@ -47,7 +47,7 @@ class TestDA(unittest.TestCase):
             initial_W=self.initial_W,
             initial_bvis=self.initial_bvis,
             initial_bhid=self.initial_bhid,
-            input_dat=self.x
+            input_data=self.x
         )
         # calculate cost in a sequential way
         self.y = np.tanh(np.dot(self.dat, self.initial_W) + self.initial_bhid)
@@ -116,7 +116,7 @@ class TestSdA(unittest.TestCase):
     def setUp(self):
         # prepare testing data
         self.dat = pd.read_csv(
-            'data/makeup_test_data.csv',
+            'tests/data/makeup_test_data.csv',
             dtype=theano.config.floatX
         )
         self.field_importance = [1, 5, 10]
@@ -133,7 +133,7 @@ class TestSdA(unittest.TestCase):
             n_ins=self.dat.shape[1],
             hidden_layers_sizes=[1],
             field_importance=self.field_importance,
-            input_dat=self.x
+            input_data=self.x
         )
         # monkey patch the weights and biases
         self.sda.dA_layers[0].W.set_value(self.initial_W)
