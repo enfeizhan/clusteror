@@ -145,9 +145,57 @@ def hist_plot_one_dim_group_data(
             **kwargs
         )
     # place the legend at the right hand side of the chart
-    plt.legend(bbox_to_anchor=(1.01, 1), loc=2)
+    plt.legend(bbox_to_anchor=bbox_to_anchor, loc=loc)
     plt.xlabel('Dimension Reduced Data', size=17)
     plt.ylabel('Occurence', size=17)
+    if grid:
+        plt.grid()
+    if show:
+        plt.show()
+    else:
+        assert filename
+        plt.savefig(filename)
+
+
+def group_occurance_plot(
+        data,
+        cat_label,
+        labels,
+        group_label,
+        colors=None,
+        figsize=(10, 6),
+        bbox_to_anchor=(1.01, 1),
+        loc=2,
+        grid=True,
+        show=True,
+        filename=None,
+        **kwargs):
+    '''
+    Plot the distribution of the one dimensional reduced data in a histogram.
+    The range of data is always from zero to one.
+
+    one_dim_data: list, pandas series, or numpy array
+    The one dimensional reduced data in a one dimensional data type.
+
+    labels: list, pandas series, or numpy array
+    The segment label for each sample in one_dim_data.
+
+    bins: integer or array
+    If an integer, bins - 1 bins between minimum and maximum of the subclass,
+    or an list of the delimiters.
+    '''
+    if not isinstance(data, pd.core.series.Series):
+        data = pd.Series(data)
+    df = pd.DataFrame({cat_label: data, group_label: labels})
+    df_to_plot = df.pivot_table(
+        index=group_label,
+        columns=cat_label,
+        aggfunc=len
+    )
+    plt.figure(figsize=figsize)
+    ax = plt.subplot(111)
+    df_to_plot.plot.bar(color=colors, ax=ax, **kwargs)
+    plt.legend(bbox_to_anchor=bbox_to_anchor, loc=loc)
     if grid:
         plt.grid()
     if show:

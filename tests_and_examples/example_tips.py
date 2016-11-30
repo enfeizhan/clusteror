@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from clusteror.core import Clusteror
 from clusteror.plot import scatter_plot_two_dim_group_data
-# from clusteror.plot import hist_plot_one_dim_group_data
+from clusteror.plot import group_occurance_plot
 
 clusteror_valley = Clusteror.from_csv('data/tips.csv')
 # float number columns
@@ -64,19 +64,13 @@ scatter_plot_two_dim_group_data(
     show=False,
     filename='two.png'
 )
-# hist_plot_one_dim_group_data(
-#     clusteror_valley.one_dim_data,
-#     clusteror_valley.raw_data.Name,
-#     bins=50,
-#     colors=['red', 'blue', 'black'],
-#     show=False,
-#     filename='name.png'
-# )
-# hist_plot_one_dim_group_data(
-#     clusteror_valley.one_dim_data,
-#     clusteror_valley.raw_data.cluster,
-#     bins=50,
-#     colors=['red', 'blue', 'black'],
-#     show=False,
-#     filename='cluster.png'
-# )
+group_occurance_plot(
+    clusteror_valley.raw_data.sex,
+    'Sex',
+    clusteror_valley.raw_data.cluster,
+    'Segment',
+    bbox_to_anchor=(0.5, 1),
+    show=False,
+    filename='sex_dist.png',
+    rot=0
+)
