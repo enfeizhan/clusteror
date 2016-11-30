@@ -1,0 +1,209 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>clusteror.SdA &#8212; clusteror 0.0.post0.dev53+n2b030b9.dirty documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0.post0.dev53+n2b030b9.dirty',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="clusteror 0.0.post0.dev53+n2b030b9.dirty documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for clusteror.SdA</h1><div class="highlight"><pre>
+<span></span><span class="c1"># import ipdb</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">theano.tensor</span> <span class="k">as</span> <span class="nn">T</span>
+<span class="kn">from</span> <span class="nn">theano.tensor.shared_randomstreams</span> <span class="k">import</span> <span class="n">RandomStreams</span>
+<span class="kn">from</span> <span class="nn">theano</span> <span class="k">import</span> <span class="n">function</span>
+<span class="kn">from</span> <span class="nn">theano</span> <span class="k">import</span> <span class="n">In</span>
+
+<span class="kn">from</span> <span class="nn">.dA</span> <span class="k">import</span> <span class="n">dA</span>
+<span class="kn">from</span> <span class="nn">.settings</span> <span class="k">import</span> <span class="n">numpy_random_seed</span>
+<span class="kn">from</span> <span class="nn">.settings</span> <span class="k">import</span> <span class="n">theano_random_seed</span>
+
+
+<div class="viewcode-block" id="SdA"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.SdA.SdA">[docs]</a><span class="k">class</span> <span class="nc">SdA</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Stacked denoising auto-encoder class (SdA)</span>
+
+<span class="sd">    A stacked denoising autoencoder model is obtained by stacking several</span>
+<span class="sd">    dAs. The hidden layer of the dA at layer `i` becomes the input of</span>
+<span class="sd">    the dA at layer `i+1`. The first layer dA gets as input the input of</span>
+<span class="sd">    the SdA, and the hidden layer of the last dA represents the output.</span>
+<span class="sd">    Note that after pretraining, the SdA is dealt with as a normal MLP,</span>
+<span class="sd">    the dAs are only used to initialize the weights.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_ins</span><span class="p">,</span> <span class="n">hidden_layers_sizes</span><span class="p">,</span>
+                 <span class="n">np_rs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">theano_rs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">field_importance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">input_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># set theano random state if not given</span>
+        <span class="k">if</span> <span class="n">np_rs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">np_rs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">numpy_random_seed</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">theano_rs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">theano_rs</span> <span class="o">=</span> <span class="n">RandomStreams</span><span class="p">(</span><span class="n">np_rs</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">theano_random_seed</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theano_rs</span> <span class="o">=</span> <span class="n">theano_rs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dA_layers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_layers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hidden_layers_sizes</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_layers</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">input_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">input_data</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;input_data&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">input_data</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_layers</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">layer_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span>
+                <span class="n">dA_layer</span> <span class="o">=</span> <span class="n">dA</span><span class="p">(</span>
+                    <span class="n">n_visible</span><span class="o">=</span><span class="n">n_ins</span><span class="p">,</span>
+                    <span class="n">n_hidden</span><span class="o">=</span><span class="n">hidden_layers_sizes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="n">np_rs</span><span class="o">=</span><span class="n">np_rs</span><span class="p">,</span>
+                    <span class="n">theano_rs</span><span class="o">=</span><span class="n">theano_rs</span><span class="p">,</span>
+                    <span class="n">field_importance</span><span class="o">=</span><span class="n">field_importance</span><span class="p">,</span>
+                    <span class="n">input_data</span><span class="o">=</span><span class="n">layer_input</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">layer_input</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">dA_layer</span> <span class="o">=</span> <span class="n">dA</span><span class="p">(</span>
+                    <span class="n">n_visible</span><span class="o">=</span><span class="n">hidden_layers_sizes</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                    <span class="n">n_hidden</span><span class="o">=</span><span class="n">hidden_layers_sizes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="n">np_rs</span><span class="o">=</span><span class="n">np_rs</span><span class="p">,</span>
+                    <span class="n">theano_rs</span><span class="o">=</span><span class="n">theano_rs</span><span class="p">,</span>
+                    <span class="n">input_data</span><span class="o">=</span><span class="n">layer_input</span>
+                <span class="p">)</span>
+            <span class="c1"># ipdb.set_trace()</span>
+            <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dA_layer</span><span class="o">.</span><span class="n">get_hidden_values</span><span class="p">(</span><span class="n">layer_input</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dA_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dA_layer</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dA_layer</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SdA.get_final_hidden_layer"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.SdA.SdA.get_final_hidden_layer">[docs]</a>    <span class="k">def</span> <span class="nf">get_final_hidden_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Given input, gets the final output.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dA_layers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="n">h_values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">h_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">da</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dA_layers</span><span class="p">:</span>
+            <span class="n">h_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">get_hidden_values</span><span class="p">(</span><span class="n">h_values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">h_values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SdA.get_first_reconstructed_input"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.SdA.SdA.get_first_reconstructed_input">[docs]</a>    <span class="k">def</span> <span class="nf">get_first_reconstructed_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hidden</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Given output, reconstructs the input from the last layer.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dA_layers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="n">v_values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">v_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hidden</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">da_layer</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dA_layers</span><span class="p">):</span>
+            <span class="n">v_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">da_layer</span><span class="o">.</span><span class="n">get_reconstructed_input</span><span class="p">(</span><span class="n">v_values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">v_values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SdA.pretraining_functions"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.SdA.SdA.pretraining_functions">[docs]</a>    <span class="k">def</span> <span class="nf">pretraining_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_set</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+        <span class="c1"># index to a [mini]batch</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">lscalar</span><span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">)</span>  <span class="c1"># index to a minibatch</span>
+        <span class="c1"># fraction of corruption to use</span>
+        <span class="n">corruption_level</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s1">&#39;corruption_level&#39;</span><span class="p">)</span>
+        <span class="c1"># learning rate to use</span>
+        <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s1">&#39;learning_rate&#39;</span><span class="p">)</span>
+        <span class="c1"># begining of a batch, given `index`</span>
+        <span class="n">batch_begin</span> <span class="o">=</span> <span class="n">index</span> <span class="o">*</span> <span class="n">batch_size</span>
+        <span class="c1"># ending of a batch given `index`</span>
+        <span class="n">batch_end</span> <span class="o">=</span> <span class="n">batch_begin</span> <span class="o">+</span> <span class="n">batch_size</span>
+        <span class="n">pretrain_fns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">da</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dA_layers</span><span class="p">:</span>
+            <span class="c1"># get the cost and the updates list</span>
+            <span class="n">cost</span><span class="p">,</span> <span class="n">updates</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">get_cost_updates</span><span class="p">(</span>
+                <span class="n">corruption_level</span><span class="p">,</span>
+                <span class="n">learning_rate</span>
+            <span class="p">)</span>
+            <span class="c1"># compile the theano function</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span>
+                <span class="n">inputs</span><span class="o">=</span><span class="p">[</span>
+                    <span class="n">index</span><span class="p">,</span>
+                    <span class="n">In</span><span class="p">(</span><span class="n">corruption_level</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">0.2</span><span class="p">),</span>
+                    <span class="n">In</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+                <span class="p">],</span>
+                <span class="n">outputs</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span>
+                <span class="n">updates</span><span class="o">=</span><span class="n">updates</span><span class="p">,</span>
+                <span class="n">givens</span><span class="o">=</span><span class="p">{</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">:</span> <span class="n">train_set</span><span class="p">[</span><span class="n">batch_begin</span><span class="p">:</span> <span class="n">batch_end</span><span class="p">]</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="c1"># append `fn` to the list of functions</span>
+            <span class="n">pretrain_fns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pretrain_fns</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Fei Zhan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>tests.test_clusteror &#8212; clusteror 0.0.post0.dev53+n2b030b9.dirty documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0.post0.dev53+n2b030b9.dirty',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="clusteror 0.0.post0.dev53+n2b030b9.dirty documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for tests.test_clusteror</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">theano</span>
+<span class="kn">import</span> <span class="nn">theano.tensor</span> <span class="k">as</span> <span class="nn">T</span>
+<span class="kn">from</span> <span class="nn">theano</span> <span class="k">import</span> <span class="n">shared</span>
+<span class="kn">from</span> <span class="nn">theano</span> <span class="k">import</span> <span class="n">function</span>
+<span class="kn">from</span> <span class="nn">clusteror.dA</span> <span class="k">import</span> <span class="n">dA</span>
+<span class="kn">from</span> <span class="nn">clusteror.SdA</span> <span class="k">import</span> <span class="n">SdA</span>
+<span class="kn">from</span> <span class="nn">clusteror.settings</span> <span class="k">import</span> <span class="n">decimal_places</span>
+
+
+<div class="viewcode-block" id="tanh_cross_entropy"><a class="viewcode-back" href="../../api/tests.html#tests.test_clusteror.tanh_cross_entropy">[docs]</a><span class="k">def</span> <span class="nf">tanh_cross_entropy</span><span class="p">(</span><span class="n">field_importance</span><span class="p">,</span> <span class="n">dat_in</span><span class="p">,</span> <span class="n">dat_rec</span><span class="p">):</span>
+    <span class="n">cost</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+        <span class="n">field_importance</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">dat_in</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">dat_rec</span><span class="p">))</span> <span class="o">+</span>
+            <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">dat_in</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">dat_rec</span><span class="p">))</span>
+        <span class="p">),</span>
+        <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">cost</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestDA"><a class="viewcode-back" href="../../api/tests.html#tests.test_clusteror.TestDA">[docs]</a><span class="k">class</span> <span class="nc">TestDA</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="TestDA.setUp"><a class="viewcode-back" href="../../api/tests.html#tests.test_clusteror.TestDA.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># prepare testing data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dat</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="s1">&#39;tests/data/makeup_test_data.csv&#39;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_importance</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="p">[[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">]],</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_bvis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_bhid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corruption_level</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>  <span class="c1"># the data is presented as rasterized images</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">da</span> <span class="o">=</span> <span class="n">dA</span><span class="p">(</span>
+            <span class="n">n_visible</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">n_hidden</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">field_importance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">field_importance</span><span class="p">,</span>
+            <span class="n">initial_W</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_W</span><span class="p">,</span>
+            <span class="n">initial_bvis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_bvis</span><span class="p">,</span>
+            <span class="n">initial_bhid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_bhid</span><span class="p">,</span>
+            <span class="n">input_data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span>
+        <span class="p">)</span>
+        <span class="c1"># calculate cost in a sequential way</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_W</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_bhid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_W</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_bvis</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seq_cost</span> <span class="o">=</span> <span class="n">tanh_cross_entropy</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_importance</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestDA.test_dA_conrrupted_input"><a class="viewcode-back" href="../../api/tests.html#tests.test_clusteror.TestDA.test_dA_conrrupted_input">[docs]</a>    <span class="k">def</span> <span class="nf">test_dA_conrrupted_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">corrupted_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">da</span><span class="o">.</span><span class="n">get_corrupted_input</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">corruption_level</span>
+        <span class="p">)</span>
+        <span class="n">get_da_corrupted_input</span> <span class="o">=</span> <span class="n">function</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">],</span> <span class="n">corrupted_input</span><span class="p">)</span>
+        <span class="n">da_corrupted_input</span> <span class="o">=</span> <span class="n">get_da_corrupted_input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="p">)</span>
+        <span class="n">test_almost_equal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_almost_equal</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="p">,</span>
+            <span class="n">da_corrupted_input</span><span class="p">,</span>
+            <span class="n">decimal</span><span class="o">=</span><span class="n">decimal_places</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">test_almost_equal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestDA.test_dA_hidden_values"><a class="viewcode-back" href="../../api/tests.html#tests.test_clusteror.TestDA.test_dA_hidden_values">[docs]</a>    <span class="k">def</span> <span class="nf">test_dA_hidden_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">hidden_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">da</span><span class="o">.</span><span class="n">get_hidden_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">get_da_hidden_values</span> <span class="o">=</span> <span class="n">function</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">],</span> <span class="n">hidden_values</span><span class="p">)</span>
+        <span class="n">da_hidden_values</span> <span class="o">=</span> <span class="n">get_da_hidden_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="p">)</span>
+        <span class="n">test_almost_equal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_almost_equal</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+            <span class="n">da_hidden_values</span><span class="p">,</span>
+            <span class="n">decimal</span><span class="o">=</span><span class="n">decimal_places</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">test_almost_equal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestDA.test_dA_reconstructed_input"><a class="viewcode-back" href="../../api/tests.html#tests.test_clusteror.TestDA.test_dA_reconstructed_input">[docs]</a>    <span class="k">def</span> <span class="nf">test_dA_reconstructed_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">reconstructed_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">da</span><span class="o">.</span><span class="n">get_reconstructed_input</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">da</span><span class="o">.</span><span class="n">get_hidden_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">get_da_reconstructed_input</span> <span class="o">=</span> <span class="n">function</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">],</span> <span class="n">reconstructed_input</span><span class="p">)</span>
+        <span class="n">da_reconstructed_input</span> <span class="o">=</span> <span class="n">get_da_reconstructed_input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="p">)</span>
+        <span class="n">test_almost_equal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_almost_equal</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span>
+            <span class="n">da_reconstructed_input</span><span class="p">,</span>
+            <span class="n">decimal</span><span class="o">=</span><span class="n">decimal_places</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">test_almost_equal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestDA.test_dA_cost"><a class="viewcode-back" href="../../api/tests.html#tests.test_clusteror.TestDA.test_dA_cost">[docs]</a>    <span class="k">def</span> <span class="nf">test_dA_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># calculate cost from dA</span>
+        <span class="n">cost</span><span class="p">,</span> <span class="n">updates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">da</span><span class="o">.</span><span class="n">get_cost_updates</span><span class="p">(</span>
+            <span class="n">corruption_level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">corruption_level</span><span class="p">,</span>
+            <span class="n">learning_rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span>
+        <span class="p">)</span>
+        <span class="n">train_da</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">],</span>
+            <span class="n">cost</span><span class="p">,</span>
+            <span class="n">updates</span><span class="o">=</span><span class="n">updates</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">da_cost</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">train_da</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="p">))</span>
+        <span class="c1"># confirm equal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">da_cost</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">seq_cost</span><span class="p">,</span> <span class="n">places</span><span class="o">=</span><span class="n">decimal_places</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="TestSdA"><a class="viewcode-back" href="../../api/tests.html#tests.test_clusteror.TestSdA">[docs]</a><span class="k">class</span> <span class="nc">TestSdA</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="TestSdA.setUp"><a class="viewcode-back" href="../../api/tests.html#tests.test_clusteror.TestSdA.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># prepare testing data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dat</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="s1">&#39;tests/data/makeup_test_data.csv&#39;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_importance</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="p">[[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">]],</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_bvis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_bhid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corruption_level</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>  <span class="c1"># the data is presented as rasterized images</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sda</span> <span class="o">=</span> <span class="n">SdA</span><span class="p">(</span>
+            <span class="n">n_ins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">hidden_layers_sizes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">field_importance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">field_importance</span><span class="p">,</span>
+            <span class="n">input_data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span>
+        <span class="p">)</span>
+        <span class="c1"># monkey patch the weights and biases</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sda</span><span class="o">.</span><span class="n">dA_layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">W</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_W</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sda</span><span class="o">.</span><span class="n">dA_layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">bhid</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_bhid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sda</span><span class="o">.</span><span class="n">dA_layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">bhid_prime</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_bvis</span><span class="p">)</span>
+        <span class="c1"># calculate cost in a sequential way</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_W</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_bhid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_W</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_bvis</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seq_cost</span> <span class="o">=</span> <span class="n">tanh_cross_entropy</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_importance</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestSdA.test_SdA_final_hidden_layer"><a class="viewcode-back" href="../../api/tests.html#tests.test_clusteror.TestSdA.test_SdA_final_hidden_layer">[docs]</a>    <span class="k">def</span> <span class="nf">test_SdA_final_hidden_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">final_hidden_layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sda</span><span class="o">.</span><span class="n">get_final_hidden_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">get_sda_final_hidden_layer</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">],</span>
+            <span class="n">final_hidden_layer</span>
+        <span class="p">)</span>
+        <span class="n">sda_final_hidden_layer</span> <span class="o">=</span> <span class="n">get_sda_final_hidden_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="p">)</span>
+        <span class="n">test_almost_equal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_almost_equal</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+            <span class="n">sda_final_hidden_layer</span><span class="p">,</span>
+            <span class="n">decimal</span><span class="o">=</span><span class="n">decimal_places</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">test_almost_equal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestSdA.test_SdA_first_reconstructed_layer"><a class="viewcode-back" href="../../api/tests.html#tests.test_clusteror.TestSdA.test_SdA_first_reconstructed_layer">[docs]</a>    <span class="k">def</span> <span class="nf">test_SdA_first_reconstructed_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">first_reconstructed_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sda</span><span class="o">.</span><span class="n">get_first_reconstructed_input</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sda</span><span class="o">.</span><span class="n">get_final_hidden_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">get_sda_first_reconstructed_input</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">],</span>
+            <span class="n">first_reconstructed_input</span>
+        <span class="p">)</span>
+        <span class="n">sda_first_reconstructed_input</span> <span class="o">=</span> <span class="n">get_sda_first_reconstructed_input</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dat</span>
+        <span class="p">)</span>
+        <span class="n">test_almost_equal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_almost_equal</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span>
+            <span class="n">sda_first_reconstructed_input</span><span class="p">,</span>
+            <span class="n">decimal</span><span class="o">=</span><span class="n">decimal_places</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">test_almost_equal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestSdA.test_SdA_pretraining_functions"><a class="viewcode-back" href="../../api/tests.html#tests.test_clusteror.TestSdA.test_SdA_pretraining_functions">[docs]</a>    <span class="k">def</span> <span class="nf">test_SdA_pretraining_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">train_set</span> <span class="o">=</span> <span class="n">shared</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">borrow</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">pretraining_fns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sda</span><span class="o">.</span><span class="n">pretraining_functions</span><span class="p">(</span>
+            <span class="n">train_set</span><span class="o">=</span><span class="n">train_set</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sda</span><span class="o">.</span><span class="n">n_layers</span><span class="p">):</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">pretraining_fns</span><span class="p">[</span><span class="n">i</span><span class="p">](</span>
+                    <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                    <span class="n">corruption_level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">sda_cost</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">sda_cost</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">seq_cost</span><span class="p">,</span> <span class="n">places</span><span class="o">=</span><span class="n">decimal_places</span><span class="p">)</span></div></div>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Fei Zhan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

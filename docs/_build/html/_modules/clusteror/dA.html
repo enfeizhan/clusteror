@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>clusteror.dA &#8212; clusteror 0.0.post0.dev53+n2b030b9.dirty documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0.post0.dev53+n2b030b9.dirty',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="clusteror 0.0.post0.dev53+n2b030b9.dirty documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for clusteror.dA</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">theano</span>
+<span class="kn">from</span> <span class="nn">theano</span> <span class="k">import</span> <span class="n">tensor</span> <span class="k">as</span> <span class="n">T</span>
+<span class="kn">from</span> <span class="nn">theano</span> <span class="k">import</span> <span class="n">shared</span>
+<span class="kn">from</span> <span class="nn">theano.tensor.shared_randomstreams</span> <span class="k">import</span> <span class="n">RandomStreams</span>
+<span class="kn">from</span> <span class="nn">.settings</span> <span class="k">import</span> <span class="n">numpy_random_seed</span>
+<span class="kn">from</span> <span class="nn">.settings</span> <span class="k">import</span> <span class="n">theano_random_seed</span>
+
+
+<div class="viewcode-block" id="dA"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.dA.dA">[docs]</a><span class="k">class</span> <span class="nc">dA</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Denoising Auto-Encoder class (dA).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_visible</span><span class="p">,</span> <span class="n">n_hidden</span><span class="p">,</span>
+                 <span class="n">np_rs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">theano_rs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">field_importance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">initial_W</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_bvis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">initial_bhid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">input_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        n_visible: int</span>
+<span class="sd">           Input dimension.</span>
+<span class="sd">        n_hidden: int</span>
+<span class="sd">          Output dimension.</span>
+<span class="sd">        np_rs:  Numpy random state</span>
+<span class="sd">        theano_rs:</span>
+<span class="sd">          Theano random generator that gives symbolic random values.</span>
+<span class="sd">        field_importance:  list or Numpy array</span>
+<span class="sd">          Put on each field when calculating the cost.  If not given,</span>
+<span class="sd">          all fields given equal weight ones.</span>
+<span class="sd">        initial_W:  Numpy matrix</span>
+<span class="sd">          Initial weight matrix. Dimension (n_visible, n_hidden).</span>
+<span class="sd">        initial_bvis: Numpy array</span>
+<span class="sd">          Initial bias on input side. Dimension n_visible.</span>
+<span class="sd">        initial_bhid: Numpy arry</span>
+<span class="sd">          Initial bias on output side. Dimension n_hidden.</span>
+<span class="sd">        input_data: Theano symbolic variable</span>
+<span class="sd">          Variable for input data.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">np_rs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">np_rs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">numpy_random_seed</span><span class="p">)</span>
+        <span class="c1"># set theano random state if not given</span>
+        <span class="k">if</span> <span class="n">theano_rs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">theano_rs</span> <span class="o">=</span> <span class="n">RandomStreams</span><span class="p">(</span><span class="n">np_rs</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">theano_random_seed</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theano_rs</span> <span class="o">=</span> <span class="n">theano_rs</span>
+        <span class="c1"># set equal field weights if not given</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">field_importance</span><span class="p">:</span>
+            <span class="n">field_importance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_visible</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">field_importance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                <span class="n">field_importance</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span>
+            <span class="p">)</span>
+        <span class="c1"># store in a shared variable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_importance</span> <span class="o">=</span> <span class="n">shared</span><span class="p">(</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">field_importance</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;field_importance&#39;</span><span class="p">,</span>
+            <span class="n">borrow</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="c1"># note : W&#39; was written as `W_prime` and b&#39; as `b_prime`</span>
+        <span class="k">if</span> <span class="n">initial_W</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># W is initialized with `initial_W` which is uniformely sampled</span>
+            <span class="c1"># from -4*sqrt(6./(n_visible+n_hidden)) and</span>
+            <span class="c1"># 4*sqrt(6./(n_hidden+n_visible))the output of uniform if</span>
+            <span class="c1"># converted using asarray to dtype</span>
+            <span class="c1"># theano.config.floatX so that the code is runable on GPU</span>
+            <span class="n">initial_W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                <span class="n">np_rs</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+                    <span class="n">low</span><span class="o">=-</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">6.</span> <span class="o">/</span> <span class="p">(</span><span class="n">n_hidden</span> <span class="o">+</span> <span class="n">n_visible</span><span class="p">)),</span>
+                    <span class="n">high</span><span class="o">=</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">6.</span> <span class="o">/</span> <span class="p">(</span><span class="n">n_hidden</span> <span class="o">+</span> <span class="n">n_visible</span><span class="p">)),</span>
+                    <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">n_visible</span><span class="p">,</span> <span class="n">n_hidden</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">W</span> <span class="o">=</span> <span class="n">shared</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">initial_W</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;W&#39;</span><span class="p">,</span> <span class="n">borrow</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># tied weights, therefore W_prime is W transpose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">W_prime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">W</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">if</span> <span class="n">initial_bvis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">initial_bvis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_visible</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span><span class="p">)</span>
+        <span class="c1"># b_prime corresponds to the bias of the visible</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bhid_prime</span> <span class="o">=</span> <span class="n">shared</span><span class="p">(</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">initial_bvis</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;bhid_prime&#39;</span><span class="p">,</span>
+            <span class="n">borrow</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">initial_bhid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">initial_bhid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_hidden</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span><span class="p">)</span>
+        <span class="c1"># b corresponds to the bias of the hidden</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bhid</span> <span class="o">=</span> <span class="n">shared</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">initial_bhid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;bhid&#39;</span><span class="p">,</span> <span class="n">borrow</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># if no input_data is given, generate a variable representing the input</span>
+        <span class="k">if</span> <span class="n">input_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># we use a matrix because we expect a minibatch of several</span>
+            <span class="c1"># examples, each example being a row</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;input_data&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">input_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">W</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bhid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bhid_prime</span><span class="p">]</span>
+
+<div class="viewcode-block" id="dA.get_corrupted_input"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.dA.dA.get_corrupted_input">[docs]</a>    <span class="k">def</span> <span class="nf">get_corrupted_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">,</span> <span class="n">corruption_level</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Corrupts the input by multiplying input with an array of zeros and</span>
+<span class="sd">        ones that is generated by binomial trials.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">corrupted_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theano_rs</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">input_data</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+            <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">p</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span> <span class="n">corruption_level</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span>
+        <span class="p">)</span> <span class="o">*</span> <span class="n">input_data</span>
+        <span class="k">return</span> <span class="n">corrupted_input</span></div>
+
+<div class="viewcode-block" id="dA.get_hidden_values"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.dA.dA.get_hidden_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_hidden_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the values of the hidden layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">T</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">W</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bhid</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="dA.get_reconstructed_input"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.dA.dA.get_reconstructed_input">[docs]</a>    <span class="k">def</span> <span class="nf">get_reconstructed_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hidden</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the reconstructed input given the values of the</span>
+<span class="sd">        hidden layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">T</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">hidden</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">W_prime</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bhid_prime</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="dA.get_cost_updates"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.dA.dA.get_cost_updates">[docs]</a>    <span class="k">def</span> <span class="nf">get_cost_updates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">corruption_level</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function computes the cost and the updates for one trainng</span>
+<span class="sd">        step of the dA.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tilde_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_corrupted_input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">corruption_level</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_hidden_values</span><span class="p">(</span><span class="n">tilde_x</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reconstructed_input</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="c1"># need this cross entropy because now the x and z are in the</span>
+        <span class="c1"># range [-1, 1]</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="o">-</span> <span class="n">T</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">field_importance</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="o">.</span><span class="mi">5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">T</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">z</span><span class="p">))</span> <span class="o">+</span>
+                <span class="o">.</span><span class="mi">5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">T</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">z</span><span class="p">))</span>
+            <span class="p">),</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="c1"># note : L is now a vector, where each element is the</span>
+        <span class="c1">#        cross-entropy cost of the reconstruction of the</span>
+        <span class="c1">#        corresponding example of the minibatch. We need to</span>
+        <span class="c1">#        compute the average of all these to get the cost of</span>
+        <span class="c1">#        the minibatch</span>
+        <span class="n">cost</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+        <span class="c1"># compute the gradients of the cost of the `dA` with respect</span>
+        <span class="c1"># to its parameters</span>
+        <span class="n">gparams</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="c1"># generate the list of updates</span>
+        <span class="n">updates</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">param</span> <span class="o">-</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">gparam</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">gparam</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">gparams</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">cost</span><span class="p">,</span> <span class="n">updates</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Fei Zhan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
