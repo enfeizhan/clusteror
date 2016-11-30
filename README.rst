@@ -1,9 +1,14 @@
-Clusteror
 =========
+clusteror
+=========
+
 * Unveils internal "invisible" patterns automatically
 * https://github.com/enfeizhan/clusteror
 * Fei Zhan
 * License: Public Domain
+
+Description
+===========
 
 This is a tool for discovering patterns existing in a dataset. It can be useful
 in segmenting customers based on their demographic, geographic, and past
@@ -20,3 +25,9 @@ of Theano is mandate. About how to install Theano, please read
 
 If you are lucky to have Nvidia graphic card, with proper setup Theano can
 parallel the calculation to be able to scale up to large datasets.
+
+Note
+====
+
+This project has been set up using PyScaffold 2.5.7. For details and usage
+information on PyScaffold see http://pyscaffold.readthedocs.org/.
