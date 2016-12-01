@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>clusteror.core &#8212; clusteror 0.0.post0.dev56+ndac5072.dirty documentation</title>
+    <title>clusteror.core &#8212; clusteror 0.0.post0.dev57+n8feaa72.dirty documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.0.post0.dev56+ndac5072.dirty',
+        VERSION:     '0.0.post0.dev57+n8feaa72.dirty',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="top" title="clusteror 0.0.post0.dev56+ndac5072.dirty documentation" href="../../index.html" />
+    <link rel="top" title="clusteror 0.0.post0.dev57+n8feaa72.dirty documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -45,44 +45,31 @@
   <h1>Source code for clusteror.core</h1><div class="highlight"><pre>
 <span></span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">This module contains ``Clusteror`` class capsulating raw data to discover</span>
-<span class="sd">clusters from, the cleaned data for a clusteror to run on, as well as</span>
-<span class="sd">methods to training neural networks and delimiting occurances into clusters.</span>
+<span class="sd">clusters from, the cleaned data for a clusteror to run on.</span>
+
+<span class="sd">The clustering model encompasses two parts:</span>
+
+<span class="sd">1. Neural network:</span>
+<span class="sd">   Pre-training (often encountered in Deep Learning context)</span>
+<span class="sd">   is implemented to achieve a goal that the neural network maps the input</span>
+<span class="sd">   data of higher dimension to a one dimensional representation. Ideally this</span>
+<span class="sd">   mapping is one-to-one.</span>
+<span class="sd">   A Denoising Autoencoder (DA) or Stacked Denoising Autoencoder (SDA) is</span>
+<span class="sd">   implemented for this purpose.</span>
+<span class="sd">2. One dimensional clustering model:</span>
+<span class="sd">   A separate model segments the samples against the one dimensional</span>
+<span class="sd">   representation. Two models are available in this class definition:</span>
+<span class="sd">       * K-Means</span>
+<span class="sd">       * Valley model</span>
+
+<span class="sd">The pivot idea here is given the neural network is a good one-to-one mapper</span>
+<span class="sd">the separate clustering model on one dimensional representation is equivalent</span>
+<span class="sd">to a clustering model on the original high dimensional data.</span>
+
+<span class="sd">Note</span>
+<span class="sd">----</span>
+<span class="sd">Valley model is explained in details in module ``clusteror.utils``.</span>
 <span class="sd">&#39;&#39;&#39;</span>
-<span class="c1"># `h`_</span>
-<span class="c1"># Example</span>
-<span class="c1"># -------</span>
-<span class="c1"># Examples can be given using either the ``Example`` or ``Examples``</span>
-<span class="c1"># sections. Sections support any reStructuredText formatting, including</span>
-<span class="c1"># literal blocks::</span>
-<span class="c1"># </span>
-<span class="c1">#         $ python example_numpy.py</span>
-<span class="c1"># </span>
-<span class="c1"># </span>
-<span class="c1"># Section breaks are created with two blank lines. Section breaks are also</span>
-<span class="c1"># implicitly created anytime a new section starts. Section bodies *may* be</span>
-<span class="c1"># indented:</span>
-<span class="c1"># </span>
-<span class="c1"># Notes</span>
-<span class="c1"># -----</span>
-<span class="c1">#     This is an example of an indented section. It&#39;s like any other section,</span>
-<span class="c1">#         but the body is indented to help it stand out from surrounding text.</span>
-<span class="c1"># </span>
-<span class="c1"># If a section is indented, then a section break is created by</span>
-<span class="c1"># resuming unindented text.</span>
-<span class="c1"># </span>
-<span class="c1"># Attributes</span>
-<span class="c1"># ----------</span>
-<span class="c1"># module_level_variable1 : int</span>
-<span class="c1">#     Module level variables may be documented in either the ``Attributes``</span>
-<span class="c1">#     section of the module docstring, or in an inline docstring immediately</span>
-<span class="c1">#     following the variable.</span>
-<span class="c1"># </span>
-<span class="c1">#     Either form is acceptable, but the two should not be mixed. Choose</span>
-<span class="c1">#     one convention to document module level variables and be consistent</span>
-<span class="c1">#     with it.</span>
-<span class="c1"># </span>
-<span class="c1"># .. _NumPy Documentation HOWTO:</span>
-<span class="c1">#     https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt</span>
 <span class="c1"># import ipdb</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
@@ -114,8 +101,8 @@
 
 <div class="viewcode-block" id="Clusteror"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror">[docs]</a><span class="k">class</span> <span class="nc">Clusteror</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    ``Clusteror`` class can train neural networks *denoising autoencoder* or</span>
-<span class="sd">    *Stached Denoising Autoencoder*, train taggers, or load saved models</span>
+<span class="sd">    ``Clusteror`` class can train neural networks *DA* or</span>
+<span class="sd">    *SDA*, train taggers, or load saved models</span>
 <span class="sd">    from files.</span>
 
 <span class="sd">    Parameters</span>
@@ -137,9 +124,27 @@
 <span class="sd">        consideration. All columns should have values in range ``[-1, 1]``,</span>
 <span class="sd">        otherwise an ``OutRangeError`` will be raised.</span>
 <span class="sd">    _network : str</span>
-<span class="sd">        **da** for *Denoising Autoencoder*; **sda** for *Stacked Denoising</span>
-<span class="sd">        Autoencoder*. Facilating functions called with one or the other</span>
-<span class="sd">        algorithm.</span>
+<span class="sd">        **da** for *DA*; **sda** for *SDA*.</span>
+<span class="sd">        Facilating functions called with one or the other algorithm.</span>
+<span class="sd">    _da_dim_reducer: Theano function</span>
+<span class="sd">        Keeps the Theano function that is from trained DA model. Reduces</span>
+<span class="sd">        the dimension of the cleaned data down to one.</span>
+<span class="sd">    _sda_dim_reducer: Theano function</span>
+<span class="sd">        Keeps the Theano function that is from trained SDA model. Reduces</span>
+<span class="sd">        the dimension of the cleaned data down to one.</span>
+<span class="sd">    _one_dim_data: Numpy Array</span>
+<span class="sd">        The dimension reduced one dimensional data.</span>
+<span class="sd">    _valley: Python function</span>
+<span class="sd">        Trained valley model tagging sample with their one dimensional</span>
+<span class="sd">        representation.</span>
+<span class="sd">    _kmeans: Scikit-Learn K-Means model</span>
+<span class="sd">        Trained K-Means model tagging samples with their one dimensional</span>
+<span class="sd">        representation.</span>
+<span class="sd">    _tagger: str</span>
+<span class="sd">        Keeps records of which tagger implemented.</span>
+<span class="sd">    _field_importance: List</span>
+<span class="sd">        Keeps the list of coefficiences that influence the clustering</span>
+<span class="sd">        emphasis.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_raw_data</span> <span class="o">=</span> <span class="n">raw_data</span>
@@ -147,7 +152,7 @@
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="Clusteror.from_csv"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.from_csv">[docs]</a>    <span class="k">def</span> <span class="nf">from_csv</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Class method for directly reading .csv file.</span>
+<span class="sd">        Class method for directly reading CSV file.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -186,7 +191,7 @@
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Theano function: Function that reduces dataset dimension. Attribute</span>
 <span class="sd">            ``_network`` is given **da** to designate the method of the</span>
-<span class="sd">            autoencoder as ``Denoising Autocoder``.</span>
+<span class="sd">            autoencoder as ``DA``.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_da_dim_reducer</span>
 
@@ -200,7 +205,7 @@
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Theano function: Function that reduces dataset dimension. Attribute</span>
 <span class="sd">            ``_network`` is given **sda** to designate the method of the</span>
-<span class="sd">            autoencoder as ``Stacked Denoising Autocoder``.</span>
+<span class="sd">            autoencoder as ``SDA``.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sda_dim_reducer</span>
 
@@ -443,7 +448,7 @@
         <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Trains a ``Denoising Autoencoder`` neural network.</span>
+<span class="sd">        Trains a ``DA`` neural network.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -543,7 +548,7 @@
         <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Trains a ``Stacked Denoising Autoencoder`` neural network.</span>
+<span class="sd">        Trains a ``SDA`` neural network.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -695,9 +700,9 @@
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">==</span> <span class="s1">&#39;da&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_da_to_lower_dim</span> <span class="o">=</span> <span class="n">pk</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_da_dim_reducer</span> <span class="o">=</span> <span class="n">pk</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">==</span> <span class="s1">&#39;sda&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_sda_to_lower_dim</span> <span class="o">=</span> <span class="n">pk</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sda_dim_reducer</span> <span class="o">=</span> <span class="n">pk</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Clusteror.reduce_to_one_dim"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.reduce_to_one_dim">[docs]</a>    <span class="k">def</span> <span class="nf">reduce_to_one_dim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
@@ -717,7 +722,8 @@
 <div class="viewcode-block" id="Clusteror.train_valley"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.train_valley">[docs]</a>    <span class="k">def</span> <span class="nf">train_valley</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">contrast</span><span class="o">=</span><span class="mf">0.3</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Trains the ability to cut the universe of samples into clusters based</span>
-<span class="sd">        how the dimension reduced dataset assembles in a histogram.</span>
+<span class="sd">        how the dimension reduced dataset assembles in a histogram. Unlike</span>
+<span class="sd">        the K-Means, no need to preset the number of clusters.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -768,7 +774,8 @@
 
 <div class="viewcode-block" id="Clusteror.load_valley"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.load_valley">[docs]</a>    <span class="k">def</span> <span class="nf">load_valley</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Loads a saved valley tagger from a file.</span>
+<span class="sd">        Loads a saved valley tagger from a file. Create the valley function</span>
+<span class="sd">        from the saved parameters.</span>
 
 <span class="sd">        Parameter</span>
 <span class="sd">        ---------</span>
@@ -788,21 +795,59 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_valley</span> <span class="o">=</span> <span class="n">valley</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tagger</span> <span class="o">=</span> <span class="s1">&#39;valley&#39;</span></div>
 
-<div class="viewcode-block" id="Clusteror.train_kmeans"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.train_kmeans">[docs]</a>    <span class="k">def</span> <span class="nf">train_kmeans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_clusters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Clusteror.train_kmeans"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.train_kmeans">[docs]</a>    <span class="k">def</span> <span class="nf">train_kmeans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_clusters</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Trains K-Means model on top of the one dimensional data derived from</span>
+<span class="sd">        dimension reducers.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        n_clusters: int</span>
+<span class="sd">            The number of clusters required to start a K-Means learning.</span>
+<span class="sd">        **kwargs: keyword arguments</span>
+<span class="sd">            Any other keyword arguments passed on to Scikit-Learn K-Means</span>
+<span class="sd">            model.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_kmeans</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_kmeans</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_one_dim_data</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tagger</span> <span class="o">=</span> <span class="s1">&#39;kmeans&#39;</span></div>
 
-<div class="viewcode-block" id="Clusteror.save_kmeans"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.save_kmeans">[docs]</a>    <span class="k">def</span> <span class="nf">save_kmeans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+<div class="viewcode-block" id="Clusteror.save_kmeans"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.save_kmeans">[docs]</a>    <span class="k">def</span> <span class="nf">save_kmeans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">include_taggername</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Saves K-Means model to the named file path. Can add a prefix to</span>
+<span class="sd">        indicate this saves a K-Means model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filepath: str</span>
+<span class="sd">           File path for saving the model.</span>
+<span class="sd">        include_taggername: boolean, default False</span>
+<span class="sd">           Include the **kmean_** prefix in filename if true.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">include_taggername</span><span class="p">:</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_filepath</span><span class="p">(</span><span class="s1">&#39;tagger&#39;</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">pk</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_kmeans</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Clusteror.load_kmeans"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.load_kmeans">[docs]</a>    <span class="k">def</span> <span class="nf">load_kmeans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Loads a saved K-Means tagger from a file.</span>
+
+<span class="sd">        Parameter</span>
+<span class="sd">        ---------</span>
+<span class="sd">        filepath: str</span>
+<span class="sd">            File path to the file saving the K-Means tagger.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_kmeans</span> <span class="o">=</span> <span class="n">pk</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tagger</span> <span class="o">=</span> <span class="s1">&#39;valley&#39;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tagger</span> <span class="o">=</span> <span class="s1">&#39;kmeans&#39;</span></div>
 
 <div class="viewcode-block" id="Clusteror.add_cluster"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.add_cluster">[docs]</a>    <span class="k">def</span> <span class="nf">add_cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Tags each sample regarding their reduced one dimensional value. Adds</span>
+<span class="sd">        an extra column **&#39;cluster&#39;** to ``raw_data``, seggesting a</span>
+<span class="sd">        zero-based cluster ID.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tagger</span> <span class="o">==</span> <span class="s1">&#39;valley&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">raw_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valley</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_one_dim_data</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tagger</span> <span class="o">==</span> <span class="s1">&#39;kmeans&#39;</span><span class="p">:</span>

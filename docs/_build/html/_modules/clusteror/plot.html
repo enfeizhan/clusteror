@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>clusteror.plot &#8212; clusteror 0.0.post0.dev56+ndac5072.dirty documentation</title>
+    <title>clusteror.plot &#8212; clusteror 0.0.post0.dev57+n8feaa72.dirty documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.0.post0.dev56+ndac5072.dirty',
+        VERSION:     '0.0.post0.dev57+n8feaa72.dirty',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="top" title="clusteror 0.0.post0.dev56+ndac5072.dirty documentation" href="../../index.html" />
+    <link rel="top" title="clusteror 0.0.post0.dev57+n8feaa72.dirty documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -43,7 +43,11 @@
           <div class="body" role="main">
             
   <h1>Source code for clusteror.plot</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Plotting tools relevant for illustrating and comparing clustering results</span>
+<span class="sd">can be found in this module.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -61,24 +65,64 @@
         <span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="n">grid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span>
         <span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Plot the distribution of a two dimensional data in a scatter plot.</span>
+<span class="sd">    Plot the distribution of a two dimensional data against clustering groups</span>
+<span class="sd">    in a scatter plot.</span>
 
-<span class="sd">    two_dim_data: pandas dataframe</span>
-<span class="sd">    A dataframe with two columns. The first column goes to the x-axis, and the</span>
-<span class="sd">    second column goes to the y-axis.</span>
+<span class="sd">    A point represents an instance in the dataset. Points in a same cluster</span>
+<span class="sd">    are painted with a same colour.</span>
 
-<span class="sd">    labels: list, pandas series, or numpy array</span>
-<span class="sd">    The segment label for each sample in two_dim_data.</span>
+<span class="sd">    This tool is useful to check the clustering impact in this two-dimensional</span>
+<span class="sd">    sub-space.</span>
 
-<span class="sd">    markers:</span>
-<span class="sd">    Marker names for each group.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
 
+<span class="sd">    two_dim_data: Pandas DataFrame</span>
+<span class="sd">        A dataframe with two columns. The first column goes to the x-axis,</span>
+<span class="sd">        and the second column goes to the y-axis.</span>
+<span class="sd">    labels: list, Pandas Series, Numpy Array, or any iterable</span>
+<span class="sd">        The segment label for each sample in ``two_dim_data``.</span>
+<span class="sd">    markers: list</span>
+<span class="sd">        Marker names for each group.</span>
 <span class="sd">    bbox_to_anchor: tuple</span>
+<span class="sd">        Instruction to placing the legend box relative to the axes. Details</span>
+<span class="sd">        refer to ``Matplotlib`` document.</span>
+<span class="sd">    colors: list, default None</span>
+<span class="sd">        Colours for each group. Use equally distanced colours on colour map</span>
+<span class="sd">        if not supplied.</span>
+<span class="sd">    figsize: tuple</span>
+<span class="sd">        Figure size (width, height).</span>
+<span class="sd">    xlim: tuple</span>
+<span class="sd">        X-axis limits.</span>
+<span class="sd">    ylim: tuple</span>
+<span class="sd">        Y-axis limits.</span>
+<span class="sd">    alpha: float, between 0 and 1</span>
+<span class="sd">        Marker transparency. From 0 to 1: from transparent to opaque.</span>
+<span class="sd">    loc: int</span>
+<span class="sd">        The corner of the legend box to anchor. Details refer to ``Matplotlib``</span>
+<span class="sd">        document.</span>
+<span class="sd">    grid: boolean, default True</span>
+<span class="sd">        Show grid.</span>
+<span class="sd">    show: boolean, default True</span>
+<span class="sd">        Show figure in pop-up windows if true. Save to files if False.</span>
+<span class="sd">    filepath: str</span>
+<span class="sd">        File name to saving the plot. Must be assigned a valid filepath if</span>
+<span class="sd">        ``show`` is False.</span>
+<span class="sd">    **kwargs: keyword arguments</span>
+<span class="sd">        Other keyword arguemnts passed on to ``matplotlib.pyplot.scatter``.</span>
 
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+
+<span class="sd">    Instances in a same cluster does not necessarily assemble together in</span>
+<span class="sd">    all two dimensional sub-spaces. There can be possibly no clustering</span>
+<span class="sd">    capaility for certain features. Additionally certain features play a</span>
+<span class="sd">    secondary role in clustering as having less importance in</span>
+<span class="sd">    ``field_importance`` in ``clusteror`` module.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">two_dim_data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">two_dim_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;Two_dim_data must have two columns!&#39;</span>
@@ -135,8 +179,8 @@
     <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">filename</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+        <span class="k">assert</span> <span class="n">filepath</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="hist_plot_one_dim_group_data"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.plot.hist_plot_one_dim_group_data">[docs]</a><span class="k">def</span> <span class="nf">hist_plot_one_dim_group_data</span><span class="p">(</span>
@@ -149,21 +193,51 @@
         <span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="n">grid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Plot the distribution of the one dimensional reduced data in a histogram.</span>
-<span class="sd">    The range of data is always from zero to one.</span>
+<span class="sd">    Plot the distribution of a one dimensional numerical data in a histogram.</span>
+<span class="sd">    This tool is useful to check the clustering impact in this one-dimensional</span>
+<span class="sd">    sub-space.</span>
 
-<span class="sd">    one_dim_data: list, pandas series, or numpy array</span>
-<span class="sd">    The one dimensional reduced data in a one dimensional data type.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
 
-<span class="sd">    labels: list, pandas series, or numpy array</span>
-<span class="sd">    The segment label for each sample in one_dim_data.</span>
+<span class="sd">    one_dim_data: list, Pandas Series, Numpy Array, or any iterable</span>
+<span class="sd">        A sequence of data. Each element if for an instance.</span>
+<span class="sd">    labels: list, Pandas Series, Numpy Array, or any iterable</span>
+<span class="sd">        The segment label for each sample in ``one_dim_data``.</span>
+<span class="sd">    bins: int or iterable</span>
+<span class="sd">        If an integer, bins - 1 bins created or a list of the delimiters.</span>
+<span class="sd">    colors: list, default None</span>
+<span class="sd">        Colours for each group. Use equally distanced colours on colour map</span>
+<span class="sd">        if not supplied.</span>
+<span class="sd">    figsize: tuple</span>
+<span class="sd">        Figure size (width, height).</span>
+<span class="sd">    bbox_to_anchor: tuple</span>
+<span class="sd">        Instruction to placing the legend box relative to the axes. Details</span>
+<span class="sd">        refer to ``Matplotlib`` document.</span>
+<span class="sd">    loc: int</span>
+<span class="sd">        The corner of the legend box to anchor. Details refer to ``Matplotlib``</span>
+<span class="sd">        document.</span>
+<span class="sd">    grid: boolean, default True</span>
+<span class="sd">        Show grid.</span>
+<span class="sd">    show: boolean, default True</span>
+<span class="sd">        Show figure in pop-up windows if true. Save to files if False.</span>
+<span class="sd">    filepath: str</span>
+<span class="sd">        File name to saving the plot. Must be assigned a valid filepath if</span>
+<span class="sd">        ``show`` is False.</span>
+<span class="sd">    **kwargs: keyword arguments</span>
+<span class="sd">        Other keyword arguemnts passed on to ``matplotlib.pyplot.scatter``.</span>
 
-<span class="sd">    bins: integer or array</span>
-<span class="sd">    If an integer, bins - 1 bins between minimum and maximum of the subclass,</span>
-<span class="sd">    or an list of the delimiters.</span>
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+
+<span class="sd">    Instances in a same cluster does not necessarily assemble together in</span>
+<span class="sd">    all one dimensional sub-spaces. There can be possibly no clustering</span>
+<span class="sd">    capaility for certain features. Additionally certain features play a</span>
+<span class="sd">    secondary role in clustering as having less importance in</span>
+<span class="sd">    ``field_importance`` in ``clusteror`` module.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">one_dim_data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">series</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
         <span class="n">one_dim_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">one_dim_data</span><span class="p">)</span>
@@ -176,9 +250,6 @@
         <span class="n">colors</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">Spectral</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_groups</span><span class="p">))</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
-    <span class="c1"># if bins is a integer create bins between 0 and 1</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">bins</span><span class="p">)</span>
     <span class="c1"># do a for loop to plot one by one</span>
     <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">group</span><span class="p">),</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">grouped</span><span class="p">,</span> <span class="n">colors</span><span class="p">):</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span>
@@ -198,12 +269,12 @@
     <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">filename</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+        <span class="k">assert</span> <span class="n">filepath</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="group_occurance_plot"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.plot.group_occurance_plot">[docs]</a><span class="k">def</span> <span class="nf">group_occurance_plot</span><span class="p">(</span>
-        <span class="n">data</span><span class="p">,</span>
+        <span class="n">one_dim_data</span><span class="p">,</span>
         <span class="n">cat_label</span><span class="p">,</span>
         <span class="n">labels</span><span class="p">,</span>
         <span class="n">group_label</span><span class="p">,</span>
@@ -213,25 +284,57 @@
         <span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="n">grid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Plot the distribution of the one dimensional reduced data in a histogram.</span>
-<span class="sd">    The range of data is always from zero to one.</span>
+<span class="sd">    Plot the distribution of a one dimensional **ordinal or categorical** data</span>
+<span class="sd">    in a bar chart. This tool is useful to check the clustering impact in this</span>
+<span class="sd">    one-dimensional sub-space.</span>
 
-<span class="sd">    one_dim_data: list, pandas series, or numpy array</span>
-<span class="sd">    The one dimensional reduced data in a one dimensional data type.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
 
-<span class="sd">    labels: list, pandas series, or numpy array</span>
-<span class="sd">    The segment label for each sample in one_dim_data.</span>
+<span class="sd">    one_dim_data: list, Pandas Series, Numpy Array, or any iterable</span>
+<span class="sd">        A sequence of data. Each element if for an instance.</span>
+<span class="sd">    cat_label: str</span>
+<span class="sd">        Field name will be used for the one dimensional data.</span>
+<span class="sd">    labels: list, Pandas Series, Numpy Array, or any iterable</span>
+<span class="sd">        The segment label for each sample in one_dim_data.</span>
+<span class="sd">    group_label: str</span>
+<span class="sd">        Field name will be used for the cluster ID.</span>
+<span class="sd">    colors: list, default None</span>
+<span class="sd">        Colours for each category existing in this one dimensional data.</span>
+<span class="sd">        Default colour scheme used if not supplied.</span>
+<span class="sd">    figsize: tuple</span>
+<span class="sd">        Figure size (width, height).</span>
+<span class="sd">    bbox_to_anchor: tuple</span>
+<span class="sd">        Instruction to placing the legend box relative to the axes. Details</span>
+<span class="sd">        refer to ``Matplotlib`` document.</span>
+<span class="sd">    loc: int</span>
+<span class="sd">        The corner of the legend box to anchor. Details refer to ``Matplotlib``</span>
+<span class="sd">        document.</span>
+<span class="sd">    grid: boolean, default True</span>
+<span class="sd">        Show grid.</span>
+<span class="sd">    show: boolean, default True</span>
+<span class="sd">        Show figure in pop-up windows if true. Save to files if False.</span>
+<span class="sd">    filepath: str</span>
+<span class="sd">        File name to saving the plot. Must be assigned a valid filepath if</span>
+<span class="sd">        ``show`` is False.</span>
+<span class="sd">    **kwargs: keyword arguments</span>
+<span class="sd">        Other keyword arguemnts passed on to ``matplotlib.pyplot.scatter``.</span>
 
-<span class="sd">    bins: integer or array</span>
-<span class="sd">    If an integer, bins - 1 bins between minimum and maximum of the subclass,</span>
-<span class="sd">    or an list of the delimiters.</span>
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+
+<span class="sd">    Instances in a same cluster does not necessarily assemble together in</span>
+<span class="sd">    all one dimensional sub-spaces. There can be possibly no clustering</span>
+<span class="sd">    capaility for certain features. Additionally certain features play a</span>
+<span class="sd">    secondary role in clustering as having less importance in</span>
+<span class="sd">    ``field_importance`` in ``clusteror`` module.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">series</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="n">cat_label</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="n">group_label</span><span class="p">:</span> <span class="n">labels</span><span class="p">})</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">one_dim_data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">series</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+        <span class="n">one_dim_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">one_dim_data</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="n">cat_label</span><span class="p">:</span> <span class="n">one_dim_data</span><span class="p">,</span> <span class="n">group_label</span><span class="p">:</span> <span class="n">labels</span><span class="p">})</span>
     <span class="n">df_to_plot</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pivot_table</span><span class="p">(</span>
         <span class="n">index</span><span class="o">=</span><span class="n">group_label</span><span class="p">,</span>
         <span class="n">columns</span><span class="o">=</span><span class="n">cat_label</span><span class="p">,</span>
@@ -246,8 +349,8 @@
     <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">filename</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+        <span class="k">assert</span> <span class="n">filepath</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span></div>
 </pre></div>
 
           </div>

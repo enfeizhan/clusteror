@@ -1,8 +1,8 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "CLUSTEROR" "1" "Dec 01, 2016" "0.0.post0.dev56+ndac5072.dirty" "clusteror"
+.TH "CLUSTEROR" "1" "Dec 02, 2016" "0.0.post0.dev57+n8feaa72.dirty" "clusteror"
 .SH NAME
-clusteror \- clusteror 0.0.post0.dev56+ndac5072.dirty
+clusteror \- clusteror 0.0.post0.dev57+n8feaa72.dirty
 .
 .nr rst2man-indent-level 0
 .
@@ -198,15 +198,51 @@ Alias for field number 2
 .SS clusteror.core module
 .sp
 This module contains \fBClusteror\fP class capsulating raw data to discover
-clusters from, the cleaned data for a clusteror to run on, as well as
-methods to training neural networks and delimiting occurances into clusters.
+clusters from, the cleaned data for a clusteror to run on.
+.sp
+The clustering model encompasses two parts:
+.INDENT 0.0
+.IP 1. 3
+Neural network:
+Pre\-training (often encountered in Deep Learning context)
+is implemented to achieve a goal that the neural network maps the input
+data of higher dimension to a one dimensional representation. Ideally this
+mapping is one\-to\-one.
+A Denoising Autoencoder (DA) or Stacked Denoising Autoencoder (SDA) is
+implemented for this purpose.
+.IP 2. 3
+One dimensional clustering model:
+A separate model segments the samples against the one dimensional
+representation. Two models are available in this class definition:
+.INDENT 3.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+K\-Means
+.IP \(bu 2
+Valley model
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+The pivot idea here is given the neural network is a good one\-to\-one mapper
+the separate clustering model on one dimensional representation is equivalent
+to a clustering model on the original high dimensional data.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+Valley model is explained in details in module \fBclusteror.utils\fP\&.
+.UNINDENT
+.UNINDENT
 .INDENT 0.0
 .TP
 .B class clusteror.core.Clusteror(raw_data)
 Bases: \fI\%object\fP
 .sp
-\fBClusteror\fP class can train neural networks \fIdenoising autoencoder\fP or
-\fIStached Denoising Autoencoder\fP, train taggers, or load saved models
+\fBClusteror\fP class can train neural networks \fIDA\fP or
+\fISDA\fP, train taggers, or load saved models
 from files.
 .INDENT 7.0
 .TP
@@ -233,13 +269,55 @@ otherwise an \fBOutRangeError\fP will be raised.
 .INDENT 7.0
 .TP
 .B _network
-\fIstr\fP \-\- \fBda\fP for \fIDenoising Autoencoder\fP; \fBsda\fP for \fIStacked Denoising
-Autoencoder\fP\&. Facilating functions called with one or the other
-algorithm.
+\fIstr\fP \-\- \fBda\fP for \fIDA\fP; \fBsda\fP for \fISDA\fP\&.
+Facilating functions called with one or the other algorithm.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B _da_dim_reducer
+\fITheano function\fP \-\- Keeps the Theano function that is from trained DA model. Reduces
+the dimension of the cleaned data down to one.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B _sda_dim_reducer
+\fITheano function\fP \-\- Keeps the Theano function that is from trained SDA model. Reduces
+the dimension of the cleaned data down to one.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B _one_dim_data
+\fINumpy Array\fP \-\- The dimension reduced one dimensional data.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B _valley
+\fIPython function\fP \-\- Trained valley model tagging sample with their one dimensional
+representation.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B _kmeans
+\fIScikit\-Learn K\-Means model\fP \-\- Trained K\-Means model tagging samples with their one dimensional
+representation.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B _tagger
+\fIstr\fP \-\- Keeps records of which tagger implemented.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B _field_importance
+\fIList\fP \-\- Keeps the list of coefficiences that influence the clustering
+emphasis.
 .UNINDENT
 .INDENT 7.0
 .TP
 .B add_cluster()
+Tags each sample regarding their reduced one dimensional value. Adds
+an extra column \fB\(aqcluster\(aq\fP to \fBraw_data\fP, seggesting a
+zero\-based cluster ID.
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -251,7 +329,7 @@ algorithm.
 .B da_dim_reducer
 \fITheano function\fP \-\- Function that reduces dataset dimension. Attribute
 \fB_network\fP is given \fBda\fP to designate the method of the
-autoencoder as \fBDenoising Autocoder\fP\&.
+autoencoder as \fBDA\fP\&.
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -292,7 +370,7 @@ not on the list of field names, mostly because of a typo.
 .INDENT 7.0
 .TP
 .B classmethod from_csv(filepath, **kwargs)
-Class method for directly reading .csv file.
+Class method for directly reading CSV file.
 .INDENT 7.0
 .TP
 .B Parameters
@@ -325,11 +403,18 @@ Loads saved dimension reducer. Need to first name the network type.
 .INDENT 7.0
 .TP
 .B load_kmeans(filepath)
+Loads a saved K\-Means tagger from a file.
+.INDENT 7.0
+.TP
+.B filepath: str
+File path to the file saving the K\-Means tagger.
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
 .B load_valley(filepath)
-Loads a saved valley tagger from a file.
+Loads a saved valley tagger from a file. Create the valley function
+from the saved parameters.
 .INDENT 7.0
 .TP
 .B filepath: str
@@ -373,7 +458,19 @@ Save dimension reducer from the neural network training.
 .UNINDENT
 .INDENT 7.0
 .TP
-.B save_kmeans(filepath)
+.B save_kmeans(filepath, include_taggername=False)
+Saves K\-Means model to the named file path. Can add a prefix to
+indicate this saves a K\-Means model.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBfilepath\fP (\fI\%str\fP) \-\- File path for saving the model.
+.IP \(bu 2
+\fBinclude_taggername\fP (\fIboolean, default False\fP) \-\- Include the \fBkmean_\fP prefix in filename if true.
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -395,7 +492,7 @@ Saves valley tagger.
 .B sda_dim_reducer
 \fITheano function\fP \-\- Function that reduces dataset dimension. Attribute
 \fB_network\fP is given \fBsda\fP to designate the method of the
-autoencoder as \fBStacked Denoising Autocoder\fP\&.
+autoencoder as \fBSDA\fP\&.
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -406,7 +503,7 @@ prefixing the filepath.
 .INDENT 7.0
 .TP
 .B train_da_dim_reducer(field_importance=None, batch_size=50, corruption_level=0.3, learning_rate=0.002, min_epochs=200, patience=60, patience_increase=2, improvement_threshold=0.98, verbose=False)
-Trains a \fBDenoising Autoencoder\fP neural network.
+Trains a \fBDA\fP neural network.
 .INDENT 7.0
 .TP
 .B Parameters
@@ -458,12 +555,25 @@ new cost over existing lowest cost lower than this value.
 .UNINDENT
 .INDENT 7.0
 .TP
-.B train_kmeans(n_clusters=None, **kwargs)
+.B train_kmeans(n_clusters=10, **kwargs)
+Trains K\-Means model on top of the one dimensional data derived from
+dimension reducers.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBn_clusters\fP (\fI\%int\fP) \-\- The number of clusters required to start a K\-Means learning.
+.IP \(bu 2
+\fB**kwargs\fP (\fIkeyword arguments\fP) \-\- Any other keyword arguments passed on to Scikit\-Learn K\-Means
+model.
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
 .B train_sda_dim_reducer(field_importance=None, batch_size=50, hidden_layers_sizes=[20], corruption_levels=[0.3], learning_rate=0.002, min_epochs=200, patience=60, patience_increase=2, improvement_threshold=0.98, verbose=False)
-Trains a \fBStacked Denoising Autoencoder\fP neural network.
+Trains a \fBSDA\fP neural network.
 .INDENT 7.0
 .TP
 .B Parameters
@@ -519,7 +629,8 @@ new cost over existing lowest cost lower than this value.
 .TP
 .B train_valley(bins=100, contrast=0.3)
 Trains the ability to cut the universe of samples into clusters based
-how the dimension reduced dataset assembles in a histogram.
+how the dimension reduced dataset assembles in a histogram. Unlike
+the K\-Means, no need to preset the number of clusters.
 .INDENT 7.0
 .TP
 .B Parameters
@@ -607,54 +718,172 @@ Bases: \fI\%object\fP
 .SS clusteror.implementation_layer module
 .SS clusteror.mlp module
 .SS clusteror.plot module
+.sp
+Plotting tools relevant for illustrating and comparing clustering results
+can be found in this module.
 .INDENT 0.0
 .TP
-.B clusteror.plot.group_occurance_plot(data, cat_label, labels, group_label, colors=None, figsize=(10, 6), bbox_to_anchor=(1.01, 1), loc=2, grid=True, show=True, filename=None, **kwargs)
-Plot the distribution of the one dimensional reduced data in a histogram.
-The range of data is always from zero to one.
+.B clusteror.plot.group_occurance_plot(one_dim_data, cat_label, labels, group_label, colors=None, figsize=(10, 6), bbox_to_anchor=(1.01, 1), loc=2, grid=True, show=True, filepath=None, **kwargs)
+Plot the distribution of a one dimensional \fBordinal or categorical\fP data
+in a bar chart. This tool is useful to check the clustering impact in this
+one\-dimensional sub\-space.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBone_dim_data\fP (\fIlist, Pandas Series, Numpy Array, or any iterable\fP) \-\- A sequence of data. Each element if for an instance.
+.IP \(bu 2
+\fBcat_label\fP (\fI\%str\fP) \-\- Field name will be used for the one dimensional data.
+.IP \(bu 2
+\fBlabels\fP (\fIlist, Pandas Series, Numpy Array, or any iterable\fP) \-\- The segment label for each sample in one_dim_data.
+.IP \(bu 2
+\fBgroup_label\fP (\fI\%str\fP) \-\- Field name will be used for the cluster ID.
+.IP \(bu 2
+\fBcolors\fP (\fIlist, default None\fP) \-\- Colours for each category existing in this one dimensional data.
+Default colour scheme used if not supplied.
+.IP \(bu 2
+\fBfigsize\fP (\fI\%tuple\fP) \-\- Figure size (width, height).
+.IP \(bu 2
+\fBbbox_to_anchor\fP (\fI\%tuple\fP) \-\- Instruction to placing the legend box relative to the axes. Details
+refer to \fBMatplotlib\fP document.
+.IP \(bu 2
+\fBloc\fP (\fI\%int\fP) \-\- The corner of the legend box to anchor. Details refer to \fBMatplotlib\fP
+document.
+.IP \(bu 2
+\fBgrid\fP (\fIboolean, default True\fP) \-\- Show grid.
+.IP \(bu 2
+\fBshow\fP (\fIboolean, default True\fP) \-\- Show figure in pop\-up windows if true. Save to files if False.
+.IP \(bu 2
+\fBfilepath\fP (\fI\%str\fP) \-\- File name to saving the plot. Must be assigned a valid filepath if
+\fBshow\fP is False.
+.IP \(bu 2
+\fB**kwargs\fP (\fIkeyword arguments\fP) \-\- Other keyword arguemnts passed on to \fBmatplotlib.pyplot.scatter\fP\&.
+.UNINDENT
+.UNINDENT
 .sp
-one_dim_data: list, pandas series, or numpy array
-The one dimensional reduced data in a one dimensional data type.
-.sp
-labels: list, pandas series, or numpy array
-The segment label for each sample in one_dim_data.
-.sp
-bins: integer or array
-If an integer, bins \- 1 bins between minimum and maximum of the subclass,
-or an list of the delimiters.
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+Instances in a same cluster does not necessarily assemble together in
+all one dimensional sub\-spaces. There can be possibly no clustering
+capaility for certain features. Additionally certain features play a
+secondary role in clustering as having less importance in
+\fBfield_importance\fP in \fBclusteror\fP module.
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B clusteror.plot.hist_plot_one_dim_group_data(one_dim_data, labels, bins=11, colors=None, figsize=(10, 6), bbox_to_anchor=(1.01, 1), loc=2, grid=True, show=True, filename=None, **kwargs)
-Plot the distribution of the one dimensional reduced data in a histogram.
-The range of data is always from zero to one.
+.B clusteror.plot.hist_plot_one_dim_group_data(one_dim_data, labels, bins=11, colors=None, figsize=(10, 6), bbox_to_anchor=(1.01, 1), loc=2, grid=True, show=True, filepath=None, **kwargs)
+Plot the distribution of a one dimensional numerical data in a histogram.
+This tool is useful to check the clustering impact in this one\-dimensional
+sub\-space.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBone_dim_data\fP (\fIlist, Pandas Series, Numpy Array, or any iterable\fP) \-\- A sequence of data. Each element if for an instance.
+.IP \(bu 2
+\fBlabels\fP (\fIlist, Pandas Series, Numpy Array, or any iterable\fP) \-\- The segment label for each sample in \fBone_dim_data\fP\&.
+.IP \(bu 2
+\fBbins\fP (\fIint or iterable\fP) \-\- If an integer, bins \- 1 bins created or a list of the delimiters.
+.IP \(bu 2
+\fBcolors\fP (\fIlist, default None\fP) \-\- Colours for each group. Use equally distanced colours on colour map
+if not supplied.
+.IP \(bu 2
+\fBfigsize\fP (\fI\%tuple\fP) \-\- Figure size (width, height).
+.IP \(bu 2
+\fBbbox_to_anchor\fP (\fI\%tuple\fP) \-\- Instruction to placing the legend box relative to the axes. Details
+refer to \fBMatplotlib\fP document.
+.IP \(bu 2
+\fBloc\fP (\fI\%int\fP) \-\- The corner of the legend box to anchor. Details refer to \fBMatplotlib\fP
+document.
+.IP \(bu 2
+\fBgrid\fP (\fIboolean, default True\fP) \-\- Show grid.
+.IP \(bu 2
+\fBshow\fP (\fIboolean, default True\fP) \-\- Show figure in pop\-up windows if true. Save to files if False.
+.IP \(bu 2
+\fBfilepath\fP (\fI\%str\fP) \-\- File name to saving the plot. Must be assigned a valid filepath if
+\fBshow\fP is False.
+.IP \(bu 2
+\fB**kwargs\fP (\fIkeyword arguments\fP) \-\- Other keyword arguemnts passed on to \fBmatplotlib.pyplot.scatter\fP\&.
+.UNINDENT
+.UNINDENT
 .sp
-one_dim_data: list, pandas series, or numpy array
-The one dimensional reduced data in a one dimensional data type.
-.sp
-labels: list, pandas series, or numpy array
-The segment label for each sample in one_dim_data.
-.sp
-bins: integer or array
-If an integer, bins \- 1 bins between minimum and maximum of the subclass,
-or an list of the delimiters.
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+Instances in a same cluster does not necessarily assemble together in
+all one dimensional sub\-spaces. There can be possibly no clustering
+capaility for certain features. Additionally certain features play a
+secondary role in clustering as having less importance in
+\fBfield_importance\fP in \fBclusteror\fP module.
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
-.B clusteror.plot.scatter_plot_two_dim_group_data(two_dim_data, labels, markers=None, colors=None, figsize=(10, 6), xlim=None, ylim=None, alpha=0.8, bbox_to_anchor=(1.01, 1), loc=2, grid=True, show=True, filename=None, **kwargs)
-Plot the distribution of a two dimensional data in a scatter plot.
+.B clusteror.plot.scatter_plot_two_dim_group_data(two_dim_data, labels, markers=None, colors=None, figsize=(10, 6), xlim=None, ylim=None, alpha=0.8, bbox_to_anchor=(1.01, 1), loc=2, grid=True, show=True, filepath=None, **kwargs)
+Plot the distribution of a two dimensional data against clustering groups
+in a scatter plot.
 .sp
-two_dim_data: pandas dataframe
-A dataframe with two columns. The first column goes to the x\-axis, and the
-second column goes to the y\-axis.
+A point represents an instance in the dataset. Points in a same cluster
+are painted with a same colour.
 .sp
-labels: list, pandas series, or numpy array
-The segment label for each sample in two_dim_data.
+This tool is useful to check the clustering impact in this two\-dimensional
+sub\-space.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBtwo_dim_data\fP (\fIPandas DataFrame\fP) \-\- A dataframe with two columns. The first column goes to the x\-axis,
+and the second column goes to the y\-axis.
+.IP \(bu 2
+\fBlabels\fP (\fIlist, Pandas Series, Numpy Array, or any iterable\fP) \-\- The segment label for each sample in \fBtwo_dim_data\fP\&.
+.IP \(bu 2
+\fBmarkers\fP (\fI\%list\fP) \-\- Marker names for each group.
+.IP \(bu 2
+\fBbbox_to_anchor\fP (\fI\%tuple\fP) \-\- Instruction to placing the legend box relative to the axes. Details
+refer to \fBMatplotlib\fP document.
+.IP \(bu 2
+\fBcolors\fP (\fIlist, default None\fP) \-\- Colours for each group. Use equally distanced colours on colour map
+if not supplied.
+.IP \(bu 2
+\fBfigsize\fP (\fI\%tuple\fP) \-\- Figure size (width, height).
+.IP \(bu 2
+\fBxlim\fP (\fI\%tuple\fP) \-\- X\-axis limits.
+.IP \(bu 2
+\fBylim\fP (\fI\%tuple\fP) \-\- Y\-axis limits.
+.IP \(bu 2
+\fBalpha\fP (\fIfloat, between 0 and 1\fP) \-\- Marker transparency. From 0 to 1: from transparent to opaque.
+.IP \(bu 2
+\fBloc\fP (\fI\%int\fP) \-\- The corner of the legend box to anchor. Details refer to \fBMatplotlib\fP
+document.
+.IP \(bu 2
+\fBgrid\fP (\fIboolean, default True\fP) \-\- Show grid.
+.IP \(bu 2
+\fBshow\fP (\fIboolean, default True\fP) \-\- Show figure in pop\-up windows if true. Save to files if False.
+.IP \(bu 2
+\fBfilepath\fP (\fI\%str\fP) \-\- File name to saving the plot. Must be assigned a valid filepath if
+\fBshow\fP is False.
+.IP \(bu 2
+\fB**kwargs\fP (\fIkeyword arguments\fP) \-\- Other keyword arguemnts passed on to \fBmatplotlib.pyplot.scatter\fP\&.
+.UNINDENT
+.UNINDENT
 .sp
-markers:
-Marker names for each group.
-.sp
-bbox_to_anchor: tuple
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+Instances in a same cluster does not necessarily assemble together in
+all two dimensional sub\-spaces. There can be possibly no clustering
+capaility for certain features. Additionally certain features play a
+secondary role in clustering as having less importance in
+\fBfield_importance\fP in \fBclusteror\fP module.
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .SS clusteror.preprocessing_layer module
 .SS clusteror.settings module
@@ -1339,12 +1568,6 @@ Write the given version number to the given _version.py file.
 .SS tests package
 .SS Submodules
 .SS tests.conftest module
-.sp
-Dummy conftest.py for clusteror.
-.sp
-If you don\(aqt know what this is for, just leave it empty.
-Read more about conftest.py under:
-\fI\%https://pytest.org/latest/plugins.html\fP
 .SS tests.example_iris module
 .SS tests.example_tips module
 .SS tests.test_clusteror module
@@ -1399,10 +1622,6 @@ Bases: \fBunittest.case.TestCase\fP
 .B tests.test_clusteror.tanh_cross_entropy(field_importance, dat_in, dat_rec)
 .UNINDENT
 .SS tests.test_skeleton module
-.INDENT 0.0
-.TP
-.B tests.test_skeleton.test_fib()
-.UNINDENT
 .SS Module contents
 .SS versioneer module
 .sp

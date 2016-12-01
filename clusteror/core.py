@@ -1,43 +1,30 @@
 '''
 This module contains ``Clusteror`` class capsulating raw data to discover
-clusters from, the cleaned data for a clusteror to run on, as well as
-methods to training neural networks and delimiting occurances into clusters.
+clusters from, the cleaned data for a clusteror to run on.
+
+The clustering model encompasses two parts:
+
+1. Neural network:
+   Pre-training (often encountered in Deep Learning context)
+   is implemented to achieve a goal that the neural network maps the input
+   data of higher dimension to a one dimensional representation. Ideally this
+   mapping is one-to-one.
+   A Denoising Autoencoder (DA) or Stacked Denoising Autoencoder (SDA) is
+   implemented for this purpose.
+2. One dimensional clustering model:
+   A separate model segments the samples against the one dimensional
+   representation. Two models are available in this class definition:
+       * K-Means
+       * Valley model
+
+The pivot idea here is given the neural network is a good one-to-one mapper
+the separate clustering model on one dimensional representation is equivalent
+to a clustering model on the original high dimensional data.
+
+Note
+----
+Valley model is explained in details in module ``clusteror.utils``.
 '''
-# `h`_
-# Example
-# -------
-# Examples can be given using either the ``Example`` or ``Examples``
-# sections. Sections support any reStructuredText formatting, including
-# literal blocks::
-# 
-#         $ python example_numpy.py
-# 
-# 
-# Section breaks are created with two blank lines. Section breaks are also
-# implicitly created anytime a new section starts. Section bodies *may* be
-# indented:
-# 
-# Notes
-# -----
-#     This is an example of an indented section. It's like any other section,
-#         but the body is indented to help it stand out from surrounding text.
-# 
-# If a section is indented, then a section break is created by
-# resuming unindented text.
-# 
-# Attributes
-# ----------
-# module_level_variable1 : int
-#     Module level variables may be documented in either the ``Attributes``
-#     section of the module docstring, or in an inline docstring immediately
-#     following the variable.
-# 
-#     Either form is acceptable, but the two should not be mixed. Choose
-#     one convention to document module level variables and be consistent
-#     with it.
-# 
-# .. _NumPy Documentation HOWTO:
-#     https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 # import ipdb
 import os
 import sys
@@ -69,8 +56,8 @@ class OutRangeError(Exception):
 
 class Clusteror(object):
     '''
-    ``Clusteror`` class can train neural networks *denoising autoencoder* or
-    *Stached Denoising Autoencoder*, train taggers, or load saved models
+    ``Clusteror`` class can train neural networks *DA* or
+    *SDA*, train taggers, or load saved models
     from files.
 
     Parameters
@@ -92,9 +79,27 @@ class Clusteror(object):
         consideration. All columns should have values in range ``[-1, 1]``,
         otherwise an ``OutRangeError`` will be raised.
     _network : str
-        **da** for *Denoising Autoencoder*; **sda** for *Stacked Denoising
-        Autoencoder*. Facilating functions called with one or the other
-        algorithm.
+        **da** for *DA*; **sda** for *SDA*.
+        Facilating functions called with one or the other algorithm.
+    _da_dim_reducer: Theano function
+        Keeps the Theano function that is from trained DA model. Reduces
+        the dimension of the cleaned data down to one.
+    _sda_dim_reducer: Theano function
+        Keeps the Theano function that is from trained SDA model. Reduces
+        the dimension of the cleaned data down to one.
+    _one_dim_data: Numpy Array
+        The dimension reduced one dimensional data.
+    _valley: Python function
+        Trained valley model tagging sample with their one dimensional
+        representation.
+    _kmeans: Scikit-Learn K-Means model
+        Trained K-Means model tagging samples with their one dimensional
+        representation.
+    _tagger: str
+        Keeps records of which tagger implemented.
+    _field_importance: List
+        Keeps the list of coefficiences that influence the clustering
+        emphasis.
     '''
     def __init__(self, raw_data):
         self._raw_data = raw_data
@@ -102,7 +107,7 @@ class Clusteror(object):
     @classmethod
     def from_csv(cls, filepath, **kwargs):
         '''
-        Class method for directly reading .csv file.
+        Class method for directly reading CSV file.
 
         Parameters
         ----------
@@ -141,7 +146,7 @@ class Clusteror(object):
         '''
         Theano function: Function that reduces dataset dimension. Attribute
             ``_network`` is given **da** to designate the method of the
-            autoencoder as ``Denoising Autocoder``.
+            autoencoder as ``DA``.
         '''
         return self._da_dim_reducer
 
@@ -155,7 +160,7 @@ class Clusteror(object):
         '''
         Theano function: Function that reduces dataset dimension. Attribute
             ``_network`` is given **sda** to designate the method of the
-            autoencoder as ``Stacked Denoising Autocoder``.
+            autoencoder as ``SDA``.
         '''
         return self._sda_dim_reducer
 
@@ -398,7 +403,7 @@ class Clusteror(object):
         verbose=False,
     ):
         '''
-        Trains a ``Denoising Autoencoder`` neural network.
+        Trains a ``DA`` neural network.
 
         Parameters
         ----------
@@ -498,7 +503,7 @@ class Clusteror(object):
         verbose=False
     ):
         '''
-        Trains a ``Stacked Denoising Autoencoder`` neural network.
+        Trains a ``SDA`` neural network.
 
         Parameters
         ----------
@@ -650,9 +655,9 @@ class Clusteror(object):
         assert self._network is not None
         with open(filepath, 'rb') as f:
             if self._network == 'da':
-                self._da_to_lower_dim = pk.load(f)
+                self._da_dim_reducer = pk.load(f)
             elif self._network == 'sda':
-                self._sda_to_lower_dim = pk.load(f)
+                self._sda_dim_reducer = pk.load(f)
 
     def reduce_to_one_dim(self):
         '''
@@ -781,12 +786,23 @@ class Clusteror(object):
 
     def load_kmeans(self, filepath):
         '''
+        Loads a saved K-Means tagger from a file.
+
+        Parameter
+        ---------
+        filepath: str
+            File path to the file saving the K-Means tagger.
         '''
         with open(filepath, 'rb') as f:
             self._kmeans = pk.load(f)
-        self._tagger = 'valley'
+        self._tagger = 'kmeans'
 
     def add_cluster(self):
+        '''
+        Tags each sample regarding their reduced one dimensional value. Adds
+        an extra column **'cluster'** to ``raw_data``, seggesting a
+        zero-based cluster ID.
+        '''
         if self._tagger == 'valley':
             self.raw_data.loc[:, 'cluster'] = self._valley(self._one_dim_data)
         elif self._tagger == 'kmeans':
