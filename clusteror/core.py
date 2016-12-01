@@ -40,8 +40,8 @@ from sklearn.cluster import KMeans
 from theano import function
 from theano import shared
 from theano.tensor.shared_randomstreams import RandomStreams
-from .dA import dA
-from .SdA import SdA
+from .nn import dA
+from .nn import SdA
 from .settings import numpy_random_seed
 from .settings import theano_random_seed
 from .utils import find_local_extremes

@@ -7,8 +7,8 @@ import theano
 import theano.tensor as T
 from theano import shared
 from theano import function
-from clusteror.dA import dA
-from clusteror.SdA import SdA
+from clusteror.nn import dA
+from clusteror.nn import SdA
 from clusteror.settings import decimal_places
 
 
