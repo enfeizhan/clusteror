@@ -1,8 +1,8 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "CLUSTEROR" "1" "Nov 30, 2016" "0.0.post0.dev55+n246fe33.dirty" "clusteror"
+.TH "CLUSTEROR" "1" "Dec 01, 2016" "0.0.post0.dev56+ndac5072.dirty" "clusteror"
 .SH NAME
-clusteror \- clusteror 0.0.post0.dev55+n246fe33.dirty
+clusteror \- clusteror 0.0.post0.dev56+ndac5072.dirty
 .
 .nr rst2man-indent-level 0
 .
@@ -256,6 +256,38 @@ autoencoder as \fBDenoising Autocoder\fP\&.
 .INDENT 7.0
 .TP
 .B field_importance
+\fIList\fP \-\- Significance that given to fields when training of neural
+network is done. Fields with a large number will be given more
+attention.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+The importance is only meaningful relatively between fields. If no
+values are specified, all fields are treated equally.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+\fBfield_importance\fP (\fIList or Dict, default None (List of Ones)\fP) \-\- .INDENT 7.0
+.IP \(bu 2
+If a list is designated, all fields should be assigned an
+.UNINDENT
+.sp
+importance, viz, the length of the list should be equal to the
+length of the features training the neural network.
+.INDENT 7.0
+.IP \(bu 2
+It can also be given in a dict. In such a case, the fields can
+.UNINDENT
+.sp
+be selectively given a value. Dict key is for field name and value
+is for the importance. Fields not included will be initiated with
+the default value one. A warning will be issued when a key is
+not on the list of field names, mostly because of a typo.
+
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -275,22 +307,40 @@ Class method for directly reading .csv file.
 .INDENT 7.0
 .TP
 .B kmeans
+\fIPython function\fP \-\- Trained on the dimension reduced one dimensional
+data that segregates subjects into concentration of existence in a
+subset of \fB[\-1, 1]\fP with K\-Means algorithm.  \fB_tagger\fP is
+given \fBvalley\fP to facilitate follow\-up usages.
 .UNINDENT
 .INDENT 7.0
 .TP
-.B load_dim_reducer(filename=\(aqdim_reducer.pk\(aq)
+.B load_dim_reducer(filepath=\(aqdim_reducer.pk\(aq)
+Loads saved dimension reducer. Need to first name the network type.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBfilepath\fP (\fI\%str\fP) \-\- 
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
-.B load_kmeans(filename)
+.B load_kmeans(filepath)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B load_valley(filename)
+.B load_valley(filepath)
+Loads a saved valley tagger from a file.
+.INDENT 7.0
+.TP
+.B filepath: str
+File path to the file saving the valley tagger.
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
 .B one_dim_data
+\fINumpy Array\fP \-\- Stores the output of neural network that has dimension
+one.
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -300,31 +350,109 @@ Class method for directly reading .csv file.
 .INDENT 7.0
 .TP
 .B reduce_to_one_dim()
+Reduces the dimension of input dataset to one before the tagging
+in the next step.
+.sp
+Input of the Theano function is the cleaned data and output is a
+one dimensional data stored in \fB_one_dim_data\fP\&.
 .UNINDENT
 .INDENT 7.0
 .TP
-.B save_dim_reducer(filename=\(aqdim_reducer.pk\(aq, include_network=False)
+.B save_dim_reducer(filepath=\(aqdim_reducer.pk\(aq, include_network=False)
+Save dimension reducer from the neural network training.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBfilepath\fP (\fI\%str\fP) \-\- Filename to store the dimension reducer.
+.IP \(bu 2
+\fBinclude_network\fP (\fIboolean\fP) \-\- If true, prefix the filepath with the network type.
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
-.B save_kmeans(filename)
+.B save_kmeans(filepath)
 .UNINDENT
 .INDENT 7.0
 .TP
-.B save_valley(filename)
+.B save_valley(filepath, include_taggername=False)
+Saves valley tagger.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBfilepath\fP (\fI\%str\fP) \-\- File path to save the tagger.
+.IP \(bu 2
+\fBinclude_taggername\fP (\fIboolean, default False\fP) \-\- Include the \fBvalley_\fP prefix in filename if true.
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
 .B sda_dim_reducer
+\fITheano function\fP \-\- Function that reduces dataset dimension. Attribute
+\fB_network\fP is given \fBsda\fP to designate the method of the
+autoencoder as \fBStacked Denoising Autocoder\fP\&.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B tagger
+\fIstr\fP \-\- Name the tagger if necessary to do so, which will facilitate, e.g.
+prefixing the filepath.
 .UNINDENT
 .INDENT 7.0
 .TP
 .B train_da_dim_reducer(field_importance=None, batch_size=50, corruption_level=0.3, learning_rate=0.002, min_epochs=200, patience=60, patience_increase=2, improvement_threshold=0.98, verbose=False)
-Reduces the dimension of each record down to a dimension.
-verbose: boolean, default True
+Trains a \fBDenoising Autoencoder\fP neural network.
 .INDENT 7.0
-.INDENT 3.5
-If true, printing out the progress of pretraining.
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBfield_importance\fP (\fIList or Dict, default None (List of Ones)\fP) \-\- .INDENT 2.0
+.IP \(bu 2
+If a list is designated, all fields should be assigned an
+.UNINDENT
+.sp
+importance, viz, the length of the list should be equal to the
+length of the features training the neural network.
+.INDENT 2.0
+.IP \(bu 2
+It can also be given in a dict. In such a case, the fields can
+.UNINDENT
+.sp
+be selectively given a value. Dict key is for field name and value
+is for the importance. Fields not included will be initiated with
+the default value one. A warning will be issued when a key is
+not on the list of field names, mostly because of a typo.
+
+.IP \(bu 2
+\fBbatch_size\fP (\fI\%int\fP) \-\- Size of each training batch. Necessary to derive the number
+of batches.
+.IP \(bu 2
+\fBcorruption_level\fP (\fIfloat, between 0 and 1\fP) \-\- Dropout rate in reading input, typical pratice in deep learning
+to avoid overfitting.
+.IP \(bu 2
+\fBlearning_rate\fP (\fI\%float\fP) \-\- Propagating step size for gredient descent algorithm.
+.IP \(bu 2
+\fBmin_epochs\fP (\fI\%int\fP) \-\- The mininum number of training epoch to run. It can be exceeded
+depending on the setup of patience and ad\-hoc training progress.
+.IP \(bu 2
+\fBpatience\fP (\fI\%int\fP) \-\- True number of training epochs to run if larger than
+\fBmin_epochs\fP\&. Note it is potentially increased during the
+training if the cost is better than the expectation from
+current cost.
+.IP \(bu 2
+\fBpatience_increase\fP (\fI\%int\fP) \-\- Coefficient used to increase patience against epochs that
+have been run.
+.IP \(bu 2
+\fBimprovement_threshold\fP (\fIfloat, between 0 and 1\fP) \-\- Minimum improvement considered as substantial improvement, i.e.
+new cost over existing lowest cost lower than this value.
+.IP \(bu 2
+\fBverbose\fP (\fIboolean, default False\fP) \-\- Prints out training at each epoch if true.
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -335,15 +463,83 @@ If true, printing out the progress of pretraining.
 .INDENT 7.0
 .TP
 .B train_sda_dim_reducer(field_importance=None, batch_size=50, hidden_layers_sizes=[20], corruption_levels=[0.3], learning_rate=0.002, min_epochs=200, patience=60, patience_increase=2, improvement_threshold=0.98, verbose=False)
-Reduce the dimension of each record down to a dimension.
+Trains a \fBStacked Denoising Autoencoder\fP neural network.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBfield_importance\fP (\fIList or Dict, default None (List of Ones)\fP) \-\- .INDENT 2.0
+.IP \(bu 2
+If a list is designated, all fields should be assigned an
+.UNINDENT
+.sp
+importance, viz, the length of the list should be equal to the
+length of the features training the neural network.
+.INDENT 2.0
+.IP \(bu 2
+It can also be given in a dict. In such a case, the fields can
+.UNINDENT
+.sp
+be selectively given a value. Dict key is for field name and value
+is for the importance. Fields not included will be initiated with
+the default value one. A warning will be issued when a key is
+not on the list of field names, mostly because of a typo.
+
+.IP \(bu 2
+\fBbatch_size\fP (\fI\%int\fP) \-\- Size of each training batch. Necessary to derive the number
+of batches.
+.IP \(bu 2
+\fBhidden_layers_sizes\fP (\fIList of ints\fP) \-\- Number of neurons in the hidden layers (all but the input layer).
+.IP \(bu 2
+\fBcorruption_levels\fP (\fIList of floats, between 0 and 1\fP) \-\- Dropout rate in reading input, typical pratice in deep learning
+to avoid overfitting.
+.IP \(bu 2
+\fBlearning_rate\fP (\fI\%float\fP) \-\- Propagating step size for gredient descent algorithm.
+.IP \(bu 2
+\fBmin_epochs\fP (\fI\%int\fP) \-\- The mininum number of training epoch to run. It can be exceeded
+depending on the setup of patience and ad\-hoc training progress.
+.IP \(bu 2
+\fBpatience\fP (\fI\%int\fP) \-\- True number of training epochs to run if larger than
+\fBmin_epochs\fP\&. Note it is potentially increased during the
+training if the cost is better than the expectation from
+current cost.
+.IP \(bu 2
+\fBpatience_increase\fP (\fI\%int\fP) \-\- Coefficient used to increase patience against epochs that
+have been run.
+.IP \(bu 2
+\fBimprovement_threshold\fP (\fIfloat, between 0 and 1\fP) \-\- Minimum improvement considered as substantial improvement, i.e.
+new cost over existing lowest cost lower than this value.
+.IP \(bu 2
+\fBverbose\fP (\fIboolean, default False\fP) \-\- Prints out training at each epoch if true.
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
 .B train_valley(bins=100, contrast=0.3)
+Trains the ability to cut the universe of samples into clusters based
+how the dimension reduced dataset assembles in a histogram.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBbins\fP (\fI\%int\fP) \-\- Number of bins to aggregate the one dimensional data.
+.IP \(bu 2
+\fBcontrast\fP (\fIfloat, between 0 and 1\fP) \-\- Threshold used to define local minima and local maxima. Detailed
+explanation in \fButils.find_local_extremes\fP\&.
+.UNINDENT
+.UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
 .B valley
+\fIPython function\fP \-\- Trained on the dimension reduced one dimensional
+data that segregates subjects into concentration of existence in a
+subset of \fB[\-1, 1]\fP, by locating the "valley" in the distribution
+landscape. \fB_tagger\fP is given \fBvalley\fP to facilitate
+follow\-up usages.
 .UNINDENT
 .UNINDENT
 .INDENT 0.0
@@ -408,94 +604,6 @@ Bases: \fI\%object\fP
 .UNINDENT
 .SS clusteror.discovery_layer module
 .SS clusteror.fpgrowth module
-.INDENT 0.0
-.TP
-.B class clusteror.fpgrowth.FPNode(value, count, parent)
-Bases: \fI\%object\fP
-.sp
-A node in the FP tree.
-.INDENT 7.0
-.TP
-.B add_child(value)
-Add a node as a child node.
-.UNINDENT
-.INDENT 7.0
-.TP
-.B get_child(value)
-Return a child node with a particular value.
-.UNINDENT
-.INDENT 7.0
-.TP
-.B has_child(value)
-Check if node has a particular child node.
-.UNINDENT
-.UNINDENT
-.INDENT 0.0
-.TP
-.B class clusteror.fpgrowth.FPTree(transactions, threshold, root_value, root_count)
-Bases: \fI\%object\fP
-.sp
-A frequent pattern tree.
-.INDENT 7.0
-.TP
-.B build_FPTree(transactions, root_value, root_count, frequent, headers)
-Build the FP tree and return the root node.
-.UNINDENT
-.INDENT 7.0
-.TP
-.B build_header_table(frequent)
-Build the header table.
-.UNINDENT
-.INDENT 7.0
-.TP
-.B find_frequent_items(transactions, threshold)
-Create a dictionary of items with occurrences above the threshold.
-.UNINDENT
-.INDENT 7.0
-.TP
-.B generate_pattern_list()
-Generate a list of patterns with support counts.
-.UNINDENT
-.INDENT 7.0
-.TP
-.B insert_tree(items, node, headers)
-Recursively grow FP tree.
-.UNINDENT
-.INDENT 7.0
-.TP
-.B mine_patterns(threshold)
-Mine the constructed FP tree for frequent patterns.
-.UNINDENT
-.INDENT 7.0
-.TP
-.B mine_sub_trees(threshold)
-Generate subtrees and mine them for patterns.
-.UNINDENT
-.INDENT 7.0
-.TP
-.B tree_has_single_path(node)
-If there is a single path in the tree,
-return True, else return False.
-.UNINDENT
-.INDENT 7.0
-.TP
-.B zip_patterns(patterns)
-Append suffix to patterns in dictionary if
-we are in a conditional FP tree.
-.UNINDENT
-.UNINDENT
-.INDENT 0.0
-.TP
-.B clusteror.fpgrowth.generate_association_rules(patterns, confidence_threshold, lower_support_threshold)
-Given a set of frequent itemsets, return a dict
-of association rules in the form
-{(left): ((right), confidence)}
-.UNINDENT
-.INDENT 0.0
-.TP
-.B clusteror.fpgrowth.main()
-Main function including tests.
-.UNINDENT
 .SS clusteror.implementation_layer module
 .SS clusteror.mlp module
 .SS clusteror.plot module
@@ -1231,6 +1339,12 @@ Write the given version number to the given _version.py file.
 .SS tests package
 .SS Submodules
 .SS tests.conftest module
+.sp
+Dummy conftest.py for clusteror.
+.sp
+If you don\(aqt know what this is for, just leave it empty.
+Read more about conftest.py under:
+\fI\%https://pytest.org/latest/plugins.html\fP
 .SS tests.example_iris module
 .SS tests.example_tips module
 .SS tests.test_clusteror module
@@ -1285,6 +1399,10 @@ Bases: \fBunittest.case.TestCase\fP
 .B tests.test_clusteror.tanh_cross_entropy(field_importance, dat_in, dat_rec)
 .UNINDENT
 .SS tests.test_skeleton module
+.INDENT 0.0
+.TP
+.B tests.test_skeleton.test_fib()
+.UNINDENT
 .SS Module contents
 .SS versioneer module
 .sp

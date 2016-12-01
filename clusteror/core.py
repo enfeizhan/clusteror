@@ -152,6 +152,11 @@ class Clusteror(object):
 
     @property
     def sda_dim_reducer(self):
+        '''
+        Theano function: Function that reduces dataset dimension. Attribute
+            ``_network`` is given **sda** to designate the method of the
+            autoencoder as ``Stacked Denoising Autocoder``.
+        '''
         return self._sda_dim_reducer
 
     @sda_dim_reducer.setter
@@ -161,6 +166,10 @@ class Clusteror(object):
 
     @property
     def one_dim_data(self):
+        '''
+        Numpy Array: Stores the output of neural network that has dimension
+        one.
+        '''
         return self._one_dim_data
 
     @one_dim_data.setter
@@ -169,6 +178,13 @@ class Clusteror(object):
 
     @property
     def valley(self):
+        '''
+        Python function: Trained on the dimension reduced one dimensional
+        data that segregates subjects into concentration of existence in a
+        subset of ``[-1, 1]``, by locating the "valley" in the distribution
+        landscape. ``_tagger`` is given **valley** to facilitate
+        follow-up usages.
+        '''
         return self._valley
 
     @valley.setter
@@ -178,6 +194,12 @@ class Clusteror(object):
 
     @property
     def kmeans(self):
+        '''
+        Python function: Trained on the dimension reduced one dimensional
+        data that segregates subjects into concentration of existence in a
+        subset of ``[-1, 1]`` with K-Means algorithm.  ``_tagger`` is
+        given **valley** to facilitate follow-up usages.
+        '''
         return self._kmeans
 
     @kmeans.setter
@@ -186,7 +208,42 @@ class Clusteror(object):
         self._tagger = 'kmeans'
 
     @property
+    def tagger(self):
+        '''
+        str: Name the tagger if necessary to do so, which will facilitate, e.g.
+        prefixing the filepath.
+        '''
+        return self._tagger
+
+    @tagger.setter
+    def tagger(self, tagger):
+        self._tagger = tagger
+
+    @property
     def field_importance(self):
+        '''
+        List: Significance that given to fields when training of neural
+        network is done. Fields with a large number will be given more
+        attention.
+
+        Note
+        ----
+        The importance is only meaningful relatively between fields. If no
+        values are specified, all fields are treated equally.
+
+        Parameters
+        ----------
+        field_importance : List or Dict, default None (List of Ones)
+            * If a list is designated, all fields should be assigned an
+            importance, viz, the length of the list should be equal to the
+            length of the features training the neural network.
+
+            * It can also be given in a dict. In such a case, the fields can
+            be selectively given a value. Dict key is for field name and value
+            is for the importance. Fields not included will be initiated with
+            the default value one. A warning will be issued when a key is
+            not on the list of field names, mostly because of a typo.
+        '''
         return self._field_importance
 
     @field_importance.setter
@@ -208,8 +265,8 @@ class Clusteror(object):
 
     def _check_cleaned_data(self):
         '''
-        Use various methods to reduce the dimension for further analysis.
-        Early stops if updates change less than a threshold.
+        Checks on cleaned data before any work is done. This list of checks
+        can be extended when more checks should be included.
         '''
         assert self._cleaned_data is not None, 'Need cleaned data'
         if (self._cleaned_data.max() > 1).any():
@@ -218,6 +275,15 @@ class Clusteror(object):
             raise OutRangeError('Minimum should be greater equal than -1')
 
     def _prepare_network_training(self, batch_size):
+        '''
+        Preparations needed to kick off training neural networks.
+
+        Parameters
+        ----------
+        batch_size: int
+            Size of each training batch. Necessary to derive the number
+            of batches.
+        '''
         self.np_rs = np.random.RandomState(numpy_random_seed)
         self.theano_rs = RandomStreams(self.np_rs.randint(theano_random_seed))
         # compute number of minibatches for training, validation and testing
@@ -243,9 +309,37 @@ class Clusteror(object):
             **kwargs
             ):
         '''
-        min_epochs is the minimum iterations that need to run.
-        patience is possible to go beyond min_epochs.
-        Must run max(min_epochs, patience).
+        Scheme of early stopping if no substantial improvement can be
+        observed.
+
+        Parameters
+        ----------
+        train_fun: Theano Function
+            Function that takes in training set and updates internal
+            parameters, in this case the weights and biases in neural network,
+            and returns the evaluation of the cost function after each
+            training step.
+        n_train_batches: int
+            Number of training batches derived from the total number of
+            training samples and the batch size.
+        min_epochs: int
+            The mininum number of training epoch to run. It can be exceeded
+            depending on the setup of patience and ad-hoc training progress.
+        patience: int
+            True number of training epochs to run if larger than
+            ``min_epochs``. Note it is potentially increased during the
+            training if the cost is better than the expectation from
+            current cost.
+        patience_increase: int
+            Coefficient used to increase patience against epochs that
+            have been run.
+        improvement_threshold: float, between 0 and 1
+            Minimum improvement considered as substantial improvement, i.e.
+            new cost over existing lowest cost lower than this value.
+        verbose: boolean
+            Prints out training at each epoch if true.
+        **kwargs: keyword arguments
+            All keyword arguments pass on to ``train_fun``.
         '''
         n_epochs = 0
         done_looping = False
@@ -304,11 +398,49 @@ class Clusteror(object):
         verbose=False,
     ):
         '''
-        Reduces the dimension of each record down to a dimension.
-        verbose: boolean, default True
-          If true, printing out the progress of pretraining.
+        Trains a ``Denoising Autoencoder`` neural network.
+
+        Parameters
+        ----------
+        field_importance : List or Dict, default None (List of Ones)
+            * If a list is designated, all fields should be assigned an
+            importance, viz, the length of the list should be equal to the
+            length of the features training the neural network.
+
+            * It can also be given in a dict. In such a case, the fields can
+            be selectively given a value. Dict key is for field name and value
+            is for the importance. Fields not included will be initiated with
+            the default value one. A warning will be issued when a key is
+            not on the list of field names, mostly because of a typo.
+        batch_size: int
+            Size of each training batch. Necessary to derive the number
+            of batches.
+        corruption_level: float, between 0 and 1
+            Dropout rate in reading input, typical pratice in deep learning
+            to avoid overfitting.
+        learning_rate: float
+            Propagating step size for gredient descent algorithm.
+        min_epochs: int
+            The mininum number of training epoch to run. It can be exceeded
+            depending on the setup of patience and ad-hoc training progress.
+        patience: int
+            True number of training epochs to run if larger than
+            ``min_epochs``. Note it is potentially increased during the
+            training if the cost is better than the expectation from
+            current cost.
+        patience_increase: int
+            Coefficient used to increase patience against epochs that
+            have been run.
+        improvement_threshold: float, between 0 and 1
+            Minimum improvement considered as substantial improvement, i.e.
+            new cost over existing lowest cost lower than this value.
+        verbose: boolean, default False
+            Prints out training at each epoch if true.
         '''
         self._network = 'da'
+        # note .field_importance indicates the magic of the property
+        # decorator is played to transform the format the input
+        self.field_importance = field_importance
         self._check_cleaned_data()
         self._prepare_network_training(batch_size=batch_size)
         # allocate symbolic variables for the dat
@@ -366,8 +498,50 @@ class Clusteror(object):
         verbose=False
     ):
         '''
-        Reduce the dimension of each record down to a dimension.
+        Trains a ``Stacked Denoising Autoencoder`` neural network.
+
+        Parameters
+        ----------
+        field_importance : List or Dict, default None (List of Ones)
+            * If a list is designated, all fields should be assigned an
+            importance, viz, the length of the list should be equal to the
+            length of the features training the neural network.
+
+            * It can also be given in a dict. In such a case, the fields can
+            be selectively given a value. Dict key is for field name and value
+            is for the importance. Fields not included will be initiated with
+            the default value one. A warning will be issued when a key is
+            not on the list of field names, mostly because of a typo.
+        batch_size: int
+            Size of each training batch. Necessary to derive the number
+            of batches.
+        hidden_layers_sizes: List of ints
+            Number of neurons in the hidden layers (all but the input layer).
+        corruption_levels: List of floats, between 0 and 1
+            Dropout rate in reading input, typical pratice in deep learning
+            to avoid overfitting.
+        learning_rate: float
+            Propagating step size for gredient descent algorithm.
+        min_epochs: int
+            The mininum number of training epoch to run. It can be exceeded
+            depending on the setup of patience and ad-hoc training progress.
+        patience: int
+            True number of training epochs to run if larger than
+            ``min_epochs``. Note it is potentially increased during the
+            training if the cost is better than the expectation from
+            current cost.
+        patience_increase: int
+            Coefficient used to increase patience against epochs that
+            have been run.
+        improvement_threshold: float, between 0 and 1
+            Minimum improvement considered as substantial improvement, i.e.
+            new cost over existing lowest cost lower than this value.
+        verbose: boolean, default False
+            Prints out training at each epoch if true.
         '''
+        # note .field_importance indicates the magic of the property
+        # decorator is played to transform the format the input
+        self.field_importance = field_importance
         assert hidden_layers_sizes is not None
         assert isinstance(corruption_levels, list)
         assert len(hidden_layers_sizes) == len(corruption_levels)
@@ -408,27 +582,86 @@ class Clusteror(object):
             sda.get_first_reconstructed_input(sda.get_final_hidden_layer(x))
         )
 
+    def _prefix_filepath(self, prefix_type, filepath):
+        '''
+        Prefixes a filepath with the type stored in the file.
+
+        Examples
+        --------
+            >> clusteror._prefix_filepath('network', 'a/b')
+            'a/da_b'
+
+        Note
+        ----
+        Only the filename part is prefixed if there are directories in the
+        path.
+
+        Parameters
+        ----------
+        prefix_type: str
+            The type to prefixing the filepath.
+        filepath: str
+            Filepath to be prefixed.
+
+        Returns
+        -------
+            Prefixed filepath.
+        '''
+        filepath_list = list(os.path.split(filepath))
+        filepath_list[-1] = (
+            getattr(self, prefix_type) +
+            '_' +
+            filepath_list[-1]
+        )
+        filepath = os.path.join(tuple(filepath_list))
+        return filepath
+
     def save_dim_reducer(
         self,
-        filename='dim_reducer.pk',
+        filepath='dim_reducer.pk',
         include_network=False
     ):
+        '''
+        Save dimension reducer from the neural network training.
+
+        Parameters
+        ----------
+        filepath: str
+            Filename to store the dimension reducer.
+        include_network: boolean
+            If true, prefix the filepath with the network type.
+        '''
         if include_network:
-            filename = self._network + '_' + filename
-        with open(filename, 'wb') as f:
+            filepath = self._prefix_filepath('network', filepath)
+        with open(filepath, 'wb') as f:
             if self._network == 'da':
                 pk.dump(self._da_dim_reducer, f)
             elif self._network == 'sda':
                 pk.dump(self._sda_dim_reducer, f)
 
-    def load_dim_reducer(self, filename='dim_reducer.pk'):
-        with open(filename, 'rb') as f:
+    def load_dim_reducer(self, filepath='dim_reducer.pk'):
+        '''
+        Loads saved dimension reducer. Need to first name the network type.
+
+        Parameters
+        ----------
+        filepath: str
+        '''
+        assert self._network is not None
+        with open(filepath, 'rb') as f:
             if self._network == 'da':
                 self._da_to_lower_dim = pk.load(f)
             elif self._network == 'sda':
                 self._sda_to_lower_dim = pk.load(f)
 
     def reduce_to_one_dim(self):
+        '''
+        Reduces the dimension of input dataset to one before the tagging
+        in the next step.
+
+        Input of the Theano function is the cleaned data and output is a
+        one dimensional data stored in ``_one_dim_data``.
+        '''
         assert self._cleaned_data is not None
         if self._network == 'da':
             self._one_dim_data = self._da_dim_reducer(self._cleaned_data)
@@ -437,6 +670,19 @@ class Clusteror(object):
         self._one_dim_data = self._one_dim_data[:, 0]
 
     def train_valley(self, bins=100, contrast=0.3):
+        '''
+        Trains the ability to cut the universe of samples into clusters based
+        how the dimension reduced dataset assembles in a histogram. Unlike
+        the K-Means, no need to preset the number of clusters.
+
+        Parameters
+        ----------
+        bins: int
+            Number of bins to aggregate the one dimensional data.
+        contrast: float, between 0 and 1
+            Threshold used to define local minima and local maxima. Detailed
+            explanation in ``utils.find_local_extremes``.
+        '''
         bins = np.linspace(-1, 1, bins+1)
         # use the left point of bins to name the bin
         left_points = np.asarray(bins[:-1])
@@ -460,12 +706,33 @@ class Clusteror(object):
         self._valley = valley
         self._tagger = 'valley'
 
-    def save_valley(self, filename):
-        with open(filename, 'w') as f:
+    def save_valley(self, filepath, include_taggername=False):
+        '''
+        Saves valley tagger.
+
+        Parameters
+        ----------
+        filepath: str
+            File path to save the tagger.
+        include_taggername: boolean, default False
+            Include the **valley_** prefix in filename if true.
+        '''
+        if include_taggername:
+            filepath = self._prefix_filepath('tagger', filepath)
+        with open(filepath, 'w') as f:
             json.dump(self.trained_bins, f)
 
-    def load_valley(self, filename):
-        with open(filename, 'r') as f:
+    def load_valley(self, filepath):
+        '''
+        Loads a saved valley tagger from a file. Create the valley function
+        from the saved parameters.
+
+        Parameter
+        ---------
+        filepath: str
+            File path to the file saving the valley tagger.
+        '''
+        with open(filepath, 'r') as f:
             self.trained_bins = json.load(f)
 
         def valley(one_dim_data):
@@ -478,17 +745,44 @@ class Clusteror(object):
         self._valley = valley
         self._tagger = 'valley'
 
-    def train_kmeans(self, n_clusters=None, **kwargs):
+    def train_kmeans(self, n_clusters=10, **kwargs):
+        '''
+        Trains K-Means model on top of the one dimensional data derived from
+        dimension reducers.
+
+        Parameters
+        ----------
+        n_clusters: int
+            The number of clusters required to start a K-Means learning.
+        **kwargs: keyword arguments
+            Any other keyword arguments passed on to Scikit-Learn K-Means
+            model.
+        '''
         self._kmeans = KMeans(n_clusters=n_clusters, **kwargs)
         self._kmeans.fit(self._one_dim_data.reshape(-1, 1))
         self._tagger = 'kmeans'
 
-    def save_kmeans(self, filename):
-        with open(filename, 'wb') as f:
+    def save_kmeans(self, filepath, include_taggername=False):
+        '''
+        Saves K-Means model to the named file path. Can add a prefix to
+        indicate this saves a K-Means model.
+
+        Parameters
+        ----------
+        filepath: str
+           File path for saving the model.
+        include_taggername: boolean, default False
+           Include the **kmean_** prefix in filename if true.
+        '''
+        if include_taggername:
+            filepath = self._prefix_filepath('tagger', filepath)
+        with open(filepath, 'wb') as f:
             pk.dump(self._kmeans, f)
 
-    def load_kmeans(self, filename):
-        with open(filename, 'rb') as f:
+    def load_kmeans(self, filepath):
+        '''
+        '''
+        with open(filepath, 'rb') as f:
             self._kmeans = pk.load(f)
         self._tagger = 'valley'
 
