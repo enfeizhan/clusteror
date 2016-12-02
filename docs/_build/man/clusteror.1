@@ -1,8 +1,8 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "CLUSTEROR" "1" "Dec 02, 2016" "0.0.post0.dev61+nfa78ece.dirty" "clusteror"
+.TH "CLUSTEROR" "1" "Dec 03, 2016" "0.0.post0.dev62+n3740816.dirty" "clusteror"
 .SH NAME
-clusteror \- clusteror 0.0.post0.dev61+nfa78ece.dirty
+clusteror \- clusteror 0.0.post0.dev62+n3740816.dirty
 .
 .nr rst2man-indent-level 0
 .
@@ -32,34 +32,46 @@ level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
 ..
 .sp
 This is the documentation of \fBclusteror\fP\&.
-.sp
-\fBNOTE:\fP
+.SH CONTENTS
+.SS License
 .INDENT 0.0
 .INDENT 3.5
-This is the main page of your project\(aqs \fI\%Sphinx\fP
-documentation. It is formatted in \fI\%reStructuredText\fP\&. Add additional pages by creating
-rst\-files in \fBdocs\fP and adding them to the \fI\%toctree\fP below. Use then
-\fI\%references\fP in order to link
-them from this page, e.g. \fI\%authors\fP and \fI\%Changes in Sphinx\fP\&.
 .sp
-It is also possible to refer to the documentation of other Python packages
-with the \fI\%Python domain syntax\fP\&. By default you
-can reference the documentation of \fI\%Sphinx\fP,
-\fI\%Python\fP, \fI\%NumPy\fP, \fI\%SciPy\fP, \fI\%matplotlib\fP, \fI\%Pandas\fP, \fI\%Scikit\-Learn\fP\&. You can add more by
-extending the \fBintersphinx_mapping\fP in your Sphinx\(aqs \fBconf.py\fP\&.
-.sp
-The pretty useful extension \fI\%autodoc\fP is activated by
-default and lets you include documentation from docstrings. Docstrings can
-be written in \fI\%Google\fP
-(recommended!), \fI\%NumPy\fP
-and \fI\%classical\fP
-style.
+.nf
+.ft C
+MIT License
+
+Copyright (c) 2016 Fei Zhan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+.ft P
+.fi
 .UNINDENT
 .UNINDENT
-.SH CONTENTS
+.SS Developers
+.INDENT 0.0
+.IP \(bu 2
+Fei Zhan <\fI\%enfeizhan@gmail.com\fP>
+.UNINDENT
 .SS Modules
 .SS clusteror package
-.SS Submodules
 .SS clusteror.core module
 .sp
 This module contains \fBClusteror\fP class capsulating raw data to discover
@@ -525,31 +537,6 @@ Bases: \fI\%Exception\fP
 .sp
 Exceptions thrown as cleaned data go beyond range \fB[\-1, 1]\fP\&.
 .UNINDENT
-.SS clusteror.data_layer module
-.INDENT 0.0
-.TP
-.B class clusteror.data_layer.DataStore
-Bases: \fI\%object\fP
-.INDENT 7.0
-.TP
-.B cleaned_data
-.UNINDENT
-.INDENT 7.0
-.TP
-.B id_col_name
-.UNINDENT
-.INDENT 7.0
-.TP
-.B raw_data
-.UNINDENT
-.INDENT 7.0
-.TP
-.B transactions
-.UNINDENT
-.UNINDENT
-.SS clusteror.discovery_layer module
-.SS clusteror.implementation_layer module
-.SS clusteror.mlp module
 .SS clusteror.nn module
 .sp
 This module comprises of classes for neural networks.
@@ -1015,86 +1002,7 @@ secondary role in clustering as having less importance in
 .UNINDENT
 .UNINDENT
 .UNINDENT
-.SS clusteror.preprocessing_layer module
 .SS clusteror.settings module
-.SS clusteror.skeleton module
-.sp
-This is a skeleton file that can serve as a starting point for a Python
-console script. To run this script uncomment the following line in the
-entry_points section in setup.cfg:
-.INDENT 0.0
-.INDENT 3.5
-.INDENT 0.0
-.TP
-.B console_scripts =
-fibonacci = clusteror.skeleton:run
-.UNINDENT
-.UNINDENT
-.UNINDENT
-.sp
-Then run \fIpython setup.py install\fP which will install the command \fIfibonacci\fP
-inside your current environment.
-Besides console scripts, the header (i.e. until _logger...) of this file can
-also be used as template for Python modules.
-.sp
-Note: This skeleton file can be safely removed if not needed!
-.INDENT 0.0
-.TP
-.B clusteror.skeleton.fib(n)
-Fibonacci example function
-.INDENT 7.0
-.TP
-.B Parameters
-\fBn\fP (\fI\%int\fP) \-\- integer
-.TP
-.B Returns
-n\-th Fibonacci number
-.TP
-.B Return type
-\fI\%int\fP
-.UNINDENT
-.UNINDENT
-.INDENT 0.0
-.TP
-.B clusteror.skeleton.main(args)
-Main entry point allowing external calls
-.INDENT 7.0
-.TP
-.B Parameters
-\fBargs\fP (\fI[str]\fP) \-\- command line parameter list
-.UNINDENT
-.UNINDENT
-.INDENT 0.0
-.TP
-.B clusteror.skeleton.parse_args(args)
-Parse command line parameters
-.INDENT 7.0
-.TP
-.B Parameters
-\fBargs\fP (\fI[str]\fP) \-\- command line parameters as list of strings
-.TP
-.B Returns
-command line parameters namespace
-.TP
-.B Return type
-\fI\%argparse.Namespace\fP
-.UNINDENT
-.UNINDENT
-.INDENT 0.0
-.TP
-.B clusteror.skeleton.run()
-Entry point for console_scripts
-.UNINDENT
-.INDENT 0.0
-.TP
-.B clusteror.skeleton.setup_logging(loglevel)
-Setup basic logging
-.INDENT 7.0
-.TP
-.B Parameters
-\fBloglevel\fP (\fI\%int\fP) \-\- minimum loglevel for emitting messages
-.UNINDENT
-.UNINDENT
 .SS clusteror.utils module
 .sp
 This module works as a transient store of useful functions. New standalone
@@ -1136,7 +1044,6 @@ minimum.
 
 .UNINDENT
 .UNINDENT
-.SS Module contents
 .SS tests package
 .SS Submodules
 .SS tests.conftest module
