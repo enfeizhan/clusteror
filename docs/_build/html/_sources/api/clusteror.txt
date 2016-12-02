@@ -4,14 +4,6 @@ clusteror package
 Submodules
 ----------
 
-clusteror.config module
------------------------
-
-.. automodule:: clusteror.config
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 clusteror.core module
 ---------------------
 
@@ -99,15 +91,6 @@ clusteror.utils module
     :members:
     :undoc-members:
     :show-inheritance:
-
-clusteror.versioneer module
----------------------------
-
-.. automodule:: clusteror.versioneer
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 
 Module contents
 ---------------

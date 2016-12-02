@@ -6,4 +6,3 @@ Modules
 
    clusteror
    tests
-   versioneer
