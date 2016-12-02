@@ -15,7 +15,7 @@ from .settings import theano_random_seed
 
 class dA(object):
     '''
-    Denoising Autoencoder class (dA).
+    Denoising Autoencoder (DA) class.
 
     Parameters
     ----------
@@ -149,7 +149,7 @@ class dA(object):
         return corrupted_input
 
     def get_hidden_values(self, input_data):
-        """
+        '''
         Computes the values of the hidden layer.
 
         Parameters
@@ -161,11 +161,11 @@ class dA(object):
         -------
         Theano graph
             A graph with output as the hidden layer values.
-        """
+        '''
         return T.tanh(T.dot(input_data, self.W) + self.bhid)
 
     def get_reconstructed_input(self, hidden):
-        """
+        '''
         Computes the reconstructed input given the values of the
         hidden layer.
 
@@ -178,11 +178,11 @@ class dA(object):
         -------
         Theano graph
             A graph with output as the reconstructed data at the visible side.
-        """
+        '''
         return T.tanh(T.dot(hidden, self.W_prime) + self.bvis)
 
     def get_cost_updates(self, corruption_level, learning_rate):
-        """
+        '''
         This function computes the cost and the updates for one trainng
         step of the dA.
 
@@ -200,7 +200,7 @@ class dA(object):
         updates: List of tuples
             Instructions of how to update parameters. Used in training stage
             to update parameters.
-        """
+        '''
         tilde_x = self.get_corrupted_input(self.x, corruption_level)
         y = self.get_hidden_values(tilde_x)
         z = self.get_reconstructed_input(y)
@@ -231,10 +231,11 @@ class dA(object):
 
 
 class SdA(object):
-    '''Stacked denoising auto-encoder class (SdA)
+    '''
+    Stacked Denoising Autoencoder (SDA) class.
 
-    A stacked denoising autoencoder model is obtained by stacking several
-    dAs. The hidden layer of the dA at layer `i` becomes the input of
+    A SdA model is obtained by stacking several DAs.
+    The hidden layer of the dA at layer `i` becomes the input of
     the dA at layer `i+1`. The first layer dA gets as input the input of
     the SdA, and the hidden layer of the last dA represents the output.
     Note that after pretraining, the SdA is dealt with as a normal MLP,
@@ -243,10 +244,11 @@ class SdA(object):
     Parameters
     ----------
 
-    n_visible: int
+    n_ins: int
         Input dimension.
-    n_hidden: int
-        Output dimension.
+    hidden_layers_sizes: list of int
+        Each int will be assgined to each hidden layer. Same number of hidden
+        layers will be created.
     np_rs: Numpy function
         Numpy random state.
     theano_rs: Theano function
@@ -254,12 +256,6 @@ class SdA(object):
     field_importance:  list or Numpy array
         Put on each field when calculating the cost.  If not given,
         all fields given equal weight ones.
-    initial_W:  Numpy matrix
-        Initial weight matrix. Dimension (n_visible, n_hidden).
-    initial_bvis: Numpy array
-        Initial bias on input side. Dimension n_visible.
-    initial_bhid: Numpy arry
-        Initial bias on output side. Dimension n_hidden.
     input_data: Theano symbolic variable
         Variable for input data.
 
@@ -282,6 +278,10 @@ class SdA(object):
         Used as input to build graph.
     params: list
         List packs neural network paramters.
+    dA_layers: list
+        List that keeps dA instances.
+    n_layers: int
+        Number of hidden layers, len(dA_layers).
     '''
 
     def __init__(self, n_ins, hidden_layers_sizes,
@@ -328,7 +328,17 @@ class SdA(object):
 
     def get_final_hidden_layer(self, input_data):
         '''
-        Given input, gets the final output.
+        Computes the values of the last hidden layer.
+
+        Parameters
+        ----------
+        input_data: Theano symbolic variable
+            Data input to neural network.
+
+        Returns
+        -------
+        Theano graph
+            A graph with output as the hidden layer values.
         '''
         assert len(self.dA_layers) > 0
         h_values = []
@@ -339,7 +349,18 @@ class SdA(object):
 
     def get_first_reconstructed_input(self, hidden):
         '''
-        Given output, reconstructs the input from the last layer.
+        Computes the reconstructed input given the values of the last
+        hidden layer.
+
+        Parameters
+        ----------
+        hidden: Theano symbolic variable
+            Data input to neural network at the hidden layer side.
+
+        Returns
+        -------
+        Theano graph
+            A graph with output as the reconstructed data at the visible side.
         '''
         assert len(self.dA_layers) > 0
         v_values = []
@@ -349,6 +370,22 @@ class SdA(object):
         return v_values[-1]
 
     def pretraining_functions(self, train_set, batch_size):
+        '''
+        This function computes the cost and the updates for one trainng
+        step of the dA.
+
+        Parameters
+        ----------
+        train_set: Theano shared variable
+            The complete training dataset.
+        batch_size: int
+            Number of rows for each mini-batch.
+
+        Returns
+        -------
+        List
+            Theano functions that run one step training on each dA layers.
+        '''
         # index to a [mini]batch
         index = T.lscalar('index')  # index to a minibatch
         # fraction of corruption to use

@@ -4,14 +4,6 @@ clusteror package
 Submodules
 ----------
 
-clusteror.SdA module
---------------------
-
-.. automodule:: clusteror.SdA
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 clusteror.config module
 -----------------------
 
@@ -24,14 +16,6 @@ clusteror.core module
 ---------------------
 
 .. automodule:: clusteror.core
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-clusteror.dA module
--------------------
-
-.. automodule:: clusteror.dA
     :members:
     :undoc-members:
     :show-inheritance:
@@ -52,14 +36,6 @@ clusteror.discovery_layer module
     :undoc-members:
     :show-inheritance:
 
-clusteror.fpgrowth module
--------------------------
-
-.. automodule:: clusteror.fpgrowth
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 clusteror.implementation_layer module
 -------------------------------------
 
@@ -72,6 +48,14 @@ clusteror.mlp module
 --------------------
 
 .. automodule:: clusteror.mlp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+clusteror.nn module
+-------------------
+
+.. automodule:: clusteror.nn
     :members:
     :undoc-members:
     :show-inheritance:

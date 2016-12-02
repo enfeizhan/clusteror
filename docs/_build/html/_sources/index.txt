@@ -1,5 +1,5 @@
 =========
-clusteror
+Clusteror
 =========
 
 This is the documentation of **clusteror**.
