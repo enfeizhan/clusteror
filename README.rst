@@ -16,7 +16,7 @@ behaviours in a commercial marketing environment. Users are encouraged to
 adventure with it in other scenarios.
 
 Under the hood, a pretraining of 
-[(Stacked) Denoising Autoencoder](https://en.wikipedia.org/wiki/Autoencoder)
+`(Stacked) Denoising Autoencoder <https://en.wikipedia.org/wiki/Autoencoder>`__
 is implemented in
 [Python deep learning](http://deeplearning.net/tutorial/) library
 [Theano](http://deeplearning.net/software/theano/). Therefore, an installation
