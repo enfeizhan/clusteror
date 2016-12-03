@@ -144,6 +144,8 @@ def hist_plot_one_dim_group_data(
         bins=11,
         colors=None,
         figsize=(10, 6),
+        xlabel='Dimension Reduced Data',
+        ylabel='Occurance',
         bbox_to_anchor=(1.01, 1),
         loc=2,
         grid=True,
@@ -169,6 +171,10 @@ def hist_plot_one_dim_group_data(
         if not supplied.
     figsize: tuple
         Figure size (width, height).
+    xlabel: str
+        Plot xlabel.
+    ylabel: str
+        Plot ylabel.
     bbox_to_anchor: tuple
         Instruction to placing the legend box relative to the axes. Details
         refer to ``Matplotlib`` document.
@@ -217,8 +223,8 @@ def hist_plot_one_dim_group_data(
         )
     # place the legend at the right hand side of the chart
     plt.legend(bbox_to_anchor=bbox_to_anchor, loc=loc)
-    plt.xlabel('Dimension Reduced Data', size=17)
-    plt.ylabel('Occurence', size=17)
+    plt.xlabel(xlabel, size=17)
+    plt.ylabel(ylabel, size=17)
     if grid:
         plt.grid()
     if show:

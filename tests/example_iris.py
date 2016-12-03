@@ -17,16 +17,16 @@ clusteror_valley.train_sda_dim_reducer(
     improvement_threshold=0.9,
     verbose=True
 )
-clusteror_valley.save_dim_reducer(filename='sda.pk')
+clusteror_valley.save_dim_reducer(filepath='sda.pk')
 clusteror_valley.reduce_to_one_dim()
 clusteror_valley.train_valley(bins=20, contrast=0.5)
-clusteror_valley.save_valley(filename='valley.json')
+clusteror_valley.save_valley(filepath='valley.json')
 clusteror_valley.add_cluster()
 
 clusteror_kmeans = Clusteror.from_csv('data/iris.csv')
 clusteror_kmeans.one_dim_data = clusteror_valley.one_dim_data
 clusteror_kmeans.train_kmeans(10)
-clusteror_kmeans.save_kmeans(filename='km.pk')
+clusteror_kmeans.save_kmeans(filepath='km.pk')
 clusteror_kmeans.add_cluster()
 
 scatter_plot_two_dim_group_data(
@@ -34,7 +34,7 @@ scatter_plot_two_dim_group_data(
     clusteror_valley.raw_data.cluster,
     colors=['red', 'blue', 'black'],
     show=False,
-    filename='two.png'
+    filepath='two.png'
 )
 hist_plot_one_dim_group_data(
     clusteror_valley.one_dim_data,
@@ -42,7 +42,7 @@ hist_plot_one_dim_group_data(
     bins=50,
     colors=['red', 'blue', 'black'],
     show=False,
-    filename='name.png'
+    filepath='name.png'
 )
 hist_plot_one_dim_group_data(
     clusteror_valley.one_dim_data,
@@ -50,5 +50,5 @@ hist_plot_one_dim_group_data(
     bins=50,
     colors=['red', 'blue', 'black'],
     show=False,
-    filename='cluster.png'
+    filepath='cluster.png'
 )

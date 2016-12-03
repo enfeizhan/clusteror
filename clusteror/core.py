@@ -102,7 +102,7 @@ class Clusteror(object):
         emphasis.
     '''
     def __init__(self, raw_data):
-        self._raw_data = raw_data
+        self._raw_data = raw_data.copy()
 
     @classmethod
     def from_csv(cls, filepath, **kwargs):
@@ -273,11 +273,31 @@ class Clusteror(object):
         Checks on cleaned data before any work is done. This list of checks
         can be extended when more checks should be included.
         '''
-        assert self._cleaned_data is not None, 'Need cleaned data'
+        cleaned_data_info = (
+            'Need first assign your cleaned data to attribute "_cleaned_data"'
+        )
+        assert self._cleaned_data is not None, cleaned_data_info
         if (self._cleaned_data.max() > 1).any():
             raise OutRangeError('Maximum should be less equal than 1.')
         if (self._cleaned_data.min() < -1).any():
             raise OutRangeError('Minimum should be greater equal than -1')
+
+    def _check_network(self):
+        '''
+        Check if network has been correctly setup.
+        '''
+        network_info = (
+            'Clusteror needs to know which network to use in'
+            'attribute "_network"'
+        )
+        assert self._network is not None, network_info
+        info = 'Train {} with {} or load it first!'
+        if self._network == 'da':
+            info = info.format('DA', '"train_da_dim_reducer"')
+            assert self._da_dim_reducer is not None, info
+        elif self._network == 'sda':
+            info = info.format('SDA', '"train_sda_dim_reducer"')
+            assert self._sda_dim_reducer is not None, info
 
     def _prepare_network_training(self, batch_size):
         '''
@@ -304,7 +324,7 @@ class Clusteror(object):
 
     def _pretraining_early_stopping(
             self,
-            train_fun,
+            train_func,
             n_train_batches,
             min_epochs,
             patience,
@@ -319,7 +339,7 @@ class Clusteror(object):
 
         Parameters
         ----------
-        train_fun: Theano Function
+        train_func: Theano Function
             Function that takes in training set and updates internal
             parameters, in this case the weights and biases in neural network,
             and returns the evaluation of the cost function after each
@@ -344,7 +364,7 @@ class Clusteror(object):
         verbose: boolean
             Prints out training at each epoch if true.
         **kwargs: keyword arguments
-            All keyword arguments pass on to ``train_fun``.
+            All keyword arguments pass on to ``train_func``.
         '''
         n_epochs = 0
         done_looping = False
@@ -357,7 +377,7 @@ class Clusteror(object):
             # go through training set
             c = []
             for minibatch_index in range(n_train_batches):
-                c.append(train_fun(minibatch_index, **kwargs))
+                c.append(train_func(minibatch_index, **kwargs))
             cost = np.mean(c)
             if verbose:
                 print(
@@ -473,14 +493,13 @@ class Clusteror(object):
             }
         )
         self._pretraining_early_stopping(
-            train_fun=train_da,
+            train_func=train_da,
             n_train_batches=self.n_train_batches,
             min_epochs=min_epochs,
             patience=patience,
             patience_increase=patience_increase,
             improvement_threshold=improvement_threshold,
-            corruption_level=corruption_level,
-            verbose=verbose,
+            verbose=verbose
         )
         self.da = da
         self._da_dim_reducer = function([x], da.get_hidden_values(x))
@@ -553,6 +572,7 @@ class Clusteror(object):
         self._network = 'sda'
         self._check_cleaned_data()
         self._prepare_network_training(batch_size=batch_size)
+        # for the purpose of this excercise, restrict the final layer 1d
         hidden_layers_sizes.append(1)
         corruption_levels.append(0)
         x = T.matrix('x')
@@ -570,7 +590,7 @@ class Clusteror(object):
         )
         for ind in range(sda.n_layers):
             self._pretraining_early_stopping(
-                train_fun=pretraining_fns[ind],
+                train_func=pretraining_fns[ind],
                 n_train_batches=self.n_train_batches,
                 min_epochs=min_epochs,
                 patience=patience,
@@ -636,6 +656,7 @@ class Clusteror(object):
         include_network: boolean
             If true, prefix the filepath with the network type.
         '''
+        self._check_network()
         if include_network:
             filepath = self._prefix_filepath('network', filepath)
         with open(filepath, 'wb') as f:
@@ -667,12 +688,20 @@ class Clusteror(object):
         Input of the Theano function is the cleaned data and output is a
         one dimensional data stored in ``_one_dim_data``.
         '''
-        assert self._cleaned_data is not None
+        self._check_cleaned_data()
+        self._check_network()
         if self._network == 'da':
             self._one_dim_data = self._da_dim_reducer(self._cleaned_data)
         elif self._network == 'sda':
             self._one_dim_data = self._sda_dim_reducer(self._cleaned_data)
         self._one_dim_data = self._one_dim_data[:, 0]
+
+    def _check_one_dim_data(self):
+        '''
+        Check if one_dim_data exists. Give error info if not.
+        '''
+        one_dim_data_info = 'Get reduced one dimensional data first!'
+        assert self._one_dim_data is not None, one_dim_data_info
 
     def train_valley(self, bins=100, contrast=0.3):
         '''
@@ -687,10 +716,18 @@ class Clusteror(object):
         contrast: float, between 0 and 1
             Threshold used to define local minima and local maxima. Detailed
             explanation in ``utils.find_local_extremes``.
+
+        Note
+        ----
+        When getting only one cluster, check the distribution of
+        ``one_dim_data``. Likely the data points flock too close to each other.
+        Try increasing ``bins`` first. If not working, try different
+        neural networks with more or less layers with more or less neurons.
         '''
         bins = np.linspace(-1, 1, bins+1)
         # use the left point of bins to name the bin
         left_points = np.asarray(bins[:-1])
+        self._check_one_dim_data()
         cuts = pd.cut(self._one_dim_data, bins=bins)
         # ipdb.set_trace()
         bin_counts = cuts.describe().reset_index().loc[:, 'counts']
@@ -711,6 +748,20 @@ class Clusteror(object):
         self._valley = valley
         self._tagger = 'valley'
 
+    def _check_tagger(self):
+        '''
+        Check tagger existence. Give error info if not.
+        '''
+        tagger_info = 'Clusteror needs to know which tagger to use'
+        assert self._tagger is not None, tagger_info
+        info = 'Train {} with {} or load it first' 
+        if self._tagger == 'valley':
+            info = info.format('"valley"', '"train_valley"')
+            assert self._valley is not None, info
+        elif self._tagger == 'kmeans':
+            info = info.format('"kmeans"', '"train_kmeans"')
+            assert self._kmeans is not None, info
+
     def save_valley(self, filepath, include_taggername=False):
         '''
         Saves valley tagger.
@@ -722,6 +773,7 @@ class Clusteror(object):
         include_taggername: boolean, default False
             Include the **valley_** prefix in filename if true.
         '''
+        self.check_tagger()
         if include_taggername:
             filepath = self._prefix_filepath('tagger', filepath)
         with open(filepath, 'w') as f:
@@ -763,6 +815,7 @@ class Clusteror(object):
             Any other keyword arguments passed on to Scikit-Learn K-Means
             model.
         '''
+        self._check_one_dim_data()
         self._kmeans = KMeans(n_clusters=n_clusters, **kwargs)
         self._kmeans.fit(self._one_dim_data.reshape(-1, 1))
         self._tagger = 'kmeans'
@@ -779,6 +832,7 @@ class Clusteror(object):
         include_taggername: boolean, default False
            Include the **kmean_** prefix in filename if true.
         '''
+        self._check_tagger()
         if include_taggername:
             filepath = self._prefix_filepath('tagger', filepath)
         with open(filepath, 'wb') as f:
@@ -803,6 +857,7 @@ class Clusteror(object):
         an extra column **'cluster'** to ``raw_data``, seggesting a
         zero-based cluster ID.
         '''
+        self._check_tagger()
         if self._tagger == 'valley':
             self.raw_data.loc[:, 'cluster'] = self._valley(self._one_dim_data)
         elif self._tagger == 'kmeans':
