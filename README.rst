@@ -1,5 +1,5 @@
 =========
-clusteror
+Clusteror
 =========
 
 * Unveils internal "invisible" patterns automatically
@@ -25,6 +25,25 @@ of Theano is mandate. About how to install Theano, please read
 
 If you are lucky to have Nvidia graphic card, with proper setup Theano can
 parallel the calculation to be able to scale up to large datasets.
+
+Why we need it
+==============
+
+The purpose of Unsupervised Machine Learning is to find underlying patterns
+without being provided with known categories as Supervised Classification
+Machine Learning. While it sounds like the most leveraged use case of Machine
+Learning as it does not rely on expensive labels that generally need to be
+created by human, its efficiency is debatable for commonly seen algorithms.
+
+Recall the very first clustering algorithm in machine learning lectures,
+K-Means. It looks amazing for beginners. The randomly initiated centroids
+seem to be intelligent to know where they should gravitate to. At least for
+the example datasets for illustrating purposes.
+
+But real life problems aren't that straightforward. It's not unlikely you are
+given a dataset that looks like this in a 2D space:
+
+.. image:: tests/original_problem.png
 
 Note
 ====
