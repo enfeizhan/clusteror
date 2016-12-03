@@ -18,10 +18,10 @@ adventure with it in other scenarios.
 Under the hood, a pretraining of 
 `(Stacked) Denoising Autoencoder <https://en.wikipedia.org/wiki/Autoencoder>`__
 is implemented in
-[Python deep learning](http://deeplearning.net/tutorial/) library
-[Theano](http://deeplearning.net/software/theano/). Therefore, an installation
+`Python deep learning <http://deeplearning.net/tutorial/>`__ library
+`Theano <http://deeplearning.net/software/theano/>`__. Therefore, an installation
 of Theano is mandate. About how to install Theano, please read
-[Theano installation guide](http://deeplearning.net/software/theano/install.html).
+`Theano installation guide <http://deeplearning.net/software/theano/install.html>`__.
 
 If you are lucky to have Nvidia graphic card, with proper setup Theano can
 parallel the calculation to be able to scale up to large datasets.
