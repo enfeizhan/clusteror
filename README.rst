@@ -45,6 +45,16 @@ given a dataset that looks like this in a 2D space:
 
 .. image:: tests/original_problem.png
 
+Then you really scratch your head to see this is really the best K-Means can
+do:
+
+.. image:: tests/bad_kmeans.png
+
+The cost function of K-Means instructs centroids to search for points
+located in a spharical region centring around them. This assumption of what
+a cluster is no doubt fails when a cluster of points resides in a stripe
+shape like in the example above.
+
 Note
 ====
 
