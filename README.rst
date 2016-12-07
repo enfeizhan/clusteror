@@ -7,6 +7,11 @@ Clusteror
 * Fei Zhan
 * License: MIT License
 
+Version support
+===============
+This package is developed in Python 3.4. However support for Python 2 will be
+in the next release.
+
 Description
 ===========
 
@@ -26,8 +31,8 @@ of Theano is mandate. About how to install Theano, please read
 If you are lucky to have Nvidia graphic card, with proper setup Theano can
 parallel the calculation to be able to scale up to large datasets.
 
-Why we need it
-==============
+Why we need it?
+===============
 
 The purpose of Unsupervised Machine Learning is to find underlying patterns
 without being provided with known categories as Supervised Classification
@@ -55,8 +60,8 @@ located in a spharical region centring around them. This assumption of what
 a cluster is no doubt fails when a cluster of points resides in a stripe
 shape like in the example above.
 
-How can we do better
-====================
+How can we do better?
+=====================
 This "unexpected" (actually this is a well-known fact) failure stems from that
 K-Means fumbles in higher dimensional space. While this terminates K-Means to
 be an awesome clustering tool that is deployable in extensive environments,
@@ -103,6 +108,20 @@ The magic lies in how it looks in the mapped one dimensional space:
 Without too much explanation, the left blue bars are the from the right blue
 points and the right red bars from the left red points. As there isn't
 concept for a sphere in 1d, K-Means works perfectly.
+
+What's in the package and what's coming up?
+===========================================
+At the moment, you can do the following with the tools provided by the
+package:
+
+* Dimension reduction to 1d.
+* Clustering in 1d and assign cluster ids back to the original dataset.
+* Certain useful plotting tools to display the efficiency of the clustering.
+
+This project is still in alpha stage. In the imminent release, you can expect
+
+* Tools to searching for the drivers that distinct the clusters.
+* More support in Python versions.
 
 Note
 ====
