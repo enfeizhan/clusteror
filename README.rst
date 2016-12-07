@@ -45,8 +45,8 @@ given a dataset that looks like this in a 2D space:
 
 .. image:: tests/original_problem.png
 
-Then you really scratch your head to see this is really the best K-Means can
-do:
+Unfortunately this is the best K-Means can do and you probably scratch you head
+wondering what you can do to solve this seemingly straightforward problem.
 
 .. image:: tests/bad_kmeans.png
 
@@ -54,6 +54,55 @@ The cost function of K-Means instructs centroids to search for points
 located in a spharical region centring around them. This assumption of what
 a cluster is no doubt fails when a cluster of points resides in a stripe
 shape like in the example above.
+
+How can we do better
+====================
+This "unexpected" (actually this is a well-known fact) failure stems from that
+K-Means fumbles in higher dimensional space. While this terminates K-Means to
+be an awesome clustering tool that is deployable in extensive environments,
+its performance in one dimensional space has been ignored largely due to
+examples in two dimension are more illustrative.
+
+Having this in mind, we would work on to search ways of reducing high
+dimensional dataset to one dimension. As this is truly the cause responsible
+for all strugglings in clustering high dimensional data.
+
+Fortunately, the progress in Deep Learning sheds new light on this issue. As
+labeled dataset is expensive, experts in this area came up with the salient
+idea of Pre-training, which enormously reduced the amount of labeled dataset
+needed to train a deep learning neural network.
+
+In a nutshell, pre-training updates the parameters in neural network such that
+an input can traverse the network forward and back therefore reproduce itself.
+A cost function is defined regarding the difference between the input and
+reproduced input instead of input and output.
+
+While it's highly recommended to read research articles to gain more detail,
+a characteristic property of this process is tremendously useful for reducing
+dataset in high dimension down to lower dimension.
+
+The central idea is given the input can be loyally or nearly loyally
+reproduced the neural network can be expected to do two things:
+
+* one-to-one mapping input to output; A different input results in a different
+  output.
+* Similar inputs lead to close outputs.
+
+These two characteristics ensure clustering done in low-dimensional space
+is equivalent to do the clustering in high dimension.
+
+A picture is worth a thousand words. The chart below is the result of a three
+layer neural network:
+
+.. image:: tests/leveraged_kmeans.png
+
+The magic lies in how it looks in the mapped one dimensional space:
+
+.. image:: tests/hist.png
+
+Without too much explanation, the left blue bars are the from the right blue
+points and the right red bars from the left red points. As there isn't
+concept for a sphere in 1d, K-Means works perfectly.
 
 Note
 ====
