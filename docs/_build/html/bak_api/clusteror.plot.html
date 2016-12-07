@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The clusteror.plot Module &#8212; clusteror 0.0.post0.dev68+n166d2bb.dirty documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.post0.dev68+n166d2bb.dirty',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="clusteror 0.0.post0.dev68+n166d2bb.dirty documentation" href="../index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-clusteror.plot">
+<span id="the-clusteror-plot-module"></span><h1>The <a class="reference internal" href="#module-clusteror.plot" title="clusteror.plot"><code class="xref py py-mod docutils literal"><span class="pre">clusteror.plot</span></code></a> Module<a class="headerlink" href="#module-clusteror.plot" title="Permalink to this headline">¶</a></h1>
+<p>Plotting tools relevant for illustrating and comparing clustering results
+can be found in this module.</p>
+<dl class="function">
+<dt id="clusteror.plot.group_occurance_plot">
+<code class="descclassname">clusteror.plot.</code><code class="descname">group_occurance_plot</code><span class="sig-paren">(</span><em>one_dim_data</em>, <em>cat_label</em>, <em>labels</em>, <em>group_label</em>, <em>colors=None</em>, <em>figsize=(10</em>, <em>6)</em>, <em>bbox_to_anchor=(1.01</em>, <em>1)</em>, <em>loc=2</em>, <em>grid=True</em>, <em>show=True</em>, <em>filepath=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/plot.html#group_occurance_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.plot.group_occurance_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the distribution of a one dimensional <strong>ordinal or categorical</strong> data
+in a bar chart. This tool is useful to check the clustering impact in this
+one-dimensional sub-space.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>one_dim_data</strong> (<em>list, Pandas Series, Numpy Array, or any iterable</em>) &#8211; A sequence of data. Each element if for an instance.</li>
+<li><strong>cat_label</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; Field name will be used for the one dimensional data.</li>
+<li><strong>labels</strong> (<em>list, Pandas Series, Numpy Array, or any iterable</em>) &#8211; The segment label for each sample in one_dim_data.</li>
+<li><strong>group_label</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; Field name will be used for the cluster ID.</li>
+<li><strong>colors</strong> (<em>list, default None</em>) &#8211; Colours for each category existing in this one dimensional data.
+Default colour scheme used if not supplied.</li>
+<li><strong>figsize</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#tuple" title="(in Python v3.4)"><em>tuple</em></a>) &#8211; Figure size (width, height).</li>
+<li><strong>bbox_to_anchor</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#tuple" title="(in Python v3.4)"><em>tuple</em></a>) &#8211; Instruction to placing the legend box relative to the axes. Details
+refer to <code class="docutils literal"><span class="pre">Matplotlib</span></code> document.</li>
+<li><strong>loc</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; The corner of the legend box to anchor. Details refer to <code class="docutils literal"><span class="pre">Matplotlib</span></code>
+document.</li>
+<li><strong>grid</strong> (<em>boolean, default True</em>) &#8211; Show grid.</li>
+<li><strong>show</strong> (<em>boolean, default True</em>) &#8211; Show figure in pop-up windows if true. Save to files if False.</li>
+<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; File name to saving the plot. Must be assigned a valid filepath if
+<code class="docutils literal"><span class="pre">show</span></code> is False.</li>
+<li><strong>**kwargs</strong> (<em>keyword arguments</em>) &#8211; Other keyword arguemnts passed on to <code class="docutils literal"><span class="pre">matplotlib.pyplot.scatter</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Instances in a same cluster does not necessarily assemble together in
+all one dimensional sub-spaces. There can be possibly no clustering
+capaility for certain features. Additionally certain features play a
+secondary role in clustering as having less importance in
+<code class="docutils literal"><span class="pre">field_importance</span></code> in <code class="docutils literal"><span class="pre">clusteror</span></code> module.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="clusteror.plot.hist_plot_one_dim_group_data">
+<code class="descclassname">clusteror.plot.</code><code class="descname">hist_plot_one_dim_group_data</code><span class="sig-paren">(</span><em>one_dim_data</em>, <em>labels</em>, <em>bins=11</em>, <em>colors=None</em>, <em>figsize=(10</em>, <em>6)</em>, <em>xlabel='Dimension Reduced Data'</em>, <em>ylabel='Occurance'</em>, <em>bbox_to_anchor=(1.01</em>, <em>1)</em>, <em>loc=2</em>, <em>grid=True</em>, <em>show=True</em>, <em>filepath=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/plot.html#hist_plot_one_dim_group_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.plot.hist_plot_one_dim_group_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the distribution of a one dimensional numerical data in a histogram.
+This tool is useful to check the clustering impact in this one-dimensional
+sub-space.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>one_dim_data</strong> (<em>list, Pandas Series, Numpy Array, or any iterable</em>) &#8211; A sequence of data. Each element if for an instance.</li>
+<li><strong>labels</strong> (<em>list, Pandas Series, Numpy Array, or any iterable</em>) &#8211; The segment label for each sample in <code class="docutils literal"><span class="pre">one_dim_data</span></code>.</li>
+<li><strong>bins</strong> (<em>int or iterable</em>) &#8211; If an integer, bins - 1 bins created or a list of the delimiters.</li>
+<li><strong>colors</strong> (<em>list, default None</em>) &#8211; Colours for each group. Use equally distanced colours on colour map
+if not supplied.</li>
+<li><strong>figsize</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#tuple" title="(in Python v3.4)"><em>tuple</em></a>) &#8211; Figure size (width, height).</li>
+<li><strong>xlabel</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; Plot xlabel.</li>
+<li><strong>ylabel</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; Plot ylabel.</li>
+<li><strong>bbox_to_anchor</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#tuple" title="(in Python v3.4)"><em>tuple</em></a>) &#8211; Instruction to placing the legend box relative to the axes. Details
+refer to <code class="docutils literal"><span class="pre">Matplotlib</span></code> document.</li>
+<li><strong>loc</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; The corner of the legend box to anchor. Details refer to <code class="docutils literal"><span class="pre">Matplotlib</span></code>
+document.</li>
+<li><strong>grid</strong> (<em>boolean, default True</em>) &#8211; Show grid.</li>
+<li><strong>show</strong> (<em>boolean, default True</em>) &#8211; Show figure in pop-up windows if true. Save to files if False.</li>
+<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; File name to saving the plot. Must be assigned a valid filepath if
+<code class="docutils literal"><span class="pre">show</span></code> is False.</li>
+<li><strong>**kwargs</strong> (<em>keyword arguments</em>) &#8211; Other keyword arguemnts passed on to <code class="docutils literal"><span class="pre">matplotlib.pyplot.scatter</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Instances in a same cluster does not necessarily assemble together in
+all one dimensional sub-spaces. There can be possibly no clustering
+capaility for certain features. Additionally certain features play a
+secondary role in clustering as having less importance in
+<code class="docutils literal"><span class="pre">field_importance</span></code> in <code class="docutils literal"><span class="pre">clusteror</span></code> module.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="clusteror.plot.scatter_plot_two_dim_group_data">
+<code class="descclassname">clusteror.plot.</code><code class="descname">scatter_plot_two_dim_group_data</code><span class="sig-paren">(</span><em>two_dim_data</em>, <em>labels</em>, <em>markers=None</em>, <em>colors=None</em>, <em>figsize=(10</em>, <em>6)</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>alpha=0.8</em>, <em>bbox_to_anchor=(1.01</em>, <em>1)</em>, <em>loc=2</em>, <em>grid=True</em>, <em>show=True</em>, <em>filepath=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/plot.html#scatter_plot_two_dim_group_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.plot.scatter_plot_two_dim_group_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the distribution of a two dimensional data against clustering groups
+in a scatter plot.</p>
+<p>A point represents an instance in the dataset. Points in a same cluster
+are painted with a same colour.</p>
+<p>This tool is useful to check the clustering impact in this two-dimensional
+sub-space.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>two_dim_data</strong> (<em>Pandas DataFrame</em>) &#8211; A dataframe with two columns. The first column goes to the x-axis,
+and the second column goes to the y-axis.</li>
+<li><strong>labels</strong> (<em>list, Pandas Series, Numpy Array, or any iterable</em>) &#8211; The segment label for each sample in <code class="docutils literal"><span class="pre">two_dim_data</span></code>.</li>
+<li><strong>markers</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#list" title="(in Python v3.4)"><em>list</em></a>) &#8211; Marker names for each group.</li>
+<li><strong>bbox_to_anchor</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#tuple" title="(in Python v3.4)"><em>tuple</em></a>) &#8211; Instruction to placing the legend box relative to the axes. Details
+refer to <code class="docutils literal"><span class="pre">Matplotlib</span></code> document.</li>
+<li><strong>colors</strong> (<em>list, default None</em>) &#8211; Colours for each group. Use equally distanced colours on colour map
+if not supplied.</li>
+<li><strong>figsize</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#tuple" title="(in Python v3.4)"><em>tuple</em></a>) &#8211; Figure size (width, height).</li>
+<li><strong>xlim</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#tuple" title="(in Python v3.4)"><em>tuple</em></a>) &#8211; X-axis limits.</li>
+<li><strong>ylim</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#tuple" title="(in Python v3.4)"><em>tuple</em></a>) &#8211; Y-axis limits.</li>
+<li><strong>alpha</strong> (<em>float, between 0 and 1</em>) &#8211; Marker transparency. From 0 to 1: from transparent to opaque.</li>
+<li><strong>loc</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; The corner of the legend box to anchor. Details refer to <code class="docutils literal"><span class="pre">Matplotlib</span></code>
+document.</li>
+<li><strong>grid</strong> (<em>boolean, default True</em>) &#8211; Show grid.</li>
+<li><strong>show</strong> (<em>boolean, default True</em>) &#8211; Show figure in pop-up windows if true. Save to files if False.</li>
+<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; File name to saving the plot. Must be assigned a valid filepath if
+<code class="docutils literal"><span class="pre">show</span></code> is False.</li>
+<li><strong>**kwargs</strong> (<em>keyword arguments</em>) &#8211; Other keyword arguemnts passed on to <code class="docutils literal"><span class="pre">matplotlib.pyplot.scatter</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Instances in a same cluster does not necessarily assemble together in
+all two dimensional sub-spaces. There can be possibly no clustering
+capaility for certain features. Additionally certain features play a
+secondary role in clustering as having less importance in
+<code class="docutils literal"><span class="pre">field_importance</span></code> in <code class="docutils literal"><span class="pre">clusteror</span></code> module.</p>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/bak_api/clusteror.plot.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Fei Zhan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../_sources/bak_api/clusteror.plot.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

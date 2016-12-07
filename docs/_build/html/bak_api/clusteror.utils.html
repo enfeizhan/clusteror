@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The clusteror.utils Module &#8212; clusteror 0.0.post0.dev68+n166d2bb.dirty documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.post0.dev68+n166d2bb.dirty',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="clusteror 0.0.post0.dev68+n166d2bb.dirty documentation" href="../index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-clusteror.utils">
+<span id="the-clusteror-utils-module"></span><h1>The <a class="reference internal" href="#module-clusteror.utils" title="clusteror.utils"><code class="xref py py-mod docutils literal"><span class="pre">clusteror.utils</span></code></a> Module<a class="headerlink" href="#module-clusteror.utils" title="Permalink to this headline">¶</a></h1>
+<p>This module works as a transient store of useful functions. New standalone
+functions will be first placed here. As they grow in number and can be
+consolidated into an independent class, module, or even a new package.</p>
+<dl class="function">
+<dt id="clusteror.utils.find_local_extremes">
+<code class="descclassname">clusteror.utils.</code><code class="descname">find_local_extremes</code><span class="sig-paren">(</span><em>series</em>, <em>contrast</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/utils.html#find_local_extremes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.utils.find_local_extremes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds local minima and maxima according to <code class="docutils literal"><span class="pre">contrast</span></code>. In theory,
+they can be determined by first derivative and second derivative. The
+result derived this way is of no value in dealing with a very noisy,
+zig-zag data as too many local extremes would be found for any turn-around.
+The method presented here compares the point currently looked at and the
+opposite potential extreme that is updated as scanning through the
+data sequence. For instance, a potential maximum is 10, then a data point
+of value smaller than 10 / (1 + contrast) is written down as a local
+minimum.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>series</strong> (<em>Pandas Series</em>) &#8211; One dimenional data to find local extremes in.</li>
+<li><strong>contrast</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#float" title="(in Python v3.4)"><em>float</em></a>) &#8211; A value between 0 and 1 as a threshold between minimum and maximum.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>local_min_inds</strong> (<em>list</em>) &#8211; List of indices for local minima.</li>
+<li><strong>local_mins</strong> (<em>list</em>) &#8211; List of minimum values.</li>
+<li><strong>local_max_inds</strong> (<em>list</em>) &#8211; List of indices for local maxima.</li>
+<li><strong>local_maxs</strong> (<em>list</em>) &#8211; List of maximum values.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/bak_api/clusteror.utils.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Fei Zhan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../_sources/bak_api/clusteror.utils.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>clusteror.plot &#8212; clusteror 0.0.post0.dev62+n3740816.dirty documentation</title>
+    <title>clusteror.plot &#8212; clusteror 0.0.post0.dev68+n166d2bb.dirty documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.0.post0.dev62+n3740816.dirty',
+        VERSION:     '0.0.post0.dev68+n166d2bb.dirty',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="top" title="clusteror 0.0.post0.dev62+n3740816.dirty documentation" href="../../index.html" />
+    <link rel="top" title="clusteror 0.0.post0.dev68+n166d2bb.dirty documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -52,7 +52,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
-<div class="viewcode-block" id="scatter_plot_two_dim_group_data"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.plot.scatter_plot_two_dim_group_data">[docs]</a><span class="k">def</span> <span class="nf">scatter_plot_two_dim_group_data</span><span class="p">(</span>
+<div class="viewcode-block" id="scatter_plot_two_dim_group_data"><a class="viewcode-back" href="../../api/clusteror.plot.html#clusteror.plot.scatter_plot_two_dim_group_data">[docs]</a><span class="k">def</span> <span class="nf">scatter_plot_two_dim_group_data</span><span class="p">(</span>
         <span class="n">two_dim_data</span><span class="p">,</span>
         <span class="n">labels</span><span class="p">,</span>
         <span class="n">markers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -183,12 +183,14 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="hist_plot_one_dim_group_data"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.plot.hist_plot_one_dim_group_data">[docs]</a><span class="k">def</span> <span class="nf">hist_plot_one_dim_group_data</span><span class="p">(</span>
+<div class="viewcode-block" id="hist_plot_one_dim_group_data"><a class="viewcode-back" href="../../api/clusteror.plot.html#clusteror.plot.hist_plot_one_dim_group_data">[docs]</a><span class="k">def</span> <span class="nf">hist_plot_one_dim_group_data</span><span class="p">(</span>
         <span class="n">one_dim_data</span><span class="p">,</span>
         <span class="n">labels</span><span class="p">,</span>
         <span class="n">bins</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
         <span class="n">colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+        <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Dimension Reduced Data&#39;</span><span class="p">,</span>
+        <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Occurance&#39;</span><span class="p">,</span>
         <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.01</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
         <span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="n">grid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -214,6 +216,10 @@
 <span class="sd">        if not supplied.</span>
 <span class="sd">    figsize: tuple</span>
 <span class="sd">        Figure size (width, height).</span>
+<span class="sd">    xlabel: str</span>
+<span class="sd">        Plot xlabel.</span>
+<span class="sd">    ylabel: str</span>
+<span class="sd">        Plot ylabel.</span>
 <span class="sd">    bbox_to_anchor: tuple</span>
 <span class="sd">        Instruction to placing the legend box relative to the axes. Details</span>
 <span class="sd">        refer to ``Matplotlib`` document.</span>
@@ -262,8 +268,8 @@
         <span class="p">)</span>
     <span class="c1"># place the legend at the right hand side of the chart</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">bbox_to_anchor</span><span class="o">=</span><span class="n">bbox_to_anchor</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">loc</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Dimension Reduced Data&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">17</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Occurence&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">17</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">17</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">17</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">grid</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
@@ -273,7 +279,7 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="group_occurance_plot"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.plot.group_occurance_plot">[docs]</a><span class="k">def</span> <span class="nf">group_occurance_plot</span><span class="p">(</span>
+<div class="viewcode-block" id="group_occurance_plot"><a class="viewcode-back" href="../../api/clusteror.plot.html#clusteror.plot.group_occurance_plot">[docs]</a><span class="k">def</span> <span class="nf">group_occurance_plot</span><span class="p">(</span>
         <span class="n">one_dim_data</span><span class="p">,</span>
         <span class="n">cat_label</span><span class="p">,</span>
         <span class="n">labels</span><span class="p">,</span>

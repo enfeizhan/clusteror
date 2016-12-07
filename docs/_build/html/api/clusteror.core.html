@@ -1,0 +1,582 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The clusteror.core Module &#8212; clusteror 0.0.post0.dev68+n166d2bb.dirty documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.post0.dev68+n166d2bb.dirty',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="clusteror 0.0.post0.dev68+n166d2bb.dirty documentation" href="../index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-clusteror.core">
+<span id="the-clusteror-core-module"></span><h1>The <a class="reference internal" href="#module-clusteror.core" title="clusteror.core"><code class="xref py py-mod docutils literal"><span class="pre">clusteror.core</span></code></a> Module<a class="headerlink" href="#module-clusteror.core" title="Permalink to this headline">¶</a></h1>
+<p>This module contains <code class="docutils literal"><span class="pre">Clusteror</span></code> class capsulating raw data to discover
+clusters from, the cleaned data for a clusteror to run on.</p>
+<p>The clustering model encompasses two parts:</p>
+<ol class="arabic">
+<li><p class="first">Neural network:
+Pre-training (often encountered in Deep Learning context)
+is implemented to achieve a goal that the neural network maps the input
+data of higher dimension to a one dimensional representation. Ideally this
+mapping is one-to-one.
+A Denoising Autoencoder (DA) or Stacked Denoising Autoencoder (SDA) is
+implemented for this purpose.</p>
+</li>
+<li><p class="first">One dimensional clustering model:
+A separate model segments the samples against the one dimensional
+representation. Two models are available in this class definition:</p>
+<blockquote>
+<div><ul class="simple">
+<li>K-Means</li>
+<li>Valley model</li>
+</ul>
+</div></blockquote>
+</li>
+</ol>
+<p>The pivot idea here is given the neural network is a good one-to-one mapper
+the separate clustering model on one dimensional representation is equivalent
+to a clustering model on the original high dimensional data.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Valley model is explained in details in module <code class="docutils literal"><span class="pre">clusteror.utils</span></code>.</p>
+</div>
+<dl class="class">
+<dt id="clusteror.core.Clusteror">
+<em class="property">class </em><code class="descclassname">clusteror.core.</code><code class="descname">Clusteror</code><span class="sig-paren">(</span><em>raw_data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/core.html#Clusteror"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.core.Clusteror" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.4/library/functions.html#object" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p><code class="docutils literal"><span class="pre">Clusteror</span></code> class can train neural networks <em>DA</em> or
+<em>SDA</em>, train taggers, or load saved models
+from files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>raw_data</strong> (<em>Pandas DataFrame</em>) &#8211; Dataframe read from data source. It can be original dataset without
+any preprocessing or with a certain level of manipulation for
+future analysis.</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror._raw_data">
+<code class="descname">_raw_data</code><a class="headerlink" href="#clusteror.core.Clusteror._raw_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Pandas DataFrame</em> &#8211; Stores the original dataset. It&#8217;s the dataset that later
+post-clustering performance analysis will be based on.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror._cleaned_data">
+<code class="descname">_cleaned_data</code><a class="headerlink" href="#clusteror.core.Clusteror._cleaned_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Pandas DataFrame</em> &#8211; Preprocessed data. Not necessarily has same number of columns with
+<code class="docutils literal"><span class="pre">_raw_data</span></code> as a categorical column can derive multiple columns.
+As the <code class="docutils literal"><span class="pre">tanh</span></code> function is used as activation function for symmetric
+consideration. All columns should have values in range <code class="docutils literal"><span class="pre">[-1,</span> <span class="pre">1]</span></code>,
+otherwise an <code class="docutils literal"><span class="pre">OutRangeError</span></code> will be raised.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror._network">
+<code class="descname">_network</code><a class="headerlink" href="#clusteror.core.Clusteror._network" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; <strong>da</strong> for <em>DA</em>; <strong>sda</strong> for <em>SDA</em>.
+Facilating functions called with one or the other algorithm.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror._da_dim_reducer">
+<code class="descname">_da_dim_reducer</code><a class="headerlink" href="#clusteror.core.Clusteror._da_dim_reducer" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Theano function</em> &#8211; Keeps the Theano function that is from trained DA model. Reduces
+the dimension of the cleaned data down to one.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror._sda_dim_reducer">
+<code class="descname">_sda_dim_reducer</code><a class="headerlink" href="#clusteror.core.Clusteror._sda_dim_reducer" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Theano function</em> &#8211; Keeps the Theano function that is from trained SDA model. Reduces
+the dimension of the cleaned data down to one.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror._one_dim_data">
+<code class="descname">_one_dim_data</code><a class="headerlink" href="#clusteror.core.Clusteror._one_dim_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Numpy Array</em> &#8211; The dimension reduced one dimensional data.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror._valley">
+<code class="descname">_valley</code><a class="headerlink" href="#clusteror.core.Clusteror._valley" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Python function</em> &#8211; Trained valley model tagging sample with their one dimensional
+representation.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror._kmeans">
+<code class="descname">_kmeans</code><a class="headerlink" href="#clusteror.core.Clusteror._kmeans" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Scikit-Learn K-Means model</em> &#8211; Trained K-Means model tagging samples with their one dimensional
+representation.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror._tagger">
+<code class="descname">_tagger</code><a class="headerlink" href="#clusteror.core.Clusteror._tagger" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Keeps records of which tagger implemented.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror._field_importance">
+<code class="descname">_field_importance</code><a class="headerlink" href="#clusteror.core.Clusteror._field_importance" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>List</em> &#8211; Keeps the list of coefficiences that influence the clustering
+emphasis.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.core.Clusteror.add_cluster">
+<code class="descname">add_cluster</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/core.html#Clusteror.add_cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.core.Clusteror.add_cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tags each sample regarding their reduced one dimensional value. Adds
+an extra column <strong>&#8216;cluster&#8217;</strong> to <code class="docutils literal"><span class="pre">raw_data</span></code>, seggesting a
+zero-based cluster ID.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror.cleaned_data">
+<code class="descname">cleaned_data</code><a class="headerlink" href="#clusteror.core.Clusteror.cleaned_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Pandas DataFrame</em> &#8211; For assgining cleaned dataframe to <code class="docutils literal"><span class="pre">_cleaned_dat</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror.da_dim_reducer">
+<code class="descname">da_dim_reducer</code><a class="headerlink" href="#clusteror.core.Clusteror.da_dim_reducer" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Theano function</em> &#8211; Function that reduces dataset dimension. Attribute
+<code class="docutils literal"><span class="pre">_network</span></code> is given <strong>da</strong> to designate the method of the
+autoencoder as <code class="docutils literal"><span class="pre">DA</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror.field_importance">
+<code class="descname">field_importance</code><a class="headerlink" href="#clusteror.core.Clusteror.field_importance" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>List</em> &#8211; Significance that given to fields when training of neural
+network is done. Fields with a large number will be given more
+attention.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The importance is only meaningful relatively between fields. If no
+values are specified, all fields are treated equally.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_importance</strong> (<em>List or Dict, default None (List of Ones)</em>) &#8211; <ul class="simple">
+<li>If a list is designated, all fields should be assigned an</li>
+</ul>
+<p>importance, viz, the length of the list should be equal to the
+length of the features training the neural network.</p>
+<ul class="simple">
+<li>It can also be given in a dict. In such a case, the fields can</li>
+</ul>
+<p>be selectively given a value. Dict key is for field name and value
+is for the importance. Fields not included will be initiated with
+the default value one. A warning will be issued when a key is
+not on the list of field names, mostly because of a typo.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="clusteror.core.Clusteror.from_csv">
+<em class="property">classmethod </em><code class="descname">from_csv</code><span class="sig-paren">(</span><em>filepath</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/core.html#Clusteror.from_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.core.Clusteror.from_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class method for directly reading CSV file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; Path to the CSV file</li>
+<li><strong>**kwargs</strong> (<em>keyword arguments</em>) &#8211; Other keyword arguments passed to <code class="docutils literal"><span class="pre">pandas.read_csv</span></code></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror.kmeans">
+<code class="descname">kmeans</code><a class="headerlink" href="#clusteror.core.Clusteror.kmeans" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Python function</em> &#8211; Trained on the dimension reduced one dimensional
+data that segregates subjects into concentration of existence in a
+subset of <code class="docutils literal"><span class="pre">[-1,</span> <span class="pre">1]</span></code> with K-Means algorithm.  <code class="docutils literal"><span class="pre">_tagger</span></code> is
+given <strong>valley</strong> to facilitate follow-up usages.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.core.Clusteror.load_dim_reducer">
+<code class="descname">load_dim_reducer</code><span class="sig-paren">(</span><em>filepath='dim_reducer.pk'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/core.html#Clusteror.load_dim_reducer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.core.Clusteror.load_dim_reducer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads saved dimension reducer. Need to first name the network type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.core.Clusteror.load_kmeans">
+<code class="descname">load_kmeans</code><span class="sig-paren">(</span><em>filepath</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/core.html#Clusteror.load_kmeans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.core.Clusteror.load_kmeans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a saved K-Means tagger from a file.</p>
+<dl class="docutils">
+<dt>filepath: str</dt>
+<dd>File path to the file saving the K-Means tagger.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.core.Clusteror.load_valley">
+<code class="descname">load_valley</code><span class="sig-paren">(</span><em>filepath</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/core.html#Clusteror.load_valley"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.core.Clusteror.load_valley" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a saved valley tagger from a file. Create the valley function
+from the saved parameters.</p>
+<dl class="docutils">
+<dt>filepath: str</dt>
+<dd>File path to the file saving the valley tagger.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror.one_dim_data">
+<code class="descname">one_dim_data</code><a class="headerlink" href="#clusteror.core.Clusteror.one_dim_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Numpy Array</em> &#8211; Stores the output of neural network that has dimension
+one.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror.raw_data">
+<code class="descname">raw_data</code><a class="headerlink" href="#clusteror.core.Clusteror.raw_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Pandas DataFrame</em> &#8211; For assgining new values to <code class="docutils literal"><span class="pre">_raw_data</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.core.Clusteror.reduce_to_one_dim">
+<code class="descname">reduce_to_one_dim</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/core.html#Clusteror.reduce_to_one_dim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.core.Clusteror.reduce_to_one_dim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduces the dimension of input dataset to one before the tagging
+in the next step.</p>
+<p>Input of the Theano function is the cleaned data and output is a
+one dimensional data stored in <code class="docutils literal"><span class="pre">_one_dim_data</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.core.Clusteror.save_dim_reducer">
+<code class="descname">save_dim_reducer</code><span class="sig-paren">(</span><em>filepath='dim_reducer.pk'</em>, <em>include_network=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/core.html#Clusteror.save_dim_reducer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.core.Clusteror.save_dim_reducer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save dimension reducer from the neural network training.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; Filename to store the dimension reducer.</li>
+<li><strong>include_network</strong> (<em>boolean</em>) &#8211; If true, prefix the filepath with the network type.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.core.Clusteror.save_kmeans">
+<code class="descname">save_kmeans</code><span class="sig-paren">(</span><em>filepath</em>, <em>include_taggername=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/core.html#Clusteror.save_kmeans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.core.Clusteror.save_kmeans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves K-Means model to the named file path. Can add a prefix to
+indicate this saves a K-Means model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; File path for saving the model.</li>
+<li><strong>include_taggername</strong> (<em>boolean, default False</em>) &#8211; Include the <strong>kmean_</strong> prefix in filename if true.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.core.Clusteror.save_valley">
+<code class="descname">save_valley</code><span class="sig-paren">(</span><em>filepath</em>, <em>include_taggername=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/core.html#Clusteror.save_valley"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.core.Clusteror.save_valley" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves valley tagger.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; File path to save the tagger.</li>
+<li><strong>include_taggername</strong> (<em>boolean, default False</em>) &#8211; Include the <strong>valley_</strong> prefix in filename if true.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror.sda_dim_reducer">
+<code class="descname">sda_dim_reducer</code><a class="headerlink" href="#clusteror.core.Clusteror.sda_dim_reducer" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Theano function</em> &#8211; Function that reduces dataset dimension. Attribute
+<code class="docutils literal"><span class="pre">_network</span></code> is given <strong>sda</strong> to designate the method of the
+autoencoder as <code class="docutils literal"><span class="pre">SDA</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror.tagger">
+<code class="descname">tagger</code><a class="headerlink" href="#clusteror.core.Clusteror.tagger" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Name the tagger if necessary to do so, which will facilitate, e.g.
+prefixing the filepath.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.core.Clusteror.train_da_dim_reducer">
+<code class="descname">train_da_dim_reducer</code><span class="sig-paren">(</span><em>field_importance=None</em>, <em>batch_size=50</em>, <em>corruption_level=0.3</em>, <em>learning_rate=0.002</em>, <em>min_epochs=200</em>, <em>patience=60</em>, <em>patience_increase=2</em>, <em>improvement_threshold=0.98</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/core.html#Clusteror.train_da_dim_reducer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.core.Clusteror.train_da_dim_reducer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trains a <code class="docutils literal"><span class="pre">DA</span></code> neural network.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>field_importance</strong> (<em>List or Dict, default None (List of Ones)</em>) &#8211; <ul>
+<li>If a list is designated, all fields should be assigned an</li>
+</ul>
+<p>importance, viz, the length of the list should be equal to the
+length of the features training the neural network.</p>
+<ul>
+<li>It can also be given in a dict. In such a case, the fields can</li>
+</ul>
+<p>be selectively given a value. Dict key is for field name and value
+is for the importance. Fields not included will be initiated with
+the default value one. A warning will be issued when a key is
+not on the list of field names, mostly because of a typo.</p>
+</li>
+<li><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; Size of each training batch. Necessary to derive the number
+of batches.</li>
+<li><strong>corruption_level</strong> (<em>float, between 0 and 1</em>) &#8211; Dropout rate in reading input, typical pratice in deep learning
+to avoid overfitting.</li>
+<li><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#float" title="(in Python v3.4)"><em>float</em></a>) &#8211; Propagating step size for gredient descent algorithm.</li>
+<li><strong>min_epochs</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; The mininum number of training epoch to run. It can be exceeded
+depending on the setup of patience and ad-hoc training progress.</li>
+<li><strong>patience</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; True number of training epochs to run if larger than
+<code class="docutils literal"><span class="pre">min_epochs</span></code>. Note it is potentially increased during the
+training if the cost is better than the expectation from
+current cost.</li>
+<li><strong>patience_increase</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; Coefficient used to increase patience against epochs that
+have been run.</li>
+<li><strong>improvement_threshold</strong> (<em>float, between 0 and 1</em>) &#8211; Minimum improvement considered as substantial improvement, i.e.
+new cost over existing lowest cost lower than this value.</li>
+<li><strong>verbose</strong> (<em>boolean, default False</em>) &#8211; Prints out training at each epoch if true.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.core.Clusteror.train_kmeans">
+<code class="descname">train_kmeans</code><span class="sig-paren">(</span><em>n_clusters=10</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/core.html#Clusteror.train_kmeans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.core.Clusteror.train_kmeans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trains K-Means model on top of the one dimensional data derived from
+dimension reducers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>n_clusters</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; The number of clusters required to start a K-Means learning.</li>
+<li><strong>**kwargs</strong> (<em>keyword arguments</em>) &#8211; Any other keyword arguments passed on to Scikit-Learn K-Means
+model.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.core.Clusteror.train_sda_dim_reducer">
+<code class="descname">train_sda_dim_reducer</code><span class="sig-paren">(</span><em>field_importance=None, batch_size=50, hidden_layers_sizes=[20], corruption_levels=[0.3], learning_rate=0.002, min_epochs=200, patience=60, patience_increase=2, improvement_threshold=0.98, verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/core.html#Clusteror.train_sda_dim_reducer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.core.Clusteror.train_sda_dim_reducer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trains a <code class="docutils literal"><span class="pre">SDA</span></code> neural network.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>field_importance</strong> (<em>List or Dict, default None (List of Ones)</em>) &#8211; <ul>
+<li>If a list is designated, all fields should be assigned an</li>
+</ul>
+<p>importance, viz, the length of the list should be equal to the
+length of the features training the neural network.</p>
+<ul>
+<li>It can also be given in a dict. In such a case, the fields can</li>
+</ul>
+<p>be selectively given a value. Dict key is for field name and value
+is for the importance. Fields not included will be initiated with
+the default value one. A warning will be issued when a key is
+not on the list of field names, mostly because of a typo.</p>
+</li>
+<li><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; Size of each training batch. Necessary to derive the number
+of batches.</li>
+<li><strong>hidden_layers_sizes</strong> (<em>List of ints</em>) &#8211; Number of neurons in the hidden layers (all but the input layer).</li>
+<li><strong>corruption_levels</strong> (<em>List of floats, between 0 and 1</em>) &#8211; Dropout rate in reading input, typical pratice in deep learning
+to avoid overfitting.</li>
+<li><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#float" title="(in Python v3.4)"><em>float</em></a>) &#8211; Propagating step size for gredient descent algorithm.</li>
+<li><strong>min_epochs</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; The mininum number of training epoch to run. It can be exceeded
+depending on the setup of patience and ad-hoc training progress.</li>
+<li><strong>patience</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; True number of training epochs to run if larger than
+<code class="docutils literal"><span class="pre">min_epochs</span></code>. Note it is potentially increased during the
+training if the cost is better than the expectation from
+current cost.</li>
+<li><strong>patience_increase</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; Coefficient used to increase patience against epochs that
+have been run.</li>
+<li><strong>improvement_threshold</strong> (<em>float, between 0 and 1</em>) &#8211; Minimum improvement considered as substantial improvement, i.e.
+new cost over existing lowest cost lower than this value.</li>
+<li><strong>verbose</strong> (<em>boolean, default False</em>) &#8211; Prints out training at each epoch if true.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.core.Clusteror.train_valley">
+<code class="descname">train_valley</code><span class="sig-paren">(</span><em>bins=100</em>, <em>contrast=0.3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/core.html#Clusteror.train_valley"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.core.Clusteror.train_valley" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trains the ability to cut the universe of samples into clusters based
+how the dimension reduced dataset assembles in a histogram. Unlike
+the K-Means, no need to preset the number of clusters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; Number of bins to aggregate the one dimensional data.</li>
+<li><strong>contrast</strong> (<em>float, between 0 and 1</em>) &#8211; Threshold used to define local minima and local maxima. Detailed
+explanation in <code class="docutils literal"><span class="pre">utils.find_local_extremes</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When getting only one cluster, check the distribution of
+<code class="docutils literal"><span class="pre">one_dim_data</span></code>. Likely the data points flock too close to each other.
+Try increasing <code class="docutils literal"><span class="pre">bins</span></code> first. If not working, try different
+neural networks with more or less layers with more or less neurons.</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.core.Clusteror.valley">
+<code class="descname">valley</code><a class="headerlink" href="#clusteror.core.Clusteror.valley" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Python function</em> &#8211; Trained on the dimension reduced one dimensional
+data that segregates subjects into concentration of existence in a
+subset of <code class="docutils literal"><span class="pre">[-1,</span> <span class="pre">1]</span></code>, by locating the &#8220;valley&#8221; in the distribution
+landscape. <code class="docutils literal"><span class="pre">_tagger</span></code> is given <strong>valley</strong> to facilitate
+follow-up usages.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="clusteror.core.OutRangeError">
+<em class="property">exception </em><code class="descclassname">clusteror.core.</code><code class="descname">OutRangeError</code><a class="reference internal" href="../_modules/clusteror/core.html#OutRangeError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.core.OutRangeError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.4/library/exceptions.html#Exception" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></a></p>
+<p>Exceptions thrown as cleaned data go beyond range <code class="docutils literal"><span class="pre">[-1,</span> <span class="pre">1]</span></code>.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/clusteror.core.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Fei Zhan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../_sources/api/clusteror.core.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

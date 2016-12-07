@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>clusteror.core &#8212; clusteror 0.0.post0.dev62+n3740816.dirty documentation</title>
+    <title>clusteror.core &#8212; clusteror 0.0.post0.dev68+n166d2bb.dirty documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.0.post0.dev62+n3740816.dirty',
+        VERSION:     '0.0.post0.dev68+n166d2bb.dirty',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="top" title="clusteror 0.0.post0.dev62+n3740816.dirty documentation" href="../../index.html" />
+    <link rel="top" title="clusteror 0.0.post0.dev68+n166d2bb.dirty documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -92,14 +92,14 @@
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">find_local_extremes</span>
 
 
-<div class="viewcode-block" id="OutRangeError"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.OutRangeError">[docs]</a><span class="k">class</span> <span class="nc">OutRangeError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="OutRangeError"><a class="viewcode-back" href="../../api/clusteror.core.html#clusteror.core.OutRangeError">[docs]</a><span class="k">class</span> <span class="nc">OutRangeError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Exceptions thrown as cleaned data go beyond range ``[-1, 1]``.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="Clusteror"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror">[docs]</a><span class="k">class</span> <span class="nc">Clusteror</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Clusteror"><a class="viewcode-back" href="../../api/clusteror.core.html#clusteror.core.Clusteror">[docs]</a><span class="k">class</span> <span class="nc">Clusteror</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    ``Clusteror`` class can train neural networks *DA* or</span>
 <span class="sd">    *SDA*, train taggers, or load saved models</span>
@@ -147,10 +147,10 @@
 <span class="sd">        emphasis.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_raw_data</span> <span class="o">=</span> <span class="n">raw_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_raw_data</span> <span class="o">=</span> <span class="n">raw_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Clusteror.from_csv"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.from_csv">[docs]</a>    <span class="k">def</span> <span class="nf">from_csv</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Clusteror.from_csv"><a class="viewcode-back" href="../../api/clusteror.core.html#clusteror.core.Clusteror.from_csv">[docs]</a>    <span class="k">def</span> <span class="nf">from_csv</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Class method for directly reading CSV file.</span>
 
@@ -318,11 +318,31 @@
 <span class="sd">        Checks on cleaned data before any work is done. This list of checks</span>
 <span class="sd">        can be extended when more checks should be included.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cleaned_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Need cleaned data&#39;</span>
+        <span class="n">cleaned_data_info</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">&#39;Need first assign your cleaned data to attribute &quot;_cleaned_data&quot;&#39;</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cleaned_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cleaned_data_info</span>
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cleaned_data</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
             <span class="k">raise</span> <span class="n">OutRangeError</span><span class="p">(</span><span class="s1">&#39;Maximum should be less equal than 1.&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cleaned_data</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
             <span class="k">raise</span> <span class="n">OutRangeError</span><span class="p">(</span><span class="s1">&#39;Minimum should be greater equal than -1&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_network</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Check if network has been correctly setup.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">network_info</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">&#39;Clusteror needs to know which network to use in&#39;</span>
+            <span class="s1">&#39;attribute &quot;_network&quot;&#39;</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">network_info</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="s1">&#39;Train </span><span class="si">{}</span><span class="s1"> with </span><span class="si">{}</span><span class="s1"> or load it first!&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">==</span> <span class="s1">&#39;da&#39;</span><span class="p">:</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;DA&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;train_da_dim_reducer&quot;&#39;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_da_dim_reducer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">info</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">==</span> <span class="s1">&#39;sda&#39;</span><span class="p">:</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;SDA&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;train_sda_dim_reducer&quot;&#39;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sda_dim_reducer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">info</span>
 
     <span class="k">def</span> <span class="nf">_prepare_network_training</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
@@ -349,7 +369,7 @@
 
     <span class="k">def</span> <span class="nf">_pretraining_early_stopping</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">train_fun</span><span class="p">,</span>
+            <span class="n">train_func</span><span class="p">,</span>
             <span class="n">n_train_batches</span><span class="p">,</span>
             <span class="n">min_epochs</span><span class="p">,</span>
             <span class="n">patience</span><span class="p">,</span>
@@ -364,7 +384,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        train_fun: Theano Function</span>
+<span class="sd">        train_func: Theano Function</span>
 <span class="sd">            Function that takes in training set and updates internal</span>
 <span class="sd">            parameters, in this case the weights and biases in neural network,</span>
 <span class="sd">            and returns the evaluation of the cost function after each</span>
@@ -389,7 +409,7 @@
 <span class="sd">        verbose: boolean</span>
 <span class="sd">            Prints out training at each epoch if true.</span>
 <span class="sd">        **kwargs: keyword arguments</span>
-<span class="sd">            All keyword arguments pass on to ``train_fun``.</span>
+<span class="sd">            All keyword arguments pass on to ``train_func``.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">n_epochs</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">done_looping</span> <span class="o">=</span> <span class="kc">False</span>
@@ -402,7 +422,7 @@
             <span class="c1"># go through training set</span>
             <span class="n">c</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">minibatch_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_train_batches</span><span class="p">):</span>
-                <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">train_fun</span><span class="p">(</span><span class="n">minibatch_index</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+                <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">train_func</span><span class="p">(</span><span class="n">minibatch_index</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
             <span class="n">cost</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span>
@@ -435,7 +455,7 @@
                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">__file__</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span>
                 <span class="s1">&#39; ran for </span><span class="si">{time:.2f}</span><span class="s1">m</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">training_time</span> <span class="o">/</span> <span class="mf">60.</span><span class="p">))</span>
 
-<div class="viewcode-block" id="Clusteror.train_da_dim_reducer"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.train_da_dim_reducer">[docs]</a>    <span class="k">def</span> <span class="nf">train_da_dim_reducer</span><span class="p">(</span>
+<div class="viewcode-block" id="Clusteror.train_da_dim_reducer"><a class="viewcode-back" href="../../api/clusteror.core.html#clusteror.core.Clusteror.train_da_dim_reducer">[docs]</a>    <span class="k">def</span> <span class="nf">train_da_dim_reducer</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">field_importance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">batch_size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
@@ -518,14 +538,13 @@
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pretraining_early_stopping</span><span class="p">(</span>
-            <span class="n">train_fun</span><span class="o">=</span><span class="n">train_da</span><span class="p">,</span>
+            <span class="n">train_func</span><span class="o">=</span><span class="n">train_da</span><span class="p">,</span>
             <span class="n">n_train_batches</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_train_batches</span><span class="p">,</span>
             <span class="n">min_epochs</span><span class="o">=</span><span class="n">min_epochs</span><span class="p">,</span>
             <span class="n">patience</span><span class="o">=</span><span class="n">patience</span><span class="p">,</span>
             <span class="n">patience_increase</span><span class="o">=</span><span class="n">patience_increase</span><span class="p">,</span>
             <span class="n">improvement_threshold</span><span class="o">=</span><span class="n">improvement_threshold</span><span class="p">,</span>
-            <span class="n">corruption_level</span><span class="o">=</span><span class="n">corruption_level</span><span class="p">,</span>
-            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">da</span> <span class="o">=</span> <span class="n">da</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_da_dim_reducer</span> <span class="o">=</span> <span class="n">function</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">da</span><span class="o">.</span><span class="n">get_hidden_values</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
@@ -534,7 +553,7 @@
             <span class="n">da</span><span class="o">.</span><span class="n">get_reconstructed_input</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">get_hidden_values</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="Clusteror.train_sda_dim_reducer"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.train_sda_dim_reducer">[docs]</a>    <span class="k">def</span> <span class="nf">train_sda_dim_reducer</span><span class="p">(</span>
+<div class="viewcode-block" id="Clusteror.train_sda_dim_reducer"><a class="viewcode-back" href="../../api/clusteror.core.html#clusteror.core.Clusteror.train_sda_dim_reducer">[docs]</a>    <span class="k">def</span> <span class="nf">train_sda_dim_reducer</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">field_importance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">batch_size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
@@ -598,6 +617,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">=</span> <span class="s1">&#39;sda&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_cleaned_data</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_network_training</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+        <span class="c1"># for the purpose of this excercise, restrict the final layer 1d</span>
         <span class="n">hidden_layers_sizes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">corruption_levels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
@@ -615,7 +635,7 @@
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sda</span><span class="o">.</span><span class="n">n_layers</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_pretraining_early_stopping</span><span class="p">(</span>
-                <span class="n">train_fun</span><span class="o">=</span><span class="n">pretraining_fns</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span>
+                <span class="n">train_func</span><span class="o">=</span><span class="n">pretraining_fns</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span>
                 <span class="n">n_train_batches</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_train_batches</span><span class="p">,</span>
                 <span class="n">min_epochs</span><span class="o">=</span><span class="n">min_epochs</span><span class="p">,</span>
                 <span class="n">patience</span><span class="o">=</span><span class="n">patience</span><span class="p">,</span>
@@ -666,7 +686,7 @@
         <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">filepath_list</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">filepath</span>
 
-<div class="viewcode-block" id="Clusteror.save_dim_reducer"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.save_dim_reducer">[docs]</a>    <span class="k">def</span> <span class="nf">save_dim_reducer</span><span class="p">(</span>
+<div class="viewcode-block" id="Clusteror.save_dim_reducer"><a class="viewcode-back" href="../../api/clusteror.core.html#clusteror.core.Clusteror.save_dim_reducer">[docs]</a>    <span class="k">def</span> <span class="nf">save_dim_reducer</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filepath</span><span class="o">=</span><span class="s1">&#39;dim_reducer.pk&#39;</span><span class="p">,</span>
         <span class="n">include_network</span><span class="o">=</span><span class="kc">False</span>
@@ -681,6 +701,7 @@
 <span class="sd">        include_network: boolean</span>
 <span class="sd">            If true, prefix the filepath with the network type.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_network</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">include_network</span><span class="p">:</span>
             <span class="n">filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_filepath</span><span class="p">(</span><span class="s1">&#39;network&#39;</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -689,7 +710,7 @@
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">==</span> <span class="s1">&#39;sda&#39;</span><span class="p">:</span>
                 <span class="n">pk</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sda_dim_reducer</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Clusteror.load_dim_reducer"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.load_dim_reducer">[docs]</a>    <span class="k">def</span> <span class="nf">load_dim_reducer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="s1">&#39;dim_reducer.pk&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="Clusteror.load_dim_reducer"><a class="viewcode-back" href="../../api/clusteror.core.html#clusteror.core.Clusteror.load_dim_reducer">[docs]</a>    <span class="k">def</span> <span class="nf">load_dim_reducer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="s1">&#39;dim_reducer.pk&#39;</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Loads saved dimension reducer. Need to first name the network type.</span>
 
@@ -704,7 +725,7 @@
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">==</span> <span class="s1">&#39;sda&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_sda_dim_reducer</span> <span class="o">=</span> <span class="n">pk</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Clusteror.reduce_to_one_dim"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.reduce_to_one_dim">[docs]</a>    <span class="k">def</span> <span class="nf">reduce_to_one_dim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Clusteror.reduce_to_one_dim"><a class="viewcode-back" href="../../api/clusteror.core.html#clusteror.core.Clusteror.reduce_to_one_dim">[docs]</a>    <span class="k">def</span> <span class="nf">reduce_to_one_dim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Reduces the dimension of input dataset to one before the tagging</span>
 <span class="sd">        in the next step.</span>
@@ -712,14 +733,22 @@
 <span class="sd">        Input of the Theano function is the cleaned data and output is a</span>
 <span class="sd">        one dimensional data stored in ``_one_dim_data``.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cleaned_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_cleaned_data</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_network</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">==</span> <span class="s1">&#39;da&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_one_dim_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_da_dim_reducer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cleaned_data</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network</span> <span class="o">==</span> <span class="s1">&#39;sda&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_one_dim_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sda_dim_reducer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cleaned_data</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_one_dim_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_one_dim_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Clusteror.train_valley"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.train_valley">[docs]</a>    <span class="k">def</span> <span class="nf">train_valley</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">contrast</span><span class="o">=</span><span class="mf">0.3</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_check_one_dim_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Check if one_dim_data exists. Give error info if not.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">one_dim_data_info</span> <span class="o">=</span> <span class="s1">&#39;Get reduced one dimensional data first!&#39;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_one_dim_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">one_dim_data_info</span>
+
+<div class="viewcode-block" id="Clusteror.train_valley"><a class="viewcode-back" href="../../api/clusteror.core.html#clusteror.core.Clusteror.train_valley">[docs]</a>    <span class="k">def</span> <span class="nf">train_valley</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">contrast</span><span class="o">=</span><span class="mf">0.3</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Trains the ability to cut the universe of samples into clusters based</span>
 <span class="sd">        how the dimension reduced dataset assembles in a histogram. Unlike</span>
@@ -732,10 +761,18 @@
 <span class="sd">        contrast: float, between 0 and 1</span>
 <span class="sd">            Threshold used to define local minima and local maxima. Detailed</span>
 <span class="sd">            explanation in ``utils.find_local_extremes``.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        When getting only one cluster, check the distribution of</span>
+<span class="sd">        ``one_dim_data``. Likely the data points flock too close to each other.</span>
+<span class="sd">        Try increasing ``bins`` first. If not working, try different</span>
+<span class="sd">        neural networks with more or less layers with more or less neurons.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">bins</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
         <span class="c1"># use the left point of bins to name the bin</span>
         <span class="n">left_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_one_dim_data</span><span class="p">()</span>
         <span class="n">cuts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_one_dim_data</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">)</span>
         <span class="c1"># ipdb.set_trace()</span>
         <span class="n">bin_counts</span> <span class="o">=</span> <span class="n">cuts</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;counts&#39;</span><span class="p">]</span>
@@ -756,7 +793,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_valley</span> <span class="o">=</span> <span class="n">valley</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tagger</span> <span class="o">=</span> <span class="s1">&#39;valley&#39;</span></div>
 
-<div class="viewcode-block" id="Clusteror.save_valley"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.save_valley">[docs]</a>    <span class="k">def</span> <span class="nf">save_valley</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">include_taggername</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_check_tagger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Check tagger existence. Give error info if not.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">tagger_info</span> <span class="o">=</span> <span class="s1">&#39;Clusteror needs to know which tagger to use&#39;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tagger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tagger_info</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="s1">&#39;Train </span><span class="si">{}</span><span class="s1"> with </span><span class="si">{}</span><span class="s1"> or load it first&#39;</span> 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tagger</span> <span class="o">==</span> <span class="s1">&#39;valley&#39;</span><span class="p">:</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;&quot;valley&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;train_valley&quot;&#39;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valley</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">info</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tagger</span> <span class="o">==</span> <span class="s1">&#39;kmeans&#39;</span><span class="p">:</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;&quot;kmeans&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;train_kmeans&quot;&#39;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kmeans</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">info</span>
+
+<div class="viewcode-block" id="Clusteror.save_valley"><a class="viewcode-back" href="../../api/clusteror.core.html#clusteror.core.Clusteror.save_valley">[docs]</a>    <span class="k">def</span> <span class="nf">save_valley</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">include_taggername</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Saves valley tagger.</span>
 
@@ -767,12 +818,13 @@
 <span class="sd">        include_taggername: boolean, default False</span>
 <span class="sd">            Include the **valley_** prefix in filename if true.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_tagger</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">include_taggername</span><span class="p">:</span>
             <span class="n">filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_filepath</span><span class="p">(</span><span class="s1">&#39;tagger&#39;</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trained_bins</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Clusteror.load_valley"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.load_valley">[docs]</a>    <span class="k">def</span> <span class="nf">load_valley</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+<div class="viewcode-block" id="Clusteror.load_valley"><a class="viewcode-back" href="../../api/clusteror.core.html#clusteror.core.Clusteror.load_valley">[docs]</a>    <span class="k">def</span> <span class="nf">load_valley</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Loads a saved valley tagger from a file. Create the valley function</span>
 <span class="sd">        from the saved parameters.</span>
@@ -795,7 +847,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_valley</span> <span class="o">=</span> <span class="n">valley</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tagger</span> <span class="o">=</span> <span class="s1">&#39;valley&#39;</span></div>
 
-<div class="viewcode-block" id="Clusteror.train_kmeans"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.train_kmeans">[docs]</a>    <span class="k">def</span> <span class="nf">train_kmeans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_clusters</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Clusteror.train_kmeans"><a class="viewcode-back" href="../../api/clusteror.core.html#clusteror.core.Clusteror.train_kmeans">[docs]</a>    <span class="k">def</span> <span class="nf">train_kmeans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_clusters</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Trains K-Means model on top of the one dimensional data derived from</span>
 <span class="sd">        dimension reducers.</span>
@@ -808,11 +860,12 @@
 <span class="sd">            Any other keyword arguments passed on to Scikit-Learn K-Means</span>
 <span class="sd">            model.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_one_dim_data</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_kmeans</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_kmeans</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_one_dim_data</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tagger</span> <span class="o">=</span> <span class="s1">&#39;kmeans&#39;</span></div>
 
-<div class="viewcode-block" id="Clusteror.save_kmeans"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.save_kmeans">[docs]</a>    <span class="k">def</span> <span class="nf">save_kmeans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">include_taggername</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Clusteror.save_kmeans"><a class="viewcode-back" href="../../api/clusteror.core.html#clusteror.core.Clusteror.save_kmeans">[docs]</a>    <span class="k">def</span> <span class="nf">save_kmeans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">include_taggername</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Saves K-Means model to the named file path. Can add a prefix to</span>
 <span class="sd">        indicate this saves a K-Means model.</span>
@@ -824,12 +877,13 @@
 <span class="sd">        include_taggername: boolean, default False</span>
 <span class="sd">           Include the **kmean_** prefix in filename if true.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_tagger</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">include_taggername</span><span class="p">:</span>
             <span class="n">filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_filepath</span><span class="p">(</span><span class="s1">&#39;tagger&#39;</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">pk</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_kmeans</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Clusteror.load_kmeans"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.load_kmeans">[docs]</a>    <span class="k">def</span> <span class="nf">load_kmeans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+<div class="viewcode-block" id="Clusteror.load_kmeans"><a class="viewcode-back" href="../../api/clusteror.core.html#clusteror.core.Clusteror.load_kmeans">[docs]</a>    <span class="k">def</span> <span class="nf">load_kmeans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Loads a saved K-Means tagger from a file.</span>
 
@@ -842,12 +896,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_kmeans</span> <span class="o">=</span> <span class="n">pk</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tagger</span> <span class="o">=</span> <span class="s1">&#39;kmeans&#39;</span></div>
 
-<div class="viewcode-block" id="Clusteror.add_cluster"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.core.Clusteror.add_cluster">[docs]</a>    <span class="k">def</span> <span class="nf">add_cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Clusteror.add_cluster"><a class="viewcode-back" href="../../api/clusteror.core.html#clusteror.core.Clusteror.add_cluster">[docs]</a>    <span class="k">def</span> <span class="nf">add_cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Tags each sample regarding their reduced one dimensional value. Adds</span>
 <span class="sd">        an extra column **&#39;cluster&#39;** to ``raw_data``, seggesting a</span>
 <span class="sd">        zero-based cluster ID.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_tagger</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tagger</span> <span class="o">==</span> <span class="s1">&#39;valley&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">raw_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valley</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_one_dim_data</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tagger</span> <span class="o">==</span> <span class="s1">&#39;kmeans&#39;</span><span class="p">:</span>

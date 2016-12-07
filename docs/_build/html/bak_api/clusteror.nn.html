@@ -1,0 +1,417 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The clusteror.nn Module &#8212; clusteror 0.0.post0.dev68+n166d2bb.dirty documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.post0.dev68+n166d2bb.dirty',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="clusteror 0.0.post0.dev68+n166d2bb.dirty documentation" href="../index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-clusteror.nn">
+<span id="the-clusteror-nn-module"></span><h1>The <a class="reference internal" href="#module-clusteror.nn" title="clusteror.nn"><code class="xref py py-mod docutils literal"><span class="pre">clusteror.nn</span></code></a> Module<a class="headerlink" href="#module-clusteror.nn" title="Permalink to this headline">¶</a></h1>
+<p>This module comprises of classes for neural networks.</p>
+<dl class="class">
+<dt id="clusteror.nn.SdA">
+<em class="property">class </em><code class="descclassname">clusteror.nn.</code><code class="descname">SdA</code><span class="sig-paren">(</span><em>n_ins</em>, <em>hidden_layers_sizes</em>, <em>np_rs=None</em>, <em>theano_rs=None</em>, <em>field_importance=None</em>, <em>input_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/nn.html#SdA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.nn.SdA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.4/library/functions.html#object" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Stacked Denoising Autoencoder (SDA) class.</p>
+<p>A SdA model is obtained by stacking several DAs.
+The hidden layer of the dA at layer <cite>i</cite> becomes the input of
+the dA at layer <cite>i+1</cite>. The first layer dA gets as input the input of
+the SdA, and the hidden layer of the last dA represents the output.
+Note that after pretraining, the SdA is dealt with as a normal MLP,
+the dAs are only used to initialize the weights.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>n_ins</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; Input dimension.</li>
+<li><strong>hidden_layers_sizes</strong> (<em>list of int</em>) &#8211; Each int will be assgined to each hidden layer. Same number of hidden
+layers will be created.</li>
+<li><strong>np_rs</strong> (<em>Numpy function</em>) &#8211; Numpy random state.</li>
+<li><strong>theano_rs</strong> (<em>Theano function</em>) &#8211; Theano random generator that gives symbolic random values.</li>
+<li><strong>field_importance</strong> (<em>list or Numpy array</em>) &#8211; Put on each field when calculating the cost.  If not given,
+all fields given equal weight ones.</li>
+<li><strong>input_data</strong> (<em>Theano symbolic variable</em>) &#8211; Variable for input data.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="clusteror.nn.SdA.theano_rs">
+<code class="descname">theano_rs</code><a class="headerlink" href="#clusteror.nn.SdA.theano_rs" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Theano function</em> &#8211; Theano random generator that gives symbolic random values.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.nn.SdA.field_importance">
+<code class="descname">field_importance</code><a class="headerlink" href="#clusteror.nn.SdA.field_importance" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list or Numpy array</em> &#8211; Put on each field when calculating the cost.  If not given,
+all fields given equal weight ones.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.nn.SdA.W">
+<code class="descname">W</code><a class="headerlink" href="#clusteror.nn.SdA.W" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Theano shared variable</em> &#8211; Weight matrix. Dimension (n_visible, n_hidden).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.nn.SdA.W_prime">
+<code class="descname">W_prime</code><a class="headerlink" href="#clusteror.nn.SdA.W_prime" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Theano shared variable</em> &#8211; Transposed weight matrix. Dimension (n_hidden, n_visible).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.nn.SdA.bhid">
+<code class="descname">bhid</code><a class="headerlink" href="#clusteror.nn.SdA.bhid" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Theano shared variable</em> &#8211; Bias on output side. Dimension n_hidden.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.nn.SdA.bvis">
+<code class="descname">bvis</code><a class="headerlink" href="#clusteror.nn.SdA.bvis" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Theano shared variable</em> &#8211; Bias on input side. Dimension n_visible.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.nn.SdA.x">
+<code class="descname">x</code><a class="headerlink" href="#clusteror.nn.SdA.x" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Theano symbolic variable</em> &#8211; Used as input to build graph.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.nn.SdA.params">
+<code class="descname">params</code><a class="headerlink" href="#clusteror.nn.SdA.params" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em> &#8211; List packs neural network paramters.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.nn.SdA.dA_layers">
+<code class="descname">dA_layers</code><a class="headerlink" href="#clusteror.nn.SdA.dA_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em> &#8211; List that keeps dA instances.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.nn.SdA.n_layers">
+<code class="descname">n_layers</code><a class="headerlink" href="#clusteror.nn.SdA.n_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Number of hidden layers, len(dA_layers).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.nn.SdA.get_final_hidden_layer">
+<code class="descname">get_final_hidden_layer</code><span class="sig-paren">(</span><em>input_data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/nn.html#SdA.get_final_hidden_layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.nn.SdA.get_final_hidden_layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the values of the last hidden layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_data</strong> (<em>Theano symbolic variable</em>) &#8211; Data input to neural network.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A graph with output as the hidden layer values.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Theano graph</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.nn.SdA.get_first_reconstructed_input">
+<code class="descname">get_first_reconstructed_input</code><span class="sig-paren">(</span><em>hidden</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/nn.html#SdA.get_first_reconstructed_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.nn.SdA.get_first_reconstructed_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the reconstructed input given the values of the last
+hidden layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>hidden</strong> (<em>Theano symbolic variable</em>) &#8211; Data input to neural network at the hidden layer side.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A graph with output as the reconstructed data at the visible side.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Theano graph</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.nn.SdA.pretraining_functions">
+<code class="descname">pretraining_functions</code><span class="sig-paren">(</span><em>train_set</em>, <em>batch_size</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/nn.html#SdA.pretraining_functions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.nn.SdA.pretraining_functions" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function computes the cost and the updates for one trainng
+step of the dA.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>train_set</strong> (<em>Theano shared variable</em>) &#8211; The complete training dataset.</li>
+<li><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; Number of rows for each mini-batch.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Theano functions that run one step training on each dA layers.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">List</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="clusteror.nn.dA">
+<em class="property">class </em><code class="descclassname">clusteror.nn.</code><code class="descname">dA</code><span class="sig-paren">(</span><em>n_visible</em>, <em>n_hidden</em>, <em>np_rs=None</em>, <em>theano_rs=None</em>, <em>field_importance=None</em>, <em>initial_W=None</em>, <em>initial_bvis=None</em>, <em>initial_bhid=None</em>, <em>input_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/nn.html#dA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.nn.dA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.4/library/functions.html#object" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Denoising Autoencoder (DA) class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>n_visible</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; Input dimension.</li>
+<li><strong>n_hidden</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; Output dimension.</li>
+<li><strong>np_rs</strong> (<em>Numpy function</em>) &#8211; Numpy random state.</li>
+<li><strong>theano_rs</strong> (<em>Theano function</em>) &#8211; Theano random generator that gives symbolic random values.</li>
+<li><strong>field_importance</strong> (<em>list or Numpy array</em>) &#8211; Put on each field when calculating the cost.  If not given,
+all fields given equal weight ones.</li>
+<li><strong>initial_W</strong> (<em>Numpy matrix</em>) &#8211; Initial weight matrix. Dimension (n_visible, n_hidden).</li>
+<li><strong>initial_bvis</strong> (<em>Numpy array</em>) &#8211; Initial bias on input side. Dimension n_visible.</li>
+<li><strong>initial_bhid</strong> (<em>Numpy arry</em>) &#8211; Initial bias on output side. Dimension n_hidden.</li>
+<li><strong>input_data</strong> (<em>Theano symbolic variable</em>) &#8211; Variable for input data.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="clusteror.nn.dA.theano_rs">
+<code class="descname">theano_rs</code><a class="headerlink" href="#clusteror.nn.dA.theano_rs" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Theano function</em> &#8211; Theano random generator that gives symbolic random values.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.nn.dA.field_importance">
+<code class="descname">field_importance</code><a class="headerlink" href="#clusteror.nn.dA.field_importance" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list or Numpy array</em> &#8211; Put on each field when calculating the cost.  If not given,
+all fields given equal weight ones.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.nn.dA.W">
+<code class="descname">W</code><a class="headerlink" href="#clusteror.nn.dA.W" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Theano shared variable</em> &#8211; Weight matrix. Dimension (n_visible, n_hidden).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.nn.dA.W_prime">
+<code class="descname">W_prime</code><a class="headerlink" href="#clusteror.nn.dA.W_prime" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Theano shared variable</em> &#8211; Transposed weight matrix. Dimension (n_hidden, n_visible).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.nn.dA.bhid">
+<code class="descname">bhid</code><a class="headerlink" href="#clusteror.nn.dA.bhid" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Theano shared variable</em> &#8211; Bias on output side. Dimension n_hidden.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.nn.dA.bvis">
+<code class="descname">bvis</code><a class="headerlink" href="#clusteror.nn.dA.bvis" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Theano shared variable</em> &#8211; Bias on input side. Dimension n_visible.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.nn.dA.x">
+<code class="descname">x</code><a class="headerlink" href="#clusteror.nn.dA.x" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Theano symbolic variable</em> &#8211; Used as input to build graph.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="clusteror.nn.dA.params">
+<code class="descname">params</code><a class="headerlink" href="#clusteror.nn.dA.params" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em> &#8211; List packs neural network paramters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.nn.dA.get_corrupted_input">
+<code class="descname">get_corrupted_input</code><span class="sig-paren">(</span><em>input_data</em>, <em>corruption_level</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/nn.html#dA.get_corrupted_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.nn.dA.get_corrupted_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Corrupts the input by multiplying input with an array of zeros and
+ones that is generated by binomial trials.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_data</strong> (<em>Theano symbolic variable</em>) &#8211; Data input to neural network.</li>
+<li><strong>corruption_level</strong> (<em>float or Theano symbolic variable</em>) &#8211; Probability to corrupt a bit in the input data. Between 0 and 1.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A graph with output as the corrupted input.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Theano graph</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.nn.dA.get_cost_updates">
+<code class="descname">get_cost_updates</code><span class="sig-paren">(</span><em>corruption_level</em>, <em>learning_rate</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/nn.html#dA.get_cost_updates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.nn.dA.get_cost_updates" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function computes the cost and the updates for one trainng
+step of the dA.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>corruption_level</strong> (<em>float or Theano symbolic variable</em>) &#8211; Probability to corrupt a bit in the input data. Between 0 and 1.</li>
+<li><strong>learning_rate</strong> (<em>float or Theano symbolic variable</em>) &#8211; Step size for Gradient Descent algorithm.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>cost</strong> (<em>Theano graph</em>) &#8211; A graph with output as the cost.</li>
+<li><strong>updates</strong> (<em>List of tuples</em>) &#8211; Instructions of how to update parameters. Used in training stage
+to update parameters.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.nn.dA.get_hidden_values">
+<code class="descname">get_hidden_values</code><span class="sig-paren">(</span><em>input_data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/nn.html#dA.get_hidden_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.nn.dA.get_hidden_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the values of the hidden layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_data</strong> (<em>Theano symbolic variable</em>) &#8211; Data input to neural network.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A graph with output as the hidden layer values.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Theano graph</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="clusteror.nn.dA.get_reconstructed_input">
+<code class="descname">get_reconstructed_input</code><span class="sig-paren">(</span><em>hidden</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/nn.html#dA.get_reconstructed_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.nn.dA.get_reconstructed_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the reconstructed input given the values of the
+hidden layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>hidden</strong> (<em>Theano symbolic variable</em>) &#8211; Data input to neural network at the hidden layer side.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A graph with output as the reconstructed data at the visible side.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Theano graph</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/bak_api/clusteror.nn.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Fei Zhan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../_sources/bak_api/clusteror.nn.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

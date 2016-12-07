@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>clusteror package &#8212; clusteror 0.0.post0.dev62+n3740816.dirty documentation</title>
+    <title>clusteror package &#8212; clusteror 0.0.post0.dev68+n166d2bb.dirty documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.0.post0.dev62+n3740816.dirty',
+        VERSION:     '0.0.post0.dev68+n166d2bb.dirty',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="clusteror 0.0.post0.dev62+n3740816.dirty documentation" href="../index.html" />
+    <link rel="top" title="clusteror 0.0.post0.dev68+n166d2bb.dirty documentation" href="../index.html" />
     <link rel="up" title="Modules" href="modules.html" />
     <link rel="next" title="tests package" href="tests.html" />
     <link rel="prev" title="Modules" href="modules.html" />
@@ -81,7 +81,7 @@ to a clustering model on the original high dimensional data.</p>
 <dl class="class">
 <dt id="clusteror.core.Clusteror">
 <em class="property">class </em><code class="descclassname">clusteror.core.</code><code class="descname">Clusteror</code><span class="sig-paren">(</span><em>raw_data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/core.html#Clusteror"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.core.Clusteror" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.5/library/functions.html#object" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.4/library/functions.html#object" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p><code class="docutils literal"><span class="pre">Clusteror</span></code> class can train neural networks <em>DA</em> or
 <em>SDA</em>, train taggers, or load saved models
 from files.</p>
@@ -230,7 +230,7 @@ not on the list of field names, mostly because of a typo.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; Path to the CSV file</li>
+<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; Path to the CSV file</li>
 <li><strong>**kwargs</strong> (<em>keyword arguments</em>) &#8211; Other keyword arguments passed to <code class="docutils literal"><span class="pre">pandas.read_csv</span></code></li>
 </ul>
 </td>
@@ -256,7 +256,7 @@ given <strong>valley</strong> to facilitate follow-up usages.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; </td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; </td>
 </tr>
 </tbody>
 </table>
@@ -314,7 +314,7 @@ one dimensional data stored in <code class="docutils literal"><span class="pre">
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; Filename to store the dimension reducer.</li>
+<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; Filename to store the dimension reducer.</li>
 <li><strong>include_network</strong> (<em>boolean</em>) &#8211; If true, prefix the filepath with the network type.</li>
 </ul>
 </td>
@@ -333,7 +333,7 @@ indicate this saves a K-Means model.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; File path for saving the model.</li>
+<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; File path for saving the model.</li>
 <li><strong>include_taggername</strong> (<em>boolean, default False</em>) &#8211; Include the <strong>kmean_</strong> prefix in filename if true.</li>
 </ul>
 </td>
@@ -351,7 +351,7 @@ indicate this saves a K-Means model.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; File path to save the tagger.</li>
+<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; File path to save the tagger.</li>
 <li><strong>include_taggername</strong> (<em>boolean, default False</em>) &#8211; Include the <strong>valley_</strong> prefix in filename if true.</li>
 </ul>
 </td>
@@ -397,18 +397,18 @@ is for the importance. Fields not included will be initiated with
 the default value one. A warning will be issued when a key is
 not on the list of field names, mostly because of a typo.</p>
 </li>
-<li><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#int" title="(in Python v3.5)"><em>int</em></a>) &#8211; Size of each training batch. Necessary to derive the number
+<li><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; Size of each training batch. Necessary to derive the number
 of batches.</li>
 <li><strong>corruption_level</strong> (<em>float, between 0 and 1</em>) &#8211; Dropout rate in reading input, typical pratice in deep learning
 to avoid overfitting.</li>
-<li><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#float" title="(in Python v3.5)"><em>float</em></a>) &#8211; Propagating step size for gredient descent algorithm.</li>
-<li><strong>min_epochs</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#int" title="(in Python v3.5)"><em>int</em></a>) &#8211; The mininum number of training epoch to run. It can be exceeded
+<li><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#float" title="(in Python v3.4)"><em>float</em></a>) &#8211; Propagating step size for gredient descent algorithm.</li>
+<li><strong>min_epochs</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; The mininum number of training epoch to run. It can be exceeded
 depending on the setup of patience and ad-hoc training progress.</li>
-<li><strong>patience</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#int" title="(in Python v3.5)"><em>int</em></a>) &#8211; True number of training epochs to run if larger than
+<li><strong>patience</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; True number of training epochs to run if larger than
 <code class="docutils literal"><span class="pre">min_epochs</span></code>. Note it is potentially increased during the
 training if the cost is better than the expectation from
 current cost.</li>
-<li><strong>patience_increase</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#int" title="(in Python v3.5)"><em>int</em></a>) &#8211; Coefficient used to increase patience against epochs that
+<li><strong>patience_increase</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; Coefficient used to increase patience against epochs that
 have been run.</li>
 <li><strong>improvement_threshold</strong> (<em>float, between 0 and 1</em>) &#8211; Minimum improvement considered as substantial improvement, i.e.
 new cost over existing lowest cost lower than this value.</li>
@@ -430,7 +430,7 @@ dimension reducers.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>n_clusters</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#int" title="(in Python v3.5)"><em>int</em></a>) &#8211; The number of clusters required to start a K-Means learning.</li>
+<li><strong>n_clusters</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; The number of clusters required to start a K-Means learning.</li>
 <li><strong>**kwargs</strong> (<em>keyword arguments</em>) &#8211; Any other keyword arguments passed on to Scikit-Learn K-Means
 model.</li>
 </ul>
@@ -462,19 +462,19 @@ is for the importance. Fields not included will be initiated with
 the default value one. A warning will be issued when a key is
 not on the list of field names, mostly because of a typo.</p>
 </li>
-<li><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#int" title="(in Python v3.5)"><em>int</em></a>) &#8211; Size of each training batch. Necessary to derive the number
+<li><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; Size of each training batch. Necessary to derive the number
 of batches.</li>
 <li><strong>hidden_layers_sizes</strong> (<em>List of ints</em>) &#8211; Number of neurons in the hidden layers (all but the input layer).</li>
 <li><strong>corruption_levels</strong> (<em>List of floats, between 0 and 1</em>) &#8211; Dropout rate in reading input, typical pratice in deep learning
 to avoid overfitting.</li>
-<li><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#float" title="(in Python v3.5)"><em>float</em></a>) &#8211; Propagating step size for gredient descent algorithm.</li>
-<li><strong>min_epochs</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#int" title="(in Python v3.5)"><em>int</em></a>) &#8211; The mininum number of training epoch to run. It can be exceeded
+<li><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#float" title="(in Python v3.4)"><em>float</em></a>) &#8211; Propagating step size for gredient descent algorithm.</li>
+<li><strong>min_epochs</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; The mininum number of training epoch to run. It can be exceeded
 depending on the setup of patience and ad-hoc training progress.</li>
-<li><strong>patience</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#int" title="(in Python v3.5)"><em>int</em></a>) &#8211; True number of training epochs to run if larger than
+<li><strong>patience</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; True number of training epochs to run if larger than
 <code class="docutils literal"><span class="pre">min_epochs</span></code>. Note it is potentially increased during the
 training if the cost is better than the expectation from
 current cost.</li>
-<li><strong>patience_increase</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#int" title="(in Python v3.5)"><em>int</em></a>) &#8211; Coefficient used to increase patience against epochs that
+<li><strong>patience_increase</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; Coefficient used to increase patience against epochs that
 have been run.</li>
 <li><strong>improvement_threshold</strong> (<em>float, between 0 and 1</em>) &#8211; Minimum improvement considered as substantial improvement, i.e.
 new cost over existing lowest cost lower than this value.</li>
@@ -497,7 +497,7 @@ the K-Means, no need to preset the number of clusters.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#int" title="(in Python v3.5)"><em>int</em></a>) &#8211; Number of bins to aggregate the one dimensional data.</li>
+<li><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; Number of bins to aggregate the one dimensional data.</li>
 <li><strong>contrast</strong> (<em>float, between 0 and 1</em>) &#8211; Threshold used to define local minima and local maxima. Detailed
 explanation in <code class="docutils literal"><span class="pre">utils.find_local_extremes</span></code>.</li>
 </ul>
@@ -505,6 +505,13 @@ explanation in <code class="docutils literal"><span class="pre">utils.find_local
 </tr>
 </tbody>
 </table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When getting only one cluster, check the distribution of
+<code class="docutils literal"><span class="pre">one_dim_data</span></code>. Likely the data points flock too close to each other.
+Try increasing <code class="docutils literal"><span class="pre">bins</span></code> first. If not working, try different
+neural networks with more or less layers with more or less neurons.</p>
+</div>
 </dd></dl>
 
 <dl class="attribute">
@@ -522,7 +529,7 @@ follow-up usages.</p>
 <dl class="exception">
 <dt id="clusteror.core.OutRangeError">
 <em class="property">exception </em><code class="descclassname">clusteror.core.</code><code class="descname">OutRangeError</code><a class="reference internal" href="../_modules/clusteror/core.html#OutRangeError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.core.OutRangeError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.5/library/exceptions.html#Exception" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.4/library/exceptions.html#Exception" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></a></p>
 <p>Exceptions thrown as cleaned data go beyond range <code class="docutils literal"><span class="pre">[-1,</span> <span class="pre">1]</span></code>.</p>
 </dd></dl>
 
@@ -533,7 +540,7 @@ follow-up usages.</p>
 <dl class="class">
 <dt id="clusteror.nn.SdA">
 <em class="property">class </em><code class="descclassname">clusteror.nn.</code><code class="descname">SdA</code><span class="sig-paren">(</span><em>n_ins</em>, <em>hidden_layers_sizes</em>, <em>np_rs=None</em>, <em>theano_rs=None</em>, <em>field_importance=None</em>, <em>input_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/nn.html#SdA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.nn.SdA" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.5/library/functions.html#object" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.4/library/functions.html#object" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>Stacked Denoising Autoencoder (SDA) class.</p>
 <p>A SdA model is obtained by stacking several DAs.
 The hidden layer of the dA at layer <cite>i</cite> becomes the input of
@@ -546,7 +553,7 @@ the dAs are only used to initialize the weights.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>n_ins</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#int" title="(in Python v3.5)"><em>int</em></a>) &#8211; Input dimension.</li>
+<li><strong>n_ins</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; Input dimension.</li>
 <li><strong>hidden_layers_sizes</strong> (<em>list of int</em>) &#8211; Each int will be assgined to each hidden layer. Same number of hidden
 layers will be created.</li>
 <li><strong>np_rs</strong> (<em>Numpy function</em>) &#8211; Numpy random state.</li>
@@ -668,7 +675,7 @@ step of the dA.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>train_set</strong> (<em>Theano shared variable</em>) &#8211; The complete training dataset.</li>
-<li><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#int" title="(in Python v3.5)"><em>int</em></a>) &#8211; Number of rows for each mini-batch.</li>
+<li><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; Number of rows for each mini-batch.</li>
 </ul>
 </td>
 </tr>
@@ -687,15 +694,15 @@ step of the dA.</p>
 <dl class="class">
 <dt id="clusteror.nn.dA">
 <em class="property">class </em><code class="descclassname">clusteror.nn.</code><code class="descname">dA</code><span class="sig-paren">(</span><em>n_visible</em>, <em>n_hidden</em>, <em>np_rs=None</em>, <em>theano_rs=None</em>, <em>field_importance=None</em>, <em>initial_W=None</em>, <em>initial_bvis=None</em>, <em>initial_bhid=None</em>, <em>input_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/nn.html#dA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.nn.dA" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.5/library/functions.html#object" title="(in Python v3.5)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.4/library/functions.html#object" title="(in Python v3.4)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>Denoising Autoencoder (DA) class.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>n_visible</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#int" title="(in Python v3.5)"><em>int</em></a>) &#8211; Input dimension.</li>
-<li><strong>n_hidden</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#int" title="(in Python v3.5)"><em>int</em></a>) &#8211; Output dimension.</li>
+<li><strong>n_visible</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; Input dimension.</li>
+<li><strong>n_hidden</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; Output dimension.</li>
 <li><strong>np_rs</strong> (<em>Numpy function</em>) &#8211; Numpy random state.</li>
 <li><strong>theano_rs</strong> (<em>Theano function</em>) &#8211; Theano random generator that gives symbolic random values.</li>
 <li><strong>field_importance</strong> (<em>list or Numpy array</em>) &#8211; Put on each field when calculating the cost.  If not given,
@@ -866,19 +873,19 @@ one-dimensional sub-space.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>one_dim_data</strong> (<em>list, Pandas Series, Numpy Array, or any iterable</em>) &#8211; A sequence of data. Each element if for an instance.</li>
-<li><strong>cat_label</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; Field name will be used for the one dimensional data.</li>
+<li><strong>cat_label</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; Field name will be used for the one dimensional data.</li>
 <li><strong>labels</strong> (<em>list, Pandas Series, Numpy Array, or any iterable</em>) &#8211; The segment label for each sample in one_dim_data.</li>
-<li><strong>group_label</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; Field name will be used for the cluster ID.</li>
+<li><strong>group_label</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; Field name will be used for the cluster ID.</li>
 <li><strong>colors</strong> (<em>list, default None</em>) &#8211; Colours for each category existing in this one dimensional data.
 Default colour scheme used if not supplied.</li>
-<li><strong>figsize</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#tuple" title="(in Python v3.5)"><em>tuple</em></a>) &#8211; Figure size (width, height).</li>
-<li><strong>bbox_to_anchor</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#tuple" title="(in Python v3.5)"><em>tuple</em></a>) &#8211; Instruction to placing the legend box relative to the axes. Details
+<li><strong>figsize</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#tuple" title="(in Python v3.4)"><em>tuple</em></a>) &#8211; Figure size (width, height).</li>
+<li><strong>bbox_to_anchor</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#tuple" title="(in Python v3.4)"><em>tuple</em></a>) &#8211; Instruction to placing the legend box relative to the axes. Details
 refer to <code class="docutils literal"><span class="pre">Matplotlib</span></code> document.</li>
-<li><strong>loc</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#int" title="(in Python v3.5)"><em>int</em></a>) &#8211; The corner of the legend box to anchor. Details refer to <code class="docutils literal"><span class="pre">Matplotlib</span></code>
+<li><strong>loc</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; The corner of the legend box to anchor. Details refer to <code class="docutils literal"><span class="pre">Matplotlib</span></code>
 document.</li>
 <li><strong>grid</strong> (<em>boolean, default True</em>) &#8211; Show grid.</li>
 <li><strong>show</strong> (<em>boolean, default True</em>) &#8211; Show figure in pop-up windows if true. Save to files if False.</li>
-<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; File name to saving the plot. Must be assigned a valid filepath if
+<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; File name to saving the plot. Must be assigned a valid filepath if
 <code class="docutils literal"><span class="pre">show</span></code> is False.</li>
 <li><strong>**kwargs</strong> (<em>keyword arguments</em>) &#8211; Other keyword arguemnts passed on to <code class="docutils literal"><span class="pre">matplotlib.pyplot.scatter</span></code>.</li>
 </ul>
@@ -898,7 +905,7 @@ secondary role in clustering as having less importance in
 
 <dl class="function">
 <dt id="clusteror.plot.hist_plot_one_dim_group_data">
-<code class="descclassname">clusteror.plot.</code><code class="descname">hist_plot_one_dim_group_data</code><span class="sig-paren">(</span><em>one_dim_data</em>, <em>labels</em>, <em>bins=11</em>, <em>colors=None</em>, <em>figsize=(10</em>, <em>6)</em>, <em>bbox_to_anchor=(1.01</em>, <em>1)</em>, <em>loc=2</em>, <em>grid=True</em>, <em>show=True</em>, <em>filepath=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/plot.html#hist_plot_one_dim_group_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.plot.hist_plot_one_dim_group_data" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">clusteror.plot.</code><code class="descname">hist_plot_one_dim_group_data</code><span class="sig-paren">(</span><em>one_dim_data</em>, <em>labels</em>, <em>bins=11</em>, <em>colors=None</em>, <em>figsize=(10</em>, <em>6)</em>, <em>xlabel='Dimension Reduced Data'</em>, <em>ylabel='Occurance'</em>, <em>bbox_to_anchor=(1.01</em>, <em>1)</em>, <em>loc=2</em>, <em>grid=True</em>, <em>show=True</em>, <em>filepath=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clusteror/plot.html#hist_plot_one_dim_group_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clusteror.plot.hist_plot_one_dim_group_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the distribution of a one dimensional numerical data in a histogram.
 This tool is useful to check the clustering impact in this one-dimensional
 sub-space.</p>
@@ -912,14 +919,16 @@ sub-space.</p>
 <li><strong>bins</strong> (<em>int or iterable</em>) &#8211; If an integer, bins - 1 bins created or a list of the delimiters.</li>
 <li><strong>colors</strong> (<em>list, default None</em>) &#8211; Colours for each group. Use equally distanced colours on colour map
 if not supplied.</li>
-<li><strong>figsize</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#tuple" title="(in Python v3.5)"><em>tuple</em></a>) &#8211; Figure size (width, height).</li>
-<li><strong>bbox_to_anchor</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#tuple" title="(in Python v3.5)"><em>tuple</em></a>) &#8211; Instruction to placing the legend box relative to the axes. Details
+<li><strong>figsize</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#tuple" title="(in Python v3.4)"><em>tuple</em></a>) &#8211; Figure size (width, height).</li>
+<li><strong>xlabel</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; Plot xlabel.</li>
+<li><strong>ylabel</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; Plot ylabel.</li>
+<li><strong>bbox_to_anchor</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#tuple" title="(in Python v3.4)"><em>tuple</em></a>) &#8211; Instruction to placing the legend box relative to the axes. Details
 refer to <code class="docutils literal"><span class="pre">Matplotlib</span></code> document.</li>
-<li><strong>loc</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#int" title="(in Python v3.5)"><em>int</em></a>) &#8211; The corner of the legend box to anchor. Details refer to <code class="docutils literal"><span class="pre">Matplotlib</span></code>
+<li><strong>loc</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; The corner of the legend box to anchor. Details refer to <code class="docutils literal"><span class="pre">Matplotlib</span></code>
 document.</li>
 <li><strong>grid</strong> (<em>boolean, default True</em>) &#8211; Show grid.</li>
 <li><strong>show</strong> (<em>boolean, default True</em>) &#8211; Show figure in pop-up windows if true. Save to files if False.</li>
-<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; File name to saving the plot. Must be assigned a valid filepath if
+<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; File name to saving the plot. Must be assigned a valid filepath if
 <code class="docutils literal"><span class="pre">show</span></code> is False.</li>
 <li><strong>**kwargs</strong> (<em>keyword arguments</em>) &#8211; Other keyword arguemnts passed on to <code class="docutils literal"><span class="pre">matplotlib.pyplot.scatter</span></code>.</li>
 </ul>
@@ -954,20 +963,20 @@ sub-space.</p>
 <li><strong>two_dim_data</strong> (<em>Pandas DataFrame</em>) &#8211; A dataframe with two columns. The first column goes to the x-axis,
 and the second column goes to the y-axis.</li>
 <li><strong>labels</strong> (<em>list, Pandas Series, Numpy Array, or any iterable</em>) &#8211; The segment label for each sample in <code class="docutils literal"><span class="pre">two_dim_data</span></code>.</li>
-<li><strong>markers</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#list" title="(in Python v3.5)"><em>list</em></a>) &#8211; Marker names for each group.</li>
-<li><strong>bbox_to_anchor</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#tuple" title="(in Python v3.5)"><em>tuple</em></a>) &#8211; Instruction to placing the legend box relative to the axes. Details
+<li><strong>markers</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#list" title="(in Python v3.4)"><em>list</em></a>) &#8211; Marker names for each group.</li>
+<li><strong>bbox_to_anchor</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#tuple" title="(in Python v3.4)"><em>tuple</em></a>) &#8211; Instruction to placing the legend box relative to the axes. Details
 refer to <code class="docutils literal"><span class="pre">Matplotlib</span></code> document.</li>
 <li><strong>colors</strong> (<em>list, default None</em>) &#8211; Colours for each group. Use equally distanced colours on colour map
 if not supplied.</li>
-<li><strong>figsize</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#tuple" title="(in Python v3.5)"><em>tuple</em></a>) &#8211; Figure size (width, height).</li>
-<li><strong>xlim</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#tuple" title="(in Python v3.5)"><em>tuple</em></a>) &#8211; X-axis limits.</li>
-<li><strong>ylim</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#tuple" title="(in Python v3.5)"><em>tuple</em></a>) &#8211; Y-axis limits.</li>
+<li><strong>figsize</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#tuple" title="(in Python v3.4)"><em>tuple</em></a>) &#8211; Figure size (width, height).</li>
+<li><strong>xlim</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#tuple" title="(in Python v3.4)"><em>tuple</em></a>) &#8211; X-axis limits.</li>
+<li><strong>ylim</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#tuple" title="(in Python v3.4)"><em>tuple</em></a>) &#8211; Y-axis limits.</li>
 <li><strong>alpha</strong> (<em>float, between 0 and 1</em>) &#8211; Marker transparency. From 0 to 1: from transparent to opaque.</li>
-<li><strong>loc</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#int" title="(in Python v3.5)"><em>int</em></a>) &#8211; The corner of the legend box to anchor. Details refer to <code class="docutils literal"><span class="pre">Matplotlib</span></code>
+<li><strong>loc</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#int" title="(in Python v3.4)"><em>int</em></a>) &#8211; The corner of the legend box to anchor. Details refer to <code class="docutils literal"><span class="pre">Matplotlib</span></code>
 document.</li>
 <li><strong>grid</strong> (<em>boolean, default True</em>) &#8211; Show grid.</li>
 <li><strong>show</strong> (<em>boolean, default True</em>) &#8211; Show figure in pop-up windows if true. Save to files if False.</li>
-<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/stdtypes.html#str" title="(in Python v3.5)"><em>str</em></a>) &#8211; File name to saving the plot. Must be assigned a valid filepath if
+<li><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#str" title="(in Python v3.4)"><em>str</em></a>) &#8211; File name to saving the plot. Must be assigned a valid filepath if
 <code class="docutils literal"><span class="pre">show</span></code> is False.</li>
 <li><strong>**kwargs</strong> (<em>keyword arguments</em>) &#8211; Other keyword arguemnts passed on to <code class="docutils literal"><span class="pre">matplotlib.pyplot.scatter</span></code>.</li>
 </ul>
@@ -1012,7 +1021,7 @@ minimum.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>series</strong> (<em>Pandas Series</em>) &#8211; One dimenional data to find local extremes in.</li>
-<li><strong>contrast</strong> (<a class="reference external" href="https://docs.python.org/3.5/library/functions.html#float" title="(in Python v3.5)"><em>float</em></a>) &#8211; A value between 0 and 1 as a threshold between minimum and maximum.</li>
+<li><strong>contrast</strong> (<a class="reference external" href="https://docs.python.org/3.4/library/functions.html#float" title="(in Python v3.4)"><em>float</em></a>) &#8211; A value between 0 and 1 as a threshold between minimum and maximum.</li>
 </ul>
 </td>
 </tr>

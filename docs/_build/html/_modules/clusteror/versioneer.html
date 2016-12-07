@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>clusteror.versioneer &#8212; clusteror 0.0.post0.dev61+nfa78ece.dirty documentation</title>
+    <title>clusteror.versioneer &#8212; clusteror 0.0.post0.dev68+n166d2bb.dirty documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.0.post0.dev61+nfa78ece.dirty',
+        VERSION:     '0.0.post0.dev68+n166d2bb.dirty',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="top" title="clusteror 0.0.post0.dev61+nfa78ece.dirty documentation" href="../../index.html" />
+    <link rel="top" title="clusteror 0.0.post0.dev68+n166d2bb.dirty documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -334,11 +334,11 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 
 
-<div class="viewcode-block" id="VersioneerConfig"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.VersioneerConfig">[docs]</a><span class="k">class</span> <span class="nc">VersioneerConfig</span><span class="p">:</span>
+<div class="viewcode-block" id="VersioneerConfig"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.VersioneerConfig">[docs]</a><span class="k">class</span> <span class="nc">VersioneerConfig</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Container for Versioneer configuration parameters.&quot;&quot;&quot;</span></div>
 
 
-<div class="viewcode-block" id="get_root"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.get_root">[docs]</a><span class="k">def</span> <span class="nf">get_root</span><span class="p">():</span>
+<div class="viewcode-block" id="get_root"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.get_root">[docs]</a><span class="k">def</span> <span class="nf">get_root</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Get the project root directory.</span>
 
 <span class="sd">    We require that all commands are run from the project root, i.e. the</span>
@@ -377,7 +377,7 @@
     <span class="k">return</span> <span class="n">root</span></div>
 
 
-<div class="viewcode-block" id="get_config_from_root"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.get_config_from_root">[docs]</a><span class="k">def</span> <span class="nf">get_config_from_root</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+<div class="viewcode-block" id="get_config_from_root"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.get_config_from_root">[docs]</a><span class="k">def</span> <span class="nf">get_config_from_root</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read the project setup.cfg file to determine Versioneer config.&quot;&quot;&quot;</span>
     <span class="c1"># This might raise EnvironmentError (if setup.cfg is missing), or</span>
     <span class="c1"># configparser.NoSectionError (if it lacks a [versioneer] section), or</span>
@@ -406,7 +406,7 @@
     <span class="k">return</span> <span class="n">cfg</span></div>
 
 
-<div class="viewcode-block" id="NotThisMethod"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.NotThisMethod">[docs]</a><span class="k">class</span> <span class="nc">NotThisMethod</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="NotThisMethod"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.NotThisMethod">[docs]</a><span class="k">class</span> <span class="nc">NotThisMethod</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Exception raised if a method is not valid for the current scenario.&quot;&quot;&quot;</span></div>
 
 <span class="c1"># these dictionaries contain VCS-specific tools</span>
@@ -414,7 +414,7 @@
 <span class="n">HANDLERS</span> <span class="o">=</span> <span class="p">{}</span>
 
 
-<div class="viewcode-block" id="register_vcs_handler"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.register_vcs_handler">[docs]</a><span class="k">def</span> <span class="nf">register_vcs_handler</span><span class="p">(</span><span class="n">vcs</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>  <span class="c1"># decorator</span>
+<div class="viewcode-block" id="register_vcs_handler"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.register_vcs_handler">[docs]</a><span class="k">def</span> <span class="nf">register_vcs_handler</span><span class="p">(</span><span class="n">vcs</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>  <span class="c1"># decorator</span>
     <span class="sd">&quot;&quot;&quot;Decorator to mark a method as the handler for a particular VCS.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">decorate</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Store f in HANDLERS[vcs][method].&quot;&quot;&quot;</span>
@@ -425,7 +425,7 @@
     <span class="k">return</span> <span class="n">decorate</span></div>
 
 
-<div class="viewcode-block" id="run_command"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.run_command">[docs]</a><span class="k">def</span> <span class="nf">run_command</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hide_stderr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="run_command"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.run_command">[docs]</a><span class="k">def</span> <span class="nf">run_command</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hide_stderr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">env</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Call the given command(s).&quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
@@ -984,7 +984,7 @@
 
 
 <span class="nd">@register_vcs_handler</span><span class="p">(</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;get_keywords&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="git_get_keywords"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.git_get_keywords">[docs]</a><span class="k">def</span> <span class="nf">git_get_keywords</span><span class="p">(</span><span class="n">versionfile_abs</span><span class="p">):</span>
+<div class="viewcode-block" id="git_get_keywords"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.git_get_keywords">[docs]</a><span class="k">def</span> <span class="nf">git_get_keywords</span><span class="p">(</span><span class="n">versionfile_abs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Extract version information from the given file.&quot;&quot;&quot;</span>
     <span class="c1"># the code embedded in _version.py can just fetch the value of these</span>
     <span class="c1"># keywords. When used from setup.py, we don&#39;t want to import _version.py,</span>
@@ -1013,7 +1013,7 @@
 
 
 <span class="nd">@register_vcs_handler</span><span class="p">(</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;keywords&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="git_versions_from_keywords"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.git_versions_from_keywords">[docs]</a><span class="k">def</span> <span class="nf">git_versions_from_keywords</span><span class="p">(</span><span class="n">keywords</span><span class="p">,</span> <span class="n">tag_prefix</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+<div class="viewcode-block" id="git_versions_from_keywords"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.git_versions_from_keywords">[docs]</a><span class="k">def</span> <span class="nf">git_versions_from_keywords</span><span class="p">(</span><span class="n">keywords</span><span class="p">,</span> <span class="n">tag_prefix</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Get version information from git keywords.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">keywords</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">NotThisMethod</span><span class="p">(</span><span class="s2">&quot;no keywords at all, weird&quot;</span><span class="p">)</span>
@@ -1068,7 +1068,7 @@
 
 
 <span class="nd">@register_vcs_handler</span><span class="p">(</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;pieces_from_vcs&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="git_pieces_from_vcs"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.git_pieces_from_vcs">[docs]</a><span class="k">def</span> <span class="nf">git_pieces_from_vcs</span><span class="p">(</span><span class="n">tag_prefix</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">run_command</span><span class="o">=</span><span class="n">run_command</span><span class="p">):</span>
+<div class="viewcode-block" id="git_pieces_from_vcs"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.git_pieces_from_vcs">[docs]</a><span class="k">def</span> <span class="nf">git_pieces_from_vcs</span><span class="p">(</span><span class="n">tag_prefix</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">run_command</span><span class="o">=</span><span class="n">run_command</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Get version from &#39;git describe&#39; in the root of the source tree.</span>
 
 <span class="sd">    This only gets called if the git-archive &#39;subst&#39; keywords were *not*</span>
@@ -1159,7 +1159,7 @@
     <span class="k">return</span> <span class="n">pieces</span></div>
 
 
-<div class="viewcode-block" id="do_vcs_install"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.do_vcs_install">[docs]</a><span class="k">def</span> <span class="nf">do_vcs_install</span><span class="p">(</span><span class="n">manifest_in</span><span class="p">,</span> <span class="n">versionfile_source</span><span class="p">,</span> <span class="n">ipy</span><span class="p">):</span>
+<div class="viewcode-block" id="do_vcs_install"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.do_vcs_install">[docs]</a><span class="k">def</span> <span class="nf">do_vcs_install</span><span class="p">(</span><span class="n">manifest_in</span><span class="p">,</span> <span class="n">versionfile_source</span><span class="p">,</span> <span class="n">ipy</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Git-specific installation logic for Versioneer.</span>
 
 <span class="sd">    For Git, this means creating/changing .gitattributes to mark _version.py</span>
@@ -1197,7 +1197,7 @@
     <span class="n">run_command</span><span class="p">(</span><span class="n">GITS</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;--&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">files</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="versions_from_parentdir"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.versions_from_parentdir">[docs]</a><span class="k">def</span> <span class="nf">versions_from_parentdir</span><span class="p">(</span><span class="n">parentdir_prefix</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+<div class="viewcode-block" id="versions_from_parentdir"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.versions_from_parentdir">[docs]</a><span class="k">def</span> <span class="nf">versions_from_parentdir</span><span class="p">(</span><span class="n">parentdir_prefix</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Try to determine the version from the parent directory name.</span>
 
 <span class="sd">    Source tarballs conventionally unpack into a directory that includes both</span>
@@ -1239,7 +1239,7 @@
 <span class="s2">&quot;&quot;&quot;</span>
 
 
-<div class="viewcode-block" id="versions_from_file"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.versions_from_file">[docs]</a><span class="k">def</span> <span class="nf">versions_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="versions_from_file"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.versions_from_file">[docs]</a><span class="k">def</span> <span class="nf">versions_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Try to determine the version from _version.py if present.&quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -1256,7 +1256,7 @@
     <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">mo</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="write_to_version_file"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.write_to_version_file">[docs]</a><span class="k">def</span> <span class="nf">write_to_version_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">versions</span><span class="p">):</span>
+<div class="viewcode-block" id="write_to_version_file"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.write_to_version_file">[docs]</a><span class="k">def</span> <span class="nf">write_to_version_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">versions</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Write the given version number to the given _version.py file.&quot;&quot;&quot;</span>
     <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
     <span class="n">contents</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">versions</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -1267,14 +1267,14 @@
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;set </span><span class="si">%s</span><span class="s2"> to &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">versions</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">]))</span></div>
 
 
-<div class="viewcode-block" id="plus_or_dot"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.plus_or_dot">[docs]</a><span class="k">def</span> <span class="nf">plus_or_dot</span><span class="p">(</span><span class="n">pieces</span><span class="p">):</span>
+<div class="viewcode-block" id="plus_or_dot"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.plus_or_dot">[docs]</a><span class="k">def</span> <span class="nf">plus_or_dot</span><span class="p">(</span><span class="n">pieces</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return a + if we don&#39;t already have one, else return a .&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="s2">&quot;+&quot;</span> <span class="ow">in</span> <span class="n">pieces</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;closest-tag&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;.&quot;</span>
     <span class="k">return</span> <span class="s2">&quot;+&quot;</span></div>
 
 
-<div class="viewcode-block" id="render_pep440"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.render_pep440">[docs]</a><span class="k">def</span> <span class="nf">render_pep440</span><span class="p">(</span><span class="n">pieces</span><span class="p">):</span>
+<div class="viewcode-block" id="render_pep440"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.render_pep440">[docs]</a><span class="k">def</span> <span class="nf">render_pep440</span><span class="p">(</span><span class="n">pieces</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Build up version string, with post-release &quot;local version identifier&quot;.</span>
 
 <span class="sd">    Our goal: TAG[+DISTANCE.gHEX[.dirty]] . Note that if you</span>
@@ -1299,7 +1299,7 @@
     <span class="k">return</span> <span class="n">rendered</span></div>
 
 
-<div class="viewcode-block" id="render_pep440_pre"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.render_pep440_pre">[docs]</a><span class="k">def</span> <span class="nf">render_pep440_pre</span><span class="p">(</span><span class="n">pieces</span><span class="p">):</span>
+<div class="viewcode-block" id="render_pep440_pre"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.render_pep440_pre">[docs]</a><span class="k">def</span> <span class="nf">render_pep440_pre</span><span class="p">(</span><span class="n">pieces</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;TAG[.post.devDISTANCE] -- No -dirty.</span>
 
 <span class="sd">    Exceptions:</span>
@@ -1315,7 +1315,7 @@
     <span class="k">return</span> <span class="n">rendered</span></div>
 
 
-<div class="viewcode-block" id="render_pep440_post"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.render_pep440_post">[docs]</a><span class="k">def</span> <span class="nf">render_pep440_post</span><span class="p">(</span><span class="n">pieces</span><span class="p">):</span>
+<div class="viewcode-block" id="render_pep440_post"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.render_pep440_post">[docs]</a><span class="k">def</span> <span class="nf">render_pep440_post</span><span class="p">(</span><span class="n">pieces</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;TAG[.postDISTANCE[.dev0]+gHEX] .</span>
 
 <span class="sd">    The &quot;.dev0&quot; means dirty. Note that .dev0 sorts backwards</span>
@@ -1342,7 +1342,7 @@
     <span class="k">return</span> <span class="n">rendered</span></div>
 
 
-<div class="viewcode-block" id="render_pep440_old"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.render_pep440_old">[docs]</a><span class="k">def</span> <span class="nf">render_pep440_old</span><span class="p">(</span><span class="n">pieces</span><span class="p">):</span>
+<div class="viewcode-block" id="render_pep440_old"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.render_pep440_old">[docs]</a><span class="k">def</span> <span class="nf">render_pep440_old</span><span class="p">(</span><span class="n">pieces</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;TAG[.postDISTANCE[.dev0]] .</span>
 
 <span class="sd">    The &quot;.dev0&quot; means dirty.</span>
@@ -1364,7 +1364,7 @@
     <span class="k">return</span> <span class="n">rendered</span></div>
 
 
-<div class="viewcode-block" id="render_git_describe"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.render_git_describe">[docs]</a><span class="k">def</span> <span class="nf">render_git_describe</span><span class="p">(</span><span class="n">pieces</span><span class="p">):</span>
+<div class="viewcode-block" id="render_git_describe"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.render_git_describe">[docs]</a><span class="k">def</span> <span class="nf">render_git_describe</span><span class="p">(</span><span class="n">pieces</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;TAG[-DISTANCE-gHEX][-dirty].</span>
 
 <span class="sd">    Like &#39;git describe --tags --dirty --always&#39;.</span>
@@ -1384,7 +1384,7 @@
     <span class="k">return</span> <span class="n">rendered</span></div>
 
 
-<div class="viewcode-block" id="render_git_describe_long"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.render_git_describe_long">[docs]</a><span class="k">def</span> <span class="nf">render_git_describe_long</span><span class="p">(</span><span class="n">pieces</span><span class="p">):</span>
+<div class="viewcode-block" id="render_git_describe_long"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.render_git_describe_long">[docs]</a><span class="k">def</span> <span class="nf">render_git_describe_long</span><span class="p">(</span><span class="n">pieces</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;TAG-DISTANCE-gHEX[-dirty].</span>
 
 <span class="sd">    Like &#39;git describe --tags --dirty --always -long&#39;.</span>
@@ -1404,7 +1404,7 @@
     <span class="k">return</span> <span class="n">rendered</span></div>
 
 
-<div class="viewcode-block" id="render"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.render">[docs]</a><span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="n">pieces</span><span class="p">,</span> <span class="n">style</span><span class="p">):</span>
+<div class="viewcode-block" id="render"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.render">[docs]</a><span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="n">pieces</span><span class="p">,</span> <span class="n">style</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Render the given version pieces into the requested style.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">pieces</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
@@ -1436,11 +1436,11 @@
             <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">pieces</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">)}</span></div>
 
 
-<div class="viewcode-block" id="VersioneerBadRootError"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.VersioneerBadRootError">[docs]</a><span class="k">class</span> <span class="nc">VersioneerBadRootError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="VersioneerBadRootError"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.VersioneerBadRootError">[docs]</a><span class="k">class</span> <span class="nc">VersioneerBadRootError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The project root directory is unknown or missing key files.&quot;&quot;&quot;</span></div>
 
 
-<div class="viewcode-block" id="get_versions"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.get_versions">[docs]</a><span class="k">def</span> <span class="nf">get_versions</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="get_versions"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.get_versions">[docs]</a><span class="k">def</span> <span class="nf">get_versions</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Get the project version from whatever source is available.</span>
 
 <span class="sd">    Returns dict with two keys: &#39;version&#39; and &#39;full&#39;.</span>
@@ -1516,12 +1516,12 @@
             <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="get_version"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.get_version">[docs]</a><span class="k">def</span> <span class="nf">get_version</span><span class="p">():</span>
+<div class="viewcode-block" id="get_version"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.get_version">[docs]</a><span class="k">def</span> <span class="nf">get_version</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Get the short version string for this project.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">get_versions</span><span class="p">()[</span><span class="s2">&quot;version&quot;</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="get_cmdclass"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.get_cmdclass">[docs]</a><span class="k">def</span> <span class="nf">get_cmdclass</span><span class="p">():</span>
+<div class="viewcode-block" id="get_cmdclass"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.get_cmdclass">[docs]</a><span class="k">def</span> <span class="nf">get_cmdclass</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Get the custom setuptools/distutils subclasses used by Versioneer.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="s2">&quot;versioneer&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
         <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s2">&quot;versioneer&quot;</span><span class="p">]</span>
@@ -1735,7 +1735,7 @@
 <span class="s2">&quot;&quot;&quot;</span>
 
 
-<div class="viewcode-block" id="do_setup"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.do_setup">[docs]</a><span class="k">def</span> <span class="nf">do_setup</span><span class="p">():</span>
+<div class="viewcode-block" id="do_setup"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.do_setup">[docs]</a><span class="k">def</span> <span class="nf">do_setup</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Main VCS-independent setup function for installing Versioneer.&quot;&quot;&quot;</span>
     <span class="n">root</span> <span class="o">=</span> <span class="n">get_root</span><span class="p">()</span>
     <span class="k">try</span><span class="p">:</span>
@@ -1817,7 +1817,7 @@
     <span class="k">return</span> <span class="mi">0</span></div>
 
 
-<div class="viewcode-block" id="scan_setup_py"><a class="viewcode-back" href="../../api/clusteror.html#clusteror.versioneer.scan_setup_py">[docs]</a><span class="k">def</span> <span class="nf">scan_setup_py</span><span class="p">():</span>
+<div class="viewcode-block" id="scan_setup_py"><a class="viewcode-back" href="../../api/clusteror.versioneer.html#clusteror.versioneer.scan_setup_py">[docs]</a><span class="k">def</span> <span class="nf">scan_setup_py</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Validate the contents of setup.py against Versioneer&#39;s expectations.&quot;&quot;&quot;</span>
     <span class="n">found</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="n">setters</span> <span class="o">=</span> <span class="kc">False</span>
