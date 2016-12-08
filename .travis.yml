@@ -4,6 +4,6 @@ python:
 cache: pip
 install:
   - pip install -r requirements.txt
-  - pip install clusteror
-script:
-  - python tests/test_clusteror.py
+#   - pip install clusteror
+# script:
+#   - python tests/test_clusteror.py
