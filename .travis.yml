@@ -6,4 +6,4 @@ install:
   - pip install -r requirements.txt
   - pip install clusteror
 script:
-  - python tests/example_iris.py
+  - python tests/test_clusteror.py
