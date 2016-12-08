@@ -33,20 +33,36 @@ else:
 
 
 def setup_package():
+    with open('README.rst', 'r') as f:
+        long_description = f.read()
+    classifiers = '''
+        Development Status :: 2 - Pre-Alpha
+        Intended Audience :: Science/Research
+        License :: OSI Approved :: MIT License
+        Natural Language :: English
+        Operating System :: OS Independent
+        Programming Language :: Python :: 3 :: Only
+        Topic :: Scientific/Engineering
+    '''
     needs_sphinx = {'build_sphinx', 'upload_docs'}.intersection(sys.argv)
     sphinx = ['sphinx'] if needs_sphinx else []
-    setup(name='clusteror',
-          version=versioneer.get_version(),
-          cmdclass=versioneer.get_cmdclass(),
-          description='Unsupervised Clustering Toolkit.',
-          url='https://github.com/enfeizhan/clusteror',
-          author='Fei Zhan',
-          author_email='enfeizhan@gmail.com',
-          license='MIT License',
-          packages=['clusteror'],
-          platforms='any',
-          setup_requires=['six', 'pyscaffold>=2.5a0,<2.6a0'] + sphinx,
-          use_pyscaffold=True)
+    setup(
+        name='clusteror',
+        version=versioneer.get_version(),
+        cmdclass=versioneer.get_cmdclass(),
+        description='Unsupervised Clustering Toolkit.',
+        long_description=long_description,
+        url='https://github.com/enfeizhan/clusteror',
+        author='Fei Zhan',
+        author_email='enfeizhan@gmail.com',
+        license='MIT License',
+        packages=['clusteror', 'tests'],
+        platforms='any',
+        setup_requires=['six', 'pyscaffold>=2.5a0,<2.6a0'] + sphinx,
+        classifiers=classifiers,
+        use_pyscaffold=True,
+        install_requires=['theano>=0.8.0', 'pandas>=0.18.0']
+    )
 
 
 if __name__ == "__main__":

@@ -1,2 +1,4 @@
 include versioneer.py
 include clusteror/_version.py
+
+include docs *.html *.css *.png
