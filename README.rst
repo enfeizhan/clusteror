@@ -48,12 +48,12 @@ the example datasets for illustrating purposes.
 But real life problems aren't that straightforward. It's not unlikely you are
 given a dataset that looks like this in a 2D space:
 
-.. image:: tests/original_problem.png
+.. image:: tests/readme_pics/original_problem.png
 
 Unfortunately this is the best K-Means can do and you probably scratch you head
 wondering what you can do to solve this seemingly straightforward problem.
 
-.. image:: tests/bad_kmeans.png
+.. image:: tests/readme_pics/bad_kmeans.png
 
 The cost function of K-Means instructs centroids to search for points
 located in a spharical region centring around them. This assumption of what
@@ -99,11 +99,11 @@ is equivalent to do the clustering in high dimension.
 A picture is worth a thousand words. The chart below is the result of a three
 layer neural network:
 
-.. image:: tests/leveraged_kmeans.png
+.. image:: tests/readme_pics/leveraged_kmeans.png
 
 The magic lies in how it looks in the mapped one dimensional space:
 
-.. image:: tests/hist.png
+.. image:: tests/readme_pics/hist.png
 
 Without too much explanation, the left blue bars are the from the right blue
 points and the right red bars from the left red points. As there isn't

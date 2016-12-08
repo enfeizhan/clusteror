@@ -5,3 +5,4 @@
 2016-11-28: to remove installed packages
             python setup.py install --record files.txt
             cat files.txt | xargs rm -rf
+2016-12-08  uploaded to pypi with ``twin upload dist/*``
