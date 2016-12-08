@@ -61,7 +61,10 @@ def setup_package():
         setup_requires=['six', 'pyscaffold>=2.5a0,<2.6a0'] + sphinx,
         classifiers=classifiers,
         use_pyscaffold=True,
-        install_requires=['theano>=0.8.0', 'pandas>=0.18.0']
+        install_requires=['theano>=0.8.0', 'pandas>=0.18.0'],
+        package_data={
+            'tests': ['readme_pics/*.png']
+        }
     )
 
 
