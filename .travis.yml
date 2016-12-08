@@ -3,7 +3,7 @@ python:
   - "3.4"
 cache: pip
 install:
-  - pip install clusteror
   - pip install -r requirements.txt
+  - pip install clusteror
 script:
   - python tests/example_iris.py
